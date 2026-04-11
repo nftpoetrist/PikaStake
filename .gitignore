@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+blockchain/node_modules/
+pikastake/node_modules/
+
+# Environment & secrets
+.env
+.env.local
+.env.*.local
+blockchain/.env
+
+# Hardhat build artifacts
+blockchain/artifacts/
+blockchain/cache/
+
+# Next.js build
+pikastake/.next/
+pikastake/out/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# IDE
+.vscode/
+.idea/
+
+# Claude memory (local only)
+.claude/
+
+# Legacy Next.js prototype (not part of active project)
+pikastake/

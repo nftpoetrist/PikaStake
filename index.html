@@ -1,0 +1,2749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PikaStake — Premium DeFi Staking</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
+
+  <style>
+    /* ══════════════════════════════════════════════
+       DESIGN TOKENS
+    ══════════════════════════════════════════════ */
+    :root {
+      --y1: #FFCB05;   /* Pikachu yellow       */
+      --y2: #FFD740;   /* lighter yellow        */
+      --g1: #F0A500;   /* deep gold             */
+      --g2: #E08A00;   /* amber                 */
+      --or: #FF7A2B;   /* orange accent         */
+      --ok: #4ADE80;   /* success green         */
+      --er: #F87171;   /* error red             */
+
+      --bg0: #060300;
+      --bg1: #0D0700;
+      --bg2: #150A00;
+      --bg3: #1C0E00;
+
+      --s0: rgba(255,203,5,0.04);
+      --s1: rgba(255,203,5,0.08);
+      --s2: rgba(255,203,5,0.14);
+      --s3: rgba(255,203,5,0.22);
+
+      --w0: rgba(255,255,255,0.03);
+      --w1: rgba(255,255,255,0.06);
+      --w2: rgba(255,255,255,0.10);
+      --w3: rgba(255,255,255,0.18);
+
+      --t0: #FFF8E7;
+      --t1: rgba(255,248,231,0.75);
+      --t2: rgba(255,248,231,0.45);
+      --t3: rgba(255,248,231,0.25);
+
+      --r-sm:  10px;
+      --r-md:  16px;
+      --r-lg:  24px;
+      --r-xl:  32px;
+      --r-pill:100px;
+
+      --ease: cubic-bezier(0.4, 0, 0.2, 1);
+      --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* ══════════════════════════════════════════════
+       RESET + BASE
+    ══════════════════════════════════════════════ */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      color: var(--t0);
+      background: var(--bg0);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+    input[type=number] { -moz-appearance: textfield; }
+
+    button { font-family: inherit; }
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--s2); border-radius: 4px; }
+
+    /* ══════════════════════════════════════════════
+       ANIMATED BACKGROUND
+    ══════════════════════════════════════════════ */
+    .scene {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background: var(--bg0);
+      pointer-events: none;
+    }
+
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(72px);
+      pointer-events: none;
+      will-change: transform;
+    }
+    .orb-1 {
+      width: 700px; height: 700px;
+      background: radial-gradient(circle, rgba(255,203,5,0.05) 0%, transparent 70%);
+      top: -200px; left: 50%; transform: translateX(-50%);
+      animation: orbA 12s ease-in-out infinite;
+    }
+    .orb-2 {
+      width: 450px; height: 450px;
+      background: radial-gradient(circle, rgba(240,165,0,0.04) 0%, transparent 70%);
+      bottom: -50px; right: -80px;
+      animation: orbB 15s ease-in-out infinite;
+    }
+    .orb-3 {
+      width: 320px; height: 320px;
+      background: radial-gradient(circle, rgba(255,122,43,0.03) 0%, transparent 70%);
+      top: 40%; left: -60px;
+      animation: orbC 18s ease-in-out infinite;
+    }
+
+    @keyframes orbA {
+      0%,100%{transform:translateX(-50%) translateY(0)   scale(1)   }
+      40%    {transform:translateX(-50%) translateY(-50px) scale(1.06)}
+      70%    {transform:translateX(-50%) translateY(20px)  scale(0.96)}
+    }
+    @keyframes orbB {
+      0%,100%{transform:translateY(0)    scale(1)  }
+      35%    {transform:translateY(-40px) scale(1.08)}
+      65%    {transform:translateY(25px)  scale(0.95)}
+    }
+    @keyframes orbC {
+      0%,100%{transform:translateY(0)    scale(1)  }
+      30%    {transform:translateY(35px)  scale(1.05)}
+      60%    {transform:translateY(-20px) scale(0.97)}
+    }
+
+    /* ── BACKGROUND STRIPS ───────────────────────── */
+    .bg-strip {
+      position: absolute;
+      left: 0; right: 0;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    /* Dark overlay for readability */
+    .bg-strip::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(4, 2, 0, 0.35);
+      z-index: 1;
+    }
+
+    .bg-strip img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+      /* blur + slight scale to hide blur-edge artifacts */
+      filter: blur(2px);
+      transform: scale(1.01);
+      will-change: transform;
+    }
+
+    /* bg1: full page background — starts from very top so glass navbar floats over it */
+    .bg-strip-1 {
+      top: 0;
+      bottom: 0;
+    }
+
+    /* bg2: hidden for now */
+    .bg-strip-2 {
+      display: none;
+    }
+
+    /* Grid texture overlay */
+    .scene::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: linear-gradient(rgba(255,203,5,0.015) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(255,203,5,0.015) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    /* ══════════════════════════════════════════════
+       NAVBAR
+    ══════════════════════════════════════════════ */
+    .navbar {
+      position: absolute;
+      top: 12px; left: 20px; right: 20px;
+      z-index: 100;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      padding: 0 28px;
+      border-radius: 18px;
+      overflow: hidden;
+    }
+
+    .navbar-bg {
+      position: absolute;
+      inset: 0;
+      border-radius: 18px;
+      background: linear-gradient(
+        135deg,
+        rgba(255,255,255,0.04) 0%,
+        rgba(0,0,0,0.72) 40%,
+        rgba(0,0,0,0.78) 100%
+      );
+      backdrop-filter: blur(40px) saturate(160%);
+      -webkit-backdrop-filter: blur(40px) saturate(160%);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-bottom-color: rgba(255,203,5,0.15);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.09),
+        inset 0 -1px 0 rgba(255,203,5,0.06),
+        0 8px 40px rgba(0,0,0,0.70),
+        0 2px 12px rgba(0,0,0,0.55);
+    }
+
+    /* Üst camın parlama şeridi */
+    .navbar-bg::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 10%; right: 10%;
+      height: 1px;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255,255,255,0.25) 30%,
+        rgba(255,255,255,0.35) 50%,
+        rgba(255,255,255,0.25) 70%,
+        transparent
+      );
+      border-radius: 1px;
+    }
+
+    .nav-inner {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 1080px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Logo */
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .logo-img {
+      height: 88px;
+      width: auto;
+      display: block;
+      object-fit: contain;
+      /* drop-shadow preserves PNG transparency cleanly */
+      filter: drop-shadow(0 0 18px rgba(255,203,5,0.30)) drop-shadow(0 2px 8px rgba(0,0,0,0.45));
+      flex-shrink: 0;
+      user-select: none;
+    }
+
+    /* Nav right */
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .chain-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 13px;
+      background: rgba(74,222,128,0.08);
+      border: 1px solid rgba(74,222,128,0.2);
+      border-radius: var(--r-pill);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ok);
+      letter-spacing: 0.3px;
+    }
+    .chain-dot {
+      width: 6px; height: 6px;
+      background: var(--ok);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--ok);
+      flex-shrink: 0;
+    }
+
+    .balance-pill {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 16px;
+      background: var(--s1);
+      border: 1px solid var(--s3);
+      border-radius: var(--r-pill);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--y1);
+      letter-spacing: 0.2px;
+      white-space: nowrap;
+    }
+    .balance-dot {
+      width: 5px; height: 5px;
+      background: var(--y1);
+      border-radius: 50%;
+      box-shadow: 0 0 8px rgba(255,203,5,0.8);
+      flex-shrink: 0;
+    }
+
+    .connect-btn {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 22px;
+      border: none;
+      border-radius: var(--r-pill);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: all 0.2s var(--ease);
+      white-space: nowrap;
+      background: linear-gradient(135deg, var(--y1) 0%, var(--g1) 100%);
+      color: #1A0800;
+      box-shadow: 0 0 28px rgba(255,203,5,0.35), 0 4px 14px rgba(0,0,0,0.3);
+    }
+    .connect-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 40px rgba(255,203,5,0.55), 0 8px 20px rgba(0,0,0,0.4);
+    }
+    .connect-btn:active { transform: translateY(0); }
+    .connect-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+    .connect-btn.connected {
+      background: var(--s1);
+      border: 1px solid var(--s3);
+      color: var(--y1);
+      box-shadow: none;
+    }
+    .connect-btn.connected:hover {
+      background: var(--s2);
+      transform: translateY(-1px);
+      box-shadow: 0 0 16px rgba(255,203,5,0.2);
+    }
+
+    .avatar {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: var(--s1);
+      border: 1.5px solid var(--s3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 800;
+      color: var(--y1);
+      letter-spacing: 0.8px;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .avatar:hover { border-color: var(--y1); }
+
+    /* ══════════════════════════════════════════════
+       MAIN LAYOUT
+    ══════════════════════════════════════════════ */
+    .page {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 100px 24px 80px;
+    }
+
+    /* ══════════════════════════════════════════════
+       HERO TEXT
+    ══════════════════════════════════════════════ */
+    .hero {
+      text-align: center;
+      margin-bottom: 48px;
+      max-width: 600px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 16px;
+      background: var(--s1);
+      border: 1px solid var(--s3);
+      border-radius: var(--r-pill);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--y1);
+      margin-bottom: 28px;
+      letter-spacing: 0.5px;
+    }
+
+    .hero h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(44px, 8vw, 76px);
+      font-weight: 800;
+      line-height: 1.04;
+      letter-spacing: -2px;
+      background: linear-gradient(150deg, var(--t0) 0%, var(--y2) 40%, var(--y1) 70%, var(--g1) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 18px;
+    }
+
+    .hero p {
+      font-size: 17px;
+      line-height: 1.65;
+      color: var(--t2);
+      font-weight: 400;
+      max-width: 420px;
+      margin: 0 auto;
+    }
+
+    /* ══════════════════════════════════════════════
+       STAKING CARD
+    ══════════════════════════════════════════════ */
+    .card-wrap {
+      width: 100%;
+      max-width: 488px;
+      position: relative;
+      margin-bottom: 28px;
+    }
+
+    .card-glow {
+      position: absolute;
+      inset: -60px;
+      background: radial-gradient(ellipse at center, rgba(255,203,5,0.12) 0%, transparent 68%);
+      pointer-events: none;
+      filter: blur(10px);
+    }
+
+    .card {
+      position: relative;
+      background: linear-gradient(148deg,
+        rgba(255,203,5,0.09) 0%,
+        rgba(240,165,0,0.05) 35%,
+        rgba(232,138,0,0.07) 70%,
+        rgba(255,203,5,0.06) 100%
+      );
+      border: 1px solid rgba(255,203,5,0.22);
+      border-radius: var(--r-xl);
+      padding: 28px;
+      backdrop-filter: blur(48px) saturate(180%);
+      -webkit-backdrop-filter: blur(48px) saturate(180%);
+      box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,0.06),
+        0 40px 100px rgba(0,0,0,0.6),
+        0 0 100px rgba(255,203,5,0.06);
+      overflow: hidden;
+    }
+
+    /* Shimmer top edge */
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 15%; right: 15%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,203,5,0.7), rgba(255,255,255,0.4), rgba(255,203,5,0.7), transparent);
+    }
+
+    /* Large decorative bolt */
+    .card-bolt {
+      position: absolute;
+      top: -30px; right: -20px;
+      font-size: 160px;
+      opacity: 0.03;
+      pointer-events: none;
+      line-height: 1;
+      user-select: none;
+      transform: rotate(12deg);
+    }
+
+    /* Loading overlay */
+    .overlay {
+      position: absolute;
+      inset: 0;
+      border-radius: var(--r-xl);
+      background: rgba(6,3,0,0.78);
+      backdrop-filter: blur(6px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      z-index: 20;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.22s var(--ease);
+    }
+    .overlay.on { opacity: 1; pointer-events: all; }
+    .overlay p { font-size: 14px; color: var(--t1); font-weight: 500; }
+
+    /* Card header */
+    .card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .card-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 21px;
+      font-weight: 700;
+      color: var(--t0);
+      letter-spacing: -0.4px;
+    }
+
+    .apy-badge {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 7px 14px;
+      background: linear-gradient(135deg, rgba(255,203,5,0.18), rgba(240,165,0,0.10));
+      border: 1px solid rgba(255,203,5,0.32);
+      border-radius: var(--r-pill);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--y1);
+    }
+
+    /* ── STATS ROW ────────────────────────────────── */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .stat {
+      background: var(--w0);
+      border: 1px solid var(--w1);
+      border-radius: var(--r-md);
+      padding: 14px 10px;
+      text-align: center;
+    }
+
+    .stat-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--t3);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 7px;
+    }
+
+    .stat-val {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--t0);
+    }
+    .stat-val.gold { color: var(--y1); }
+
+    /* ── TAB SWITCHER ─────────────────────────────── */
+    .tabs {
+      display: flex;
+      background: var(--w0);
+      border: 1px solid var(--w1);
+      border-radius: var(--r-md);
+      padding: 4px;
+      margin-bottom: 24px;
+      gap: 3px;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 10px 12px;
+      border: none;
+      border-radius: 11px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--t3);
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.18s var(--ease);
+      letter-spacing: 0.2px;
+    }
+    .tab:hover:not(.on) { color: var(--t1); }
+    .tab.on {
+      background: linear-gradient(135deg, rgba(255,203,5,0.18), rgba(240,165,0,0.10));
+      border: 1px solid rgba(255,203,5,0.28);
+      color: var(--y1);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+
+    /* ── TAB PANELS ──────────────────────────────── */
+    .panel { display: none; }
+    .panel.on { display: block; }
+
+    /* ── INPUT ────────────────────────────────────── */
+    .field-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 9px;
+    }
+    .field-label { font-size: 13px; font-weight: 500; color: var(--t1); }
+    .field-max {
+      font-size: 12px;
+      color: var(--t3);
+      cursor: pointer;
+      transition: color 0.15s;
+      font-weight: 500;
+    }
+    .field-max:hover { color: var(--y1); }
+
+    .input-wrap { position: relative; margin-bottom: 20px; }
+
+    .amount-input {
+      width: 100%;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: var(--r-md);
+      padding: 15px 60px 15px 18px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--t0);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .amount-input::placeholder { color: var(--t3); font-size: 20px; font-weight: 500; }
+    .amount-input:focus { border-color: rgba(255,203,5,0.38); }
+
+    .max-tag {
+      position: absolute;
+      right: 14px; top: 50%;
+      transform: translateY(-50%);
+      padding: 5px 11px;
+      background: var(--s2);
+      border: 1px solid var(--s3);
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--y1);
+      cursor: pointer;
+      letter-spacing: 0.5px;
+      transition: background 0.15s;
+    }
+    .max-tag:hover { background: var(--s3); }
+
+    /* ── LOCK OPTIONS ─────────────────────────────── */
+    .lock-head { font-size: 13px; font-weight: 500; color: var(--t1); margin-bottom: 10px; }
+
+    .lock-grid {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .lock-opt {
+      flex: 1;
+      padding: 12px 8px;
+      background: var(--w0);
+      border: 1px solid var(--w1);
+      border-radius: var(--r-md);
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.18s var(--ease);
+    }
+    .lock-opt:hover:not(.on) {
+      background: var(--s0);
+      border-color: var(--s2);
+    }
+    .lock-opt.on {
+      background: var(--s1);
+      border-color: rgba(255,203,5,0.38);
+    }
+
+    .lock-days {
+      display: block;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--t0);
+      margin-bottom: 3px;
+    }
+    .lock-opt.on .lock-days { color: var(--y1); }
+
+    .lock-apy {
+      display: block;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--t3);
+    }
+    .lock-opt.on .lock-apy { color: rgba(255,203,5,0.65); }
+
+    /* ── DIVIDER ──────────────────────────────────── */
+    .hr {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,203,5,0.12), transparent);
+      margin: 22px 0;
+    }
+
+    /* ── CLAIM DISPLAY ────────────────────────────── */
+    .rewards-box {
+      background: var(--s0);
+      border: 1px solid var(--s2);
+      border-radius: 20px;
+      padding: 28px 24px;
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .rewards-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--t3);
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      margin-bottom: 14px;
+    }
+
+    .rewards-num {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 52px;
+      font-weight: 800;
+      line-height: 1;
+      background: linear-gradient(135deg, var(--y2), var(--y1), var(--g1));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 6px;
+    }
+
+    .rewards-unit {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--t3);
+    }
+
+    /* ── ACTION BUTTON ────────────────────────────── */
+    .btn {
+      width: 100%;
+      padding: 17px 24px;
+      border: none;
+      border-radius: var(--r-md);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      cursor: pointer;
+      transition: all 0.22s var(--ease);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--y1) 0%, var(--g1) 100%);
+      color: #1A0800;
+      box-shadow: 0 0 36px rgba(255,203,5,0.28), 0 8px 24px rgba(0,0,0,0.35);
+    }
+    .btn-primary::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 48%;
+      background: linear-gradient(180deg, rgba(255,255,255,0.22), transparent);
+      border-radius: var(--r-md) var(--r-md) 0 0;
+      pointer-events: none;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 55px rgba(255,203,5,0.5), 0 14px 36px rgba(0,0,0,0.45);
+    }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+    .btn-outline {
+      background: var(--s1);
+      border: 1px solid var(--s3);
+      color: var(--y1);
+      box-shadow: none;
+    }
+    .btn-outline:hover {
+      background: var(--s2);
+      transform: translateY(-1px);
+      box-shadow: 0 0 20px rgba(255,203,5,0.15);
+    }
+    .btn-outline:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    /* ══════════════════════════════════════════════
+       METRICS STRIP
+    ══════════════════════════════════════════════ */
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      width: 100%;
+      max-width: 488px;
+      margin-top: 16px;
+    }
+
+    .metric {
+      background: var(--w0);
+      border: 1px solid var(--w1);
+      border-radius: 16px;
+      padding: 14px 12px;
+      text-align: center;
+      backdrop-filter: blur(16px);
+      transition: all 0.22s var(--ease);
+    }
+    .metric:hover {
+      background: var(--s0);
+      border-color: var(--s2);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    }
+
+    .metric-icon { font-size: 18px; margin-bottom: 6px; }
+    .metric-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--t3);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 5px;
+    }
+    .metric-val {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--t0);
+    }
+
+    /* ══════════════════════════════════════════════
+       TOAST
+    ══════════════════════════════════════════════ */
+    .toasts {
+      position: fixed;
+      bottom: 24px; right: 24px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column-reverse;
+      gap: 8px;
+    }
+
+    .toast {
+      display: flex;
+      align-items: flex-start;
+      gap: 11px;
+      padding: 14px 18px;
+      background: rgba(14, 9, 0, 0.92);
+      border: 1px solid rgba(255,203,5,0.15);
+      border-radius: 14px;
+      backdrop-filter: blur(24px);
+      min-width: 270px;
+      max-width: 360px;
+      animation: toastIn 0.3s var(--spring);
+      box-shadow: 0 10px 36px rgba(0,0,0,0.5);
+    }
+    .toast.success { border-color: rgba(74,222,128,0.25); }
+    .toast.error   { border-color: rgba(248,113,113,0.25); }
+
+    @keyframes toastIn {
+      from { transform: translateX(50px); opacity: 0; }
+      to   { transform: translateX(0);    opacity: 1; }
+    }
+
+    .toast-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+    .toast-text { font-size: 13px; font-weight: 500; color: var(--t0); line-height: 1.45; }
+
+    /* ══════════════════════════════════════════════
+       SPINNER
+    ══════════════════════════════════════════════ */
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .spin {
+      display: inline-block;
+      width: 18px; height: 18px;
+      border: 2.5px solid rgba(26,8,0,0.25);
+      border-top-color: #1A0800;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      flex-shrink: 0;
+    }
+    .spin.light {
+      border-color: rgba(255,203,5,0.18);
+      border-top-color: var(--y1);
+    }
+
+    /* ══════════════════════════════════════════════
+       MINT PANEL
+    ══════════════════════════════════════════════ */
+    .mint-wrap {
+      width: 100%;
+      max-width: 680px;
+      position: relative;
+      margin-bottom: 28px;
+    }
+
+    .mint-panel {
+      position: relative;
+      background: linear-gradient(148deg,
+        rgba(255,203,5,0.09) 0%,
+        rgba(240,165,0,0.05) 35%,
+        rgba(232,138,0,0.07) 70%,
+        rgba(255,203,5,0.06) 100%
+      );
+      border: 1px solid rgba(255,203,5,0.22);
+      border-radius: var(--r-xl);
+      padding: 24px 70px 0;
+      backdrop-filter: blur(48px) saturate(180%);
+      -webkit-backdrop-filter: blur(48px) saturate(180%);
+      box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,0.06),
+        0 40px 100px rgba(0,0,0,0.6),
+        0 0 100px rgba(255,203,5,0.06);
+      overflow: hidden;
+    }
+
+    /* Top shimmer line */
+    .mint-panel::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 15%; right: 15%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,203,5,0.7), rgba(255,255,255,0.4), rgba(255,203,5,0.7), transparent);
+    }
+
+    .mint-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+    .mint-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 21px;
+      font-weight: 700;
+      color: var(--t0);
+      letter-spacing: -0.4px;
+    }
+    .mint-supply-badge {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 7px 14px;
+      background: linear-gradient(135deg, rgba(255,203,5,0.18), rgba(240,165,0,0.10));
+      border: 1px solid rgba(255,203,5,0.32);
+      border-radius: var(--r-pill);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--y1);
+      letter-spacing: 0.3px;
+    }
+
+    /* 3×2 NFT grid */
+    .nft-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .nft-slot {
+      position: relative;
+      border-radius: 16px;
+      padding: 2px;
+      background: rgba(255,203,5,0.07);
+      border: 1.5px solid rgba(255,203,5,0.14);
+      cursor: pointer;
+      transition: all 0.2s var(--ease);
+    }
+    .nft-slot:hover {
+      border-color: rgba(255,203,5,0.45);
+      background: rgba(255,203,5,0.12);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(0,0,0,0.45), 0 0 20px rgba(255,203,5,0.12);
+    }
+    .nft-slot.selected {
+      border-color: var(--y1);
+      background: rgba(255,203,5,0.16);
+      box-shadow:
+        0 0 0 1px rgba(255,203,5,0.5),
+        0 8px 32px rgba(0,0,0,0.5),
+        0 0 28px rgba(255,203,5,0.20);
+      transform: translateY(-3px);
+    }
+
+    /* Maxed out slot */
+    .nft-slot.maxed {
+      opacity: 0.45;
+      cursor: not-allowed;
+      border-color: rgba(255,255,255,0.08);
+    }
+    .nft-slot.maxed:hover {
+      transform: none;
+      box-shadow: none;
+      background: rgba(255,203,5,0.07);
+      border-color: rgba(255,255,255,0.08);
+    }
+
+    /* Owned badge (top-left) */
+    .owned-badge {
+      position: absolute;
+      top: 7px; left: 9px;
+      font-size: 9px;
+      font-weight: 800;
+      color: var(--y1);
+      background: rgba(0,0,0,0.55);
+      padding: 2px 5px;
+      border-radius: 6px;
+      letter-spacing: 0.3px;
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    /* Selected checkmark */
+    .nft-slot.selected::after {
+      content: '✓';
+      position: absolute;
+      top: 7px; right: 9px;
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--y1);
+      z-index: 3;
+      text-shadow: 0 0 8px rgba(255,203,5,0.8);
+    }
+
+    .nft-inner {
+      border-radius: 14px;
+      overflow: hidden;
+      background: linear-gradient(160deg,
+        rgba(255,203,5,0.13) 0%,
+        rgba(180,120,0,0.18) 50%,
+        rgba(120,70,0,0.22) 100%
+      );
+      border: 1px solid rgba(255,203,5,0.10);
+      padding: 10px 8px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 7px;
+      position: relative;
+    }
+
+    /* Glass shine on each card */
+    .nft-inner::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 45%;
+      background: linear-gradient(180deg,
+        rgba(255,255,255,0.07) 0%,
+        transparent 100%
+      );
+      border-radius: 14px 14px 0 0;
+      pointer-events: none;
+    }
+
+    .nft-art {
+      width: 100%;
+      aspect-ratio: 3/4;
+      border-radius: 9px;
+      background: linear-gradient(145deg,
+        rgba(255,203,5,0.10) 0%,
+        rgba(200,140,0,0.18) 100%
+      );
+      border: 1px solid rgba(255,203,5,0.18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 38px;
+      position: relative;
+      overflow: hidden;
+    }
+    .nft-art img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      border-radius: 9px;
+    }
+
+    /* Holographic shimmer on art area */
+    .nft-art::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(125deg,
+        transparent 30%,
+        rgba(255,255,255,0.06) 50%,
+        transparent 70%
+      );
+      pointer-events: none;
+    }
+
+    .nft-info {
+      width: 100%;
+      text-align: center;
+    }
+    .nft-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--t0);
+      letter-spacing: 0.2px;
+      margin-bottom: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .nft-price {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--y1);
+      letter-spacing: 0.3px;
+    }
+    .nft-supply {
+      font-size: 9px;
+      color: var(--t3);
+      margin-top: 1px;
+    }
+
+    /* ── MINT BAR (bottom) ────────────────────── */
+    .mint-bar {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      padding: 16px 4px 18px;
+      border-top: 1px solid rgba(255,203,5,0.10);
+      margin: 0 -4px;
+    }
+
+    .mint-btn {
+      flex-shrink: 0;
+      padding: 13px 28px;
+      background: linear-gradient(135deg, var(--y1) 0%, var(--g1) 100%);
+      border: none;
+      border-radius: var(--r-pill);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 15px;
+      font-weight: 800;
+      color: #1A0800;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.2s var(--ease);
+      box-shadow: 0 4px 20px rgba(255,203,5,0.35);
+      text-transform: uppercase;
+    }
+    .mint-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(255,203,5,0.55);
+      filter: brightness(1.08);
+    }
+    .mint-btn:active:not(:disabled) { transform: translateY(0); }
+    .mint-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    .mint-meta {
+      display: flex;
+      flex: 1;
+      justify-content: space-around;
+      padding-left: 8px;
+    }
+    .mint-meta-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+    }
+    .mint-meta-label {
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--t3);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+    .mint-meta-val {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--t0);
+      white-space: nowrap;
+    }
+    .mint-meta-val.gold { color: var(--y1); }
+    .mint-meta-val.green {
+      color: var(--ok);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .status-dot {
+      width: 6px; height: 6px;
+      background: var(--ok);
+      border-radius: 50%;
+      box-shadow: 0 0 7px var(--ok);
+      flex-shrink: 0;
+    }
+
+    /* ══════════════════════════════════════════════
+       FOOTER
+    ══════════════════════════════════════════════ */
+    .footer {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      padding: 0 24px 48px;
+      margin-top: 12px;
+    }
+
+    .footer-inner {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    /* Top divider line */
+    .footer-divider {
+      height: 1px;
+      background: linear-gradient(90deg,
+        transparent,
+        rgba(255,203,5,0.15) 25%,
+        rgba(255,203,5,0.25) 50%,
+        rgba(255,203,5,0.15) 75%,
+        transparent
+      );
+      margin-bottom: 32px;
+    }
+
+    /* Resources grid */
+    .footer-resources {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 0;
+      flex-wrap: wrap;
+    }
+
+    .footer-card {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 16px;
+      background: rgba(22, 12, 1, 0.75);
+      border: 1px solid rgba(255,203,5,0.13);
+      border-radius: var(--r-pill);
+      text-decoration: none;
+      transition: all 0.2s var(--ease);
+      cursor: pointer;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+    .footer-card:hover {
+      background: rgba(38, 22, 2, 0.90);
+      border-color: rgba(255,203,5,0.38);
+      box-shadow: 0 0 16px rgba(255,203,5,0.08);
+    }
+
+    .footer-card-icon {
+      font-size: 13px;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+
+    .footer-card-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--t1);
+      letter-spacing: 0.2px;
+      white-space: nowrap;
+    }
+    .footer-card:hover .footer-card-label { color: var(--y1); }
+
+    .footer-card-arrow {
+      font-size: 10px;
+      color: var(--t3);
+      flex-shrink: 0;
+      transition: color 0.18s, transform 0.18s;
+    }
+    .footer-card:hover .footer-card-arrow {
+      color: var(--y1);
+      transform: translateX(2px);
+    }
+
+    /* Bottom bar */
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .footer-brand {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--t3);
+      letter-spacing: 0.3px;
+    }
+    .footer-brand span { color: var(--y1); }
+
+    .footer-chain-tag {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 11px;
+      background: rgba(74,222,128,0.06);
+      border: 1px solid rgba(74,222,128,0.14);
+      border-radius: var(--r-pill);
+      font-size: 11px;
+      font-weight: 600;
+      color: rgba(74,222,128,0.7);
+    }
+    .footer-chain-dot {
+      width: 5px; height: 5px;
+      background: var(--ok);
+      border-radius: 50%;
+      box-shadow: 0 0 6px var(--ok);
+      flex-shrink: 0;
+    }
+
+    .footer-copy {
+      font-size: 11px;
+      color: var(--t3);
+      opacity: 0.55;
+    }
+
+    @media (max-width: 600px) {
+      .footer-resources { grid-template-columns: 1fr 1fr; }
+      .footer-bottom { justify-content: center; text-align: center; }
+    }
+    @media (max-width: 380px) {
+      .footer-resources { grid-template-columns: 1fr; }
+    }
+
+    /* ══════════════════════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════════════════════ */
+    @media (max-width: 520px) {
+      .navbar { padding: 0 18px; top: 8px; left: 12px; right: 12px; }
+      .balance-pill { display: none; }
+      .logo-text { font-size: 16px; }
+      .hero h1 { font-size: 40px; }
+      .card { padding: 22px 18px; }
+      .metrics { grid-template-columns: repeat(3,1fr); gap: 8px; }
+      .metric { padding: 16px 10px; }
+    }
+
+    /* ══════════════════════════════════════════════
+       PROFILE PANEL
+    ══════════════════════════════════════════════ */
+    .profile-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 800;
+      background: rgba(4, 2, 0, 0.78);
+      contain: layout paint;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.28s var(--ease);
+    }
+    .profile-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .profile-panel {
+      position: relative;
+      width: 100%;
+      max-width: 420px;
+      background: linear-gradient(148deg,
+        rgba(30, 18, 0, 0.97) 0%,
+        rgba(20, 11, 0, 0.98) 50%,
+        rgba(28, 16, 0, 0.97) 100%
+      );
+      border: 1px solid rgba(255,203,5,0.30);
+      border-radius: var(--r-xl);
+      padding: 20px;
+      backdrop-filter: blur(60px) saturate(180%);
+      -webkit-backdrop-filter: blur(60px) saturate(180%);
+      box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,0.06),
+        inset 0 1px 0 rgba(255,203,5,0.12),
+        0 40px 120px rgba(0,0,0,0.85),
+        0 0 80px rgba(255,203,5,0.07);
+      transform: scale(0.90) translateY(20px);
+      transition: transform 0.34s var(--spring);
+      overflow: hidden;
+      will-change: transform;
+    }
+    .profile-overlay.open .profile-panel {
+      transform: scale(1) translateY(0);
+    }
+
+    /* Shimmer top edge */
+    .profile-panel::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 10%; right: 10%;
+      height: 1px;
+      background: linear-gradient(90deg,
+        transparent,
+        rgba(255,203,5,0.6) 30%,
+        rgba(255,255,255,0.45) 50%,
+        rgba(255,203,5,0.6) 70%,
+        transparent
+      );
+    }
+
+    /* Decorative bolt */
+    .profile-panel::after {
+      content: '⚡';
+      position: absolute;
+      bottom: -60px; right: -30px;
+      font-size: 220px;
+      opacity: 0.022;
+      pointer-events: none;
+      line-height: 1;
+      user-select: none;
+      transform: rotate(-8deg);
+    }
+
+    /* ── Profile Header ─────────────────────── */
+    .profile-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .profile-avatar-wrap {
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(255,203,5,0.22), rgba(240,165,0,0.10));
+      border: 2px solid rgba(255,203,5,0.45);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      font-size: 18px;
+      box-shadow: 0 0 24px rgba(255,203,5,0.22), inset 0 1px 0 rgba(255,255,255,0.12);
+    }
+
+    .profile-info { flex: 1; min-width: 0; }
+
+    .profile-addr {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--t0);
+      margin-bottom: 3px;
+      letter-spacing: -0.2px;
+    }
+
+    .profile-balance-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--y1);
+      font-weight: 600;
+    }
+
+    .profile-close {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.09);
+      color: var(--t2);
+      font-size: 15px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.18s var(--ease);
+      font-family: inherit;
+      line-height: 1;
+    }
+    .profile-close:hover {
+      background: rgba(255,255,255,0.09);
+      color: var(--t0);
+      border-color: rgba(255,255,255,0.18);
+    }
+
+    /* ── Profile Stats Row ──────────────────── */
+    .profile-stats-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .profile-stat-item {
+      flex: 1;
+      background: var(--w0);
+      border: 1px solid var(--w1);
+      border-radius: var(--r-md);
+      padding: 9px 10px;
+      text-align: center;
+    }
+
+    .profile-stat-label {
+      display: block;
+      font-size: 9px;
+      font-weight: 600;
+      color: var(--t3);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+    }
+
+    .profile-stat-val {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--y1);
+    }
+
+    /* ── Collection Label ───────────────────── */
+    .profile-collection-label {
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--t3);
+      text-transform: uppercase;
+      letter-spacing: 1.8px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .profile-collection-label::before,
+    .profile-collection-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,203,5,0.18), transparent);
+    }
+
+    /* ── Profile NFT Grid ───────────────────── */
+    .profile-nft-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .profile-card {
+      position: relative;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1.5px solid rgba(255,255,255,0.07);
+      background: rgba(255,255,255,0.02);
+      transition: all 0.24s var(--ease);
+    }
+
+    /* Rotating golden border beam on owned cards */
+    .profile-card.owned {
+      border: 3px solid transparent;
+      background:
+        linear-gradient(rgba(12,6,0,0.94), rgba(12,6,0,0.94)) padding-box,
+        conic-gradient(
+          from var(--beam-angle, 0deg),
+          rgba(255,203,5,0.10)  0deg,
+          rgba(255,203,5,0.10) 60deg,
+          rgba(255,203,5,0.85) 90deg,
+          #fff8c0             105deg,
+          rgba(255,203,5,0.85) 120deg,
+          rgba(255,203,5,0.10) 170deg,
+          rgba(255,203,5,0.10) 360deg
+        ) border-box;
+      box-shadow:
+        0 0 24px rgba(255,203,5,0.15),
+        0 4px 20px rgba(0,0,0,0.5),
+        inset 0 1px 0 rgba(255,203,5,0.08);
+    }
+
+    .profile-card.owned:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow:
+        0 0 40px rgba(255,203,5,0.28),
+        0 12px 32px rgba(0,0,0,0.65),
+        inset 0 1px 0 rgba(255,203,5,0.14);
+    }
+
+    /* ── Card Art ───────────────────────────── */
+    .profile-card-art {
+      width: 100%;
+      aspect-ratio: 3/4;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(160deg,
+        rgba(255,203,5,0.06) 0%,
+        rgba(80,45,0,0.18) 100%
+      );
+    }
+
+    .profile-card-art img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+      will-change: transform;
+      transition: transform 0.35s var(--ease);
+    }
+
+    .profile-card:not(.owned) .profile-card-art img {
+      filter: grayscale(80%) brightness(0.38);
+    }
+
+    .profile-card.owned:hover .profile-card-art img {
+      transform: scale(1.07);
+    }
+
+    /* Dark veil on unowned */
+    .profile-card:not(.owned) .profile-card-art::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(4, 2, 0, 0.48);
+      z-index: 1;
+    }
+
+    /* Holographic shimmer on owned */
+    .profile-card.owned .profile-card-art::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(125deg,
+        transparent 25%,
+        rgba(255,203,5,0.10) 48%,
+        rgba(255,255,255,0.06) 52%,
+        transparent 75%
+      );
+      animation: profileHolo 3.5s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes profileHolo {
+      0%, 100% { opacity: 0.4; transform: translateX(-8%); }
+      50%       { opacity: 1;   transform: translateX(8%); }
+    }
+
+    /* ── Badges (positioned on profile-card, above art) ─ */
+    .profile-owned-badge {
+      position: absolute;
+      top: 7px; left: 7px;
+      z-index: 10;
+      background: linear-gradient(135deg, var(--y1) 0%, var(--g1) 100%);
+      color: #1A0800;
+      font-size: 8px;
+      font-weight: 800;
+      padding: 3px 7px;
+      border-radius: 6px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    }
+
+    .profile-notminted-badge {
+      position: absolute;
+      top: 7px; left: 7px;
+      z-index: 10;
+      background: rgba(0,0,0,0.62);
+      color: var(--t3);
+      font-size: 8px;
+      font-weight: 700;
+      padding: 3px 7px;
+      border-radius: 6px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      border: 1px solid rgba(255,255,255,0.07);
+    }
+
+    /* ── Card Info ──────────────────────────── */
+    .profile-card-info {
+      padding: 8px 9px 10px;
+      background: linear-gradient(180deg,
+        rgba(0,0,0,0) 0%,
+        rgba(0,0,0,0.35) 100%
+      );
+    }
+
+    .profile-card-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--t1);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 2px;
+    }
+    .profile-card:not(.owned) .profile-card-name { color: var(--t3); }
+
+    .profile-card-price {
+      font-size: 9px;
+      font-weight: 600;
+      color: rgba(255,203,5,0.6);
+    }
+    .profile-card:not(.owned) .profile-card-price { color: rgba(255,203,5,0.25); }
+
+    .profile-card-count {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--y1);
+      margin-top: 3px;
+    }
+
+    /* ── My Profile Navbar Button ───────────── */
+    #profileBtn {
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.18s var(--ease);
+    }
+    #profileBtn:hover {
+      background: var(--s2);
+      border-color: rgba(255,203,5,0.5);
+      box-shadow: 0 0 16px rgba(255,203,5,0.18);
+    }
+
+    @media (max-width: 520px) {
+      .profile-panel { padding: 20px 16px; }
+      .profile-nft-grid { gap: 7px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── SCENE ─────────────────────────────────────────────────────────── -->
+<div class="scene">
+  <!-- Background image 1: after navbar → until staking card -->
+  <div class="bg-strip bg-strip-1">
+    <img src="background1.png" alt="" />
+  </div>
+  <!-- Background image 2: staking card → page bottom -->
+  <div class="bg-strip bg-strip-2">
+    <img src="background2.png" alt="" />
+  </div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+
+<!-- ── NAVBAR ────────────────────────────────────────────────────────── -->
+<nav class="navbar">
+  <div class="navbar-bg"></div>
+  <div class="nav-inner">
+
+    <div class="logo" onclick="scrollTo(0,0)">
+      <img class="logo-img" src="logo.png" alt="PikaStake" draggable="false" />
+    </div>
+
+    <div class="nav-right">
+      <div class="chain-pill" id="chainPill" style="display:none">
+        <div class="chain-dot"></div>
+        Arc Testnet
+      </div>
+
+      <div class="balance-pill" id="balancePill">
+        <div class="balance-dot"></div>
+        <span id="balanceLabel">0.00 pUSDC</span>
+      </div>
+
+      <button class="connect-btn" id="connectBtn" onclick="handleConnect()">
+        <span id="connectBtnContent">Connect Wallet</span>
+      </button>
+
+      <div class="balance-pill" id="profileBtn" onclick="openProfile()">
+        <div class="balance-dot"></div>
+        My Profile
+        <img src="pikapfp.png" alt="" style="width:22px;height:22px;border-radius:50%;object-fit:cover;margin-left:6px;vertical-align:middle;" />
+      </div>
+    </div>
+
+  </div>
+</nav>
+
+<!-- ── PAGE ───────────────────────────────────────────────────────────── -->
+<div class="page">
+
+  <!-- Hero -->
+  <div class="hero">
+    <h1>Stake<br/>Earn</h1>
+    <p>Deposit USDC and benefit from high-yield pUSDC returns powered by the Arc network.</p>
+  </div>
+
+  <!-- Staking Card -->
+  <div class="card-wrap">
+    <div class="card-glow"></div>
+
+    <div class="card" id="mainCard">
+      <div class="card-bolt">⚡</div>
+
+      <!-- Loading overlay -->
+      <div class="overlay" id="overlay">
+        <div class="spin light"></div>
+        <p id="overlayMsg">Processing…</p>
+      </div>
+
+      <!-- Header -->
+      <div class="card-head">
+        <div class="card-title" style="margin-left:-10px;"><img src="nftt.png" alt="" style="height:1.6em;width:auto;vertical-align:middle;margin-right:1px;" /><span style="margin-left:-10px;position:relative;top:2px;">Staking</span></div>
+        <div class="apy-badge">⚡ <span id="apyBadge">~200% APD</span></div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-label">My Stake</div>
+          <div class="stat-val gold" id="statStaked">0.00</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Earned</div>
+          <div class="stat-val gold" id="statRewards">0.00</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">TVL</div>
+          <div class="stat-val" id="statTVL">—</div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab on"  onclick="goTab('stake'   ,this)">Stake USDC</button>
+        <button class="tab"     onclick="goTab('withdraw',this)">Withdraw</button>
+        <button class="tab"     onclick="goTab('claim'   ,this)">Claim</button>
+      </div>
+
+      <!-- ─── STAKE PANEL ─────────────────────────────── -->
+      <div class="panel on" id="panel-stake">
+        <div class="field-row">
+          <span class="field-label">Amount</span>
+          <span class="field-max" onclick="maxStake()">
+            Wallet: <span id="walletBal">0.00</span> USDC
+          </span>
+        </div>
+        <div class="input-wrap">
+          <input class="amount-input" id="stakeAmt" type="number" placeholder="0.00" min="0" step="any" />
+          <div class="max-tag" onclick="maxStake()">MAX</div>
+        </div>
+
+        <button class="btn btn-primary" id="stakeBtn" onclick="doStake()">
+          Stake USDC
+        </button>
+      </div>
+
+      <!-- ─── WITHDRAW PANEL ──────────────────────────── -->
+      <div class="panel" id="panel-withdraw">
+        <div class="field-row">
+          <span class="field-label">Amount</span>
+          <span class="field-max" onclick="maxWithdraw()">
+            Staked: <span id="stakedBal">0.00</span> USDC
+          </span>
+        </div>
+        <div class="input-wrap">
+          <input class="amount-input" id="withdrawAmt" type="number" placeholder="0.00" min="0" step="any" />
+          <div class="max-tag" onclick="maxWithdraw()">MAX</div>
+        </div>
+
+        <div class="hr"></div>
+
+        <button class="btn btn-primary" id="withdrawBtn" onclick="doWithdraw()">
+          Withdraw
+        </button>
+      </div>
+
+      <!-- ─── CLAIM PANEL ─────────────────────────────── -->
+      <div class="panel" id="panel-claim">
+        <div class="rewards-box">
+          <div class="rewards-label">⚡ Pending Rewards</div>
+          <div class="rewards-num" id="claimNum">0.00</div>
+          <div class="rewards-unit">pUSDC</div>
+        </div>
+
+        <button class="btn btn-primary" id="claimBtn" onclick="doClaim()">
+          Claim Rewards
+        </button>
+      </div>
+
+    </div><!-- /card -->
+    <!-- Metrics inside card-wrap, below card -->
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-icon">🏦</div>
+        <div class="metric-label">Total Staked</div>
+        <div class="metric-val" id="metricTVL">—</div>
+      </div>
+      <div class="metric">
+        <div class="metric-icon">⚡</div>
+        <div class="metric-label">Base APD</div>
+        <div class="metric-val" id="metricAPY">—</div>
+      </div>
+    </div>
+
+  </div><!-- /card-wrap -->
+
+  <!-- ─── MINT PANEL ─────────────────────────────────────────────── -->
+  <div class="mint-wrap">
+
+    <div class="mint-panel" id="mintPanel">
+
+      <!-- Header -->
+      <div class="mint-head">
+        <div class="mint-title" style="margin-left:-10px;"><img src="nftt.png" alt="" style="height:1.6em;width:auto;vertical-align:middle;margin-right:1px;" /><span style="margin-left:-10px;position:relative;top:2px;">NFT Mint</span></div>
+        <div class="mint-supply-badge">6 Collection</div>
+      </div>
+
+      <!-- 3×2 NFT Grid -->
+      <div class="nft-grid" id="nftGrid">
+
+        <!-- Card 0: Enchanted Ribbon Sylveon -->
+        <div class="nft-slot" id="slot-0" onclick="selectNft(0)">
+          <div class="nft-inner">
+            <div class="nft-art">
+              <img src="nft/sylveon.png" alt="Enchanted Ribbon Sylveon" loading="lazy" decoding="async" />
+            </div>
+            <div class="nft-info">
+              <div class="nft-name">Enchanted Ribbon Sylveon</div>
+              <div class="nft-price">195 pUSDC</div>
+              <div class="nft-supply">Max 4,444</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 1: Golden Jewel Pikachu -->
+        <div class="nft-slot" id="slot-1" onclick="selectNft(1)">
+          <div class="nft-inner">
+            <div class="nft-art">
+              <img src="nft/pikachu-gold.png" alt="Golden Jewel Pikachu" loading="lazy" decoding="async" />
+            </div>
+            <div class="nft-info">
+              <div class="nft-name">Golden Jewel Pikachu</div>
+              <div class="nft-price">175 pUSDC</div>
+              <div class="nft-supply">Max 5,555</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2: Mystical Crown Espeon -->
+        <div class="nft-slot" id="slot-2" onclick="selectNft(2)">
+          <div class="nft-inner">
+            <div class="nft-art">
+              <img src="nft/espeon.png" alt="Mystical Crown Espeon" loading="lazy" decoding="async" />
+            </div>
+            <div class="nft-info">
+              <div class="nft-name">Mystical Crown Espeon</div>
+              <div class="nft-price">155 pUSDC</div>
+              <div class="nft-supply">Max 5,555</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3: Prismatic Power Pikachu -->
+        <div class="nft-slot" id="slot-3" onclick="selectNft(3)">
+          <div class="nft-inner">
+            <div class="nft-art">
+              <img src="nft/pikachu-prismatic.png" alt="Prismatic Power Pikachu" loading="lazy" decoding="async" />
+            </div>
+            <div class="nft-info">
+              <div class="nft-name">Prismatic Power Pikachu</div>
+              <div class="nft-price">130 pUSDC</div>
+              <div class="nft-supply">Max 7,300</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 4: Verdant Guardian Leafeon -->
+        <div class="nft-slot" id="slot-4" onclick="selectNft(4)">
+          <div class="nft-inner">
+            <div class="nft-art">
+              <img src="nft/leafeon.png" alt="Verdant Guardian Leafeon" loading="lazy" decoding="async" />
+            </div>
+            <div class="nft-info">
+              <div class="nft-name">Verdant Guardian Leafeon</div>
+              <div class="nft-price">115 pUSDC</div>
+              <div class="nft-supply">Max 8,400</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 5: StormRage Pikachu -->
+        <div class="nft-slot" id="slot-5" onclick="selectNft(5)">
+          <div class="nft-inner">
+            <div class="nft-art">
+              <img src="nft/pikachu-storm.png" alt="StormRage Pikachu" loading="lazy" decoding="async" />
+            </div>
+            <div class="nft-info">
+              <div class="nft-name">StormRage Pikachu</div>
+              <div class="nft-price">85 pUSDC</div>
+              <div class="nft-supply">Max 10,000</div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /nft-grid -->
+
+      <!-- Mint Bar -->
+      <div class="mint-bar">
+        <button class="mint-btn" id="mintBtn" onclick="doMint()" disabled>MINT</button>
+        <div class="mint-meta">
+          <div class="mint-meta-col">
+            <span class="mint-meta-label">Mint Cost</span>
+            <span class="mint-meta-val gold" id="mintCost">— pUSDC</span>
+          </div>
+          <div class="mint-meta-col">
+            <span class="mint-meta-label">Selected</span>
+            <span class="mint-meta-val" id="mintSelected">No card selected</span>
+          </div>
+          <div class="mint-meta-col">
+            <span class="mint-meta-label">Wallet</span>
+            <span class="mint-meta-val green" id="mintWalletStatus">
+              <span class="status-dot" style="background:var(--t3);box-shadow:none"></span>
+              <span id="mintWalletLabel">Not connected</span>
+            </span>
+          </div>
+        </div>
+      </div><!-- /mint-bar -->
+
+    </div><!-- /mint-panel -->
+  </div><!-- /mint-wrap -->
+
+</div><!-- /page -->
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="footer-inner">
+
+    <div class="footer-divider"></div>
+
+    <!-- Resource cards -->
+    <div class="footer-resources">
+
+      <a class="footer-card" href="https://x.com/arc" target="_blank" rel="noreferrer">
+        <span class="footer-card-icon" style="color:#fff">𝕏</span>
+        <span class="footer-card-label">Arc</span>
+        <span class="footer-card-arrow">↗</span>
+      </a>
+
+      <a class="footer-card" href="https://x.com/PikaStake" target="_blank" rel="noreferrer">
+        <span class="footer-card-icon" style="color:#fff">𝕏</span>
+        <span class="footer-card-label">PikaStake</span>
+        <span class="footer-card-arrow">↗</span>
+      </a>
+
+      <a class="footer-card" href="https://faucet.circle.com" target="_blank" rel="noreferrer">
+        <span class="footer-card-icon">💧</span>
+        <span class="footer-card-label">Circle Faucet</span>
+        <span class="footer-card-arrow">↗</span>
+      </a>
+
+      <a class="footer-card" href="https://docs.arc.network/arc/concepts/welcome-to-arc" target="_blank" rel="noreferrer">
+        <span class="footer-card-icon">📄</span>
+        <span class="footer-card-label">Arc Docs</span>
+        <span class="footer-card-arrow">↗</span>
+      </a>
+
+      <a class="footer-card" href="https://5042002.rpc.thirdweb.com" target="_blank" rel="noreferrer">
+        <span class="footer-card-icon">⚡</span>
+        <span class="footer-card-label">Arc RPC</span>
+        <span class="footer-card-arrow">↗</span>
+      </a>
+
+    </div>
+
+
+  </div>
+</footer>
+
+<!-- Toasts -->
+<div class="toasts" id="toasts"></div>
+
+<!-- ── PROFILE PANEL ─────────────────────────────────────────── -->
+<div id="profileOverlay" class="profile-overlay" onclick="handleProfileOverlayClick(event)">
+  <div class="profile-panel" id="profilePanel">
+
+    <!-- Header -->
+    <div class="profile-header">
+      <div class="profile-avatar-wrap"><img src="pikapfp.png" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" /></div>
+      <div class="profile-info">
+        <div class="profile-addr" id="profileAddr">Connect wallet to view</div>
+        <div class="profile-balance-row">
+          <span class="balance-dot"></span>
+          <span id="profileBalance">— pUSDC</span>
+        </div>
+      </div>
+      <button class="profile-close" onclick="closeProfile()">✕</button>
+    </div>
+
+    <!-- Stats -->
+    <div class="profile-stats-row">
+      <div class="profile-stat-item">
+        <span class="profile-stat-label">NFTs Minted</span>
+        <span class="profile-stat-val" id="profileNftCount">—</span>
+      </div>
+      <div class="profile-stat-item">
+        <span class="profile-stat-label">Unique Cards</span>
+        <span class="profile-stat-val" id="profileUniqueCount">—</span>
+      </div>
+    </div>
+
+    <!-- Collection label -->
+    <div class="profile-collection-label">My Collection</div>
+
+    <!-- 3×2 NFT grid (JS-rendered) -->
+    <div class="profile-nft-grid" id="profileNftGrid"></div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════════ -->
+<script>
+/* ── CONFIG ──────────────────────────────────────────────────────── */
+const STAKE_ADDR   = '0x82B32C34E4a17e6213EC687B85985212A73Ebe01'
+const PUSDC_ADDR   = '0x04af969E356F67EB35F3A642871A6eF9791670b7'
+const USDC_ADDR    = '0x3600000000000000000000000000000000000000'
+const PIKAMON_ADDR = '0xa921D481D638036e1f3C2AF3Bad4323d3E1190eF'
+const MAX_PER_WALLET  = 2
+const CHAIN_ID     = 5042002
+const CHAIN_HEX    = '0x' + CHAIN_ID.toString(16)
+const RPC          = 'https://5042002.rpc.thirdweb.com'
+const USDC_DEC     = 6   // Arc Testnet USDC (ERC20)
+const PUSDC_DEC    = 18  // pUSDC reward token
+
+const USDC_ABI = [
+  'function balanceOf(address) view returns (uint256)',
+  'function approve(address,uint256) returns (bool)',
+  'function allowance(address,address) view returns (uint256)',
+]
+
+const PUSDC_ABI = [
+  'function balanceOf(address) view returns (uint256)',
+  'function approve(address,uint256) returns (bool)',
+  'function allowance(address,address) view returns (uint256)',
+]
+
+const STAKE_ABI = [
+  'function stake(uint256 amount)',
+  'function withdraw(uint256 amount)',
+  'function claimRewards()',
+  'function pendingRewards(address) view returns (uint256)',
+  'function getStakeInfo(address) view returns (uint256 stakedAmount, uint256 pendingAmount, uint256 lastClaimedTime)',
+  'function totalStaked() view returns (uint256)',
+]
+
+const PIKAMON_ABI = [
+  'function mintCard(uint256 cardId) external',
+  'function balanceOf(address account, uint256 id) view returns (uint256)',
+  'function getCard(uint256 cardId) view returns (string name, uint256 price, uint256 maxSupply, uint256 minted, uint256 remaining)',
+]
+
+/* ── NFT IMAGE MAP ───────────────────────────────────────────────── */
+const NFT_IMAGES = [
+  'nft/sylveon.png',
+  'nft/pikachu-gold.png',
+  'nft/espeon.png',
+  'nft/pikachu-prismatic.png',
+  'nft/leafeon.png',
+  'nft/pikachu-storm.png',
+]
+
+/* ── STATE ───────────────────────────────────────────────────────── */
+let provider = null
+let signer   = null
+let account  = null
+let myStaked = 0n
+let myWallet = 0n
+let profileOwnedCounts = [0, 0, 0, 0, 0, 0]
+
+/* ── BOOT ────────────────────────────────────────────────────────── */
+window.addEventListener('load', async () => {
+  fetchPublic()
+
+  if (window.ethereum) {
+    // eth_accounts: popup çıkarmadan mevcut izinli hesabı döndürür
+    try {
+      const accs = await window.ethereum.request({ method: 'eth_accounts' })
+      if (accs.length) autoConnect()
+    } catch(_) {}
+
+    window.ethereum.on('accountsChanged', accs => {
+      accs.length ? autoConnect() : resetState()
+    })
+    window.ethereum.on('chainChanged', () => autoConnect())
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && g('profileOverlay')?.classList.contains('open')) closeProfile()
+  })
+})
+
+async function autoConnect() {
+  try {
+    provider = new ethers.BrowserProvider(window.ethereum)
+    signer   = await provider.getSigner()
+    account  = await signer.getAddress()
+    renderConnected()
+    fetchUser()
+  } catch(e) { console.warn('autoConnect:', e) }
+}
+
+/* ── PUBLIC DATA ─────────────────────────────────────────────────── */
+async function fetchPublic() {
+  try {
+    const ro    = new ethers.JsonRpcProvider(RPC)
+    const c     = new ethers.Contract(STAKE_ADDR, STAKE_ABI, ro)
+    const total = await c.totalStaked()
+    const fmt   = fmtUsdc(total)
+    set('statTVL',    fmt)
+    set('metricTVL',  fmt)
+    set('metricAPY',  '200% APD')
+    set('apyBadge',   '~200% APD')
+  } catch(e) {
+    set('metricAPY', '200% APD')
+    set('apyBadge',  '~200% APD')
+  }
+}
+
+/* ── USER DATA ───────────────────────────────────────────────────── */
+async function fetchUser() {
+  if (!signer || !account) return
+  try {
+    const pusdc = new ethers.Contract(PUSDC_ADDR, PUSDC_ABI, signer)
+    const usdc  = new ethers.Contract(USDC_ADDR,  USDC_ABI,  signer)
+    const stake = new ethers.Contract(STAKE_ADDR, STAKE_ABI, signer)
+
+    const [pusdcBal, usdcBal, info, pending] = await Promise.all([
+      pusdc.balanceOf(account),
+      usdc.balanceOf(account),
+      stake.getStakeInfo(account),
+      stake.pendingRewards(account),
+    ])
+
+    myWallet = usdcBal
+    myStaked = info[0]
+
+    set('balanceLabel', fmtPusdc(pusdcBal) + ' pUSDC')
+    set('walletBal',    fmtUsdc(usdcBal))
+    set('stakedBal',    fmtUsdc(myStaked))
+    set('statStaked',   fmtUsdc(myStaked))
+    set('statRewards',  fmtPusdc(pending))
+    set('claimNum',     fmtPusdc(pending))
+  } catch(e) { console.error('fetchUser:', e) }
+}
+
+/* ── CONNECT ─────────────────────────────────────────────────────── */
+function connectTimeout(ms) {
+  return new Promise((_, reject) =>
+    setTimeout(() => reject({ code: 'TIMEOUT' }), ms)
+  )
+}
+
+async function handleConnect() {
+  if (account) { resetState(); return }
+  if (!window.ethereum) { toast('MetaMask not found', 'error'); return }
+
+  setBtn('connectBtn', true, '<span class="spin"></span> Connecting…')
+
+  const resetBtn = () => {
+    setBtn('connectBtn', false, 'Connect Wallet')
+    g('connectBtn').classList.remove('connected')
+  }
+
+  try {
+    await Promise.race([switchChain(), connectTimeout(15000)])
+    provider = new ethers.BrowserProvider(window.ethereum)
+    await Promise.race([
+      provider.send('eth_requestAccounts', []),
+      connectTimeout(30000)
+    ])
+    signer  = await provider.getSigner()
+    account = await signer.getAddress()
+    renderConnected()
+    await fetchUser()
+    toast('Wallet connected ⚡', 'success')
+  } catch(e) {
+    console.error(e)
+    if (e.code === 'TIMEOUT') {
+      toast('Bağlantı zaman aşımına uğradı', 'error')
+    } else if (e.code === 4001) {
+      toast('İstek reddedildi', 'error')
+    } else {
+      toast(e.message?.slice(0, 80) || 'Bağlantı başarısız', 'error')
+    }
+    resetBtn()
+  }
+}
+
+function renderConnected() {
+  g('chainPill').style.display  = 'flex'
+  g('connectBtn').classList.add('connected')
+  const short = shortAddr(account)
+  setBtn('connectBtn', false, `<span style="width:6px;height:6px;border-radius:50%;background:var(--ok);box-shadow:0 0 7px var(--ok);flex-shrink:0;display:inline-block"></span>${short}`)
+  updateMintWalletStatus()
+  checkMintedCards()
+}
+
+function resetState() {
+  provider = signer = account = null
+  myStaked = myWallet = 0n
+  profileOwnedCounts = [0, 0, 0, 0, 0, 0]
+  g('chainPill').style.display = 'none'
+  g('connectBtn').classList.remove('connected')
+  setBtn('connectBtn', false, 'Connect Wallet')
+;['balanceLabel','walletBal','stakedBal','statStaked','statRewards','claimNum'].forEach(id => {
+    const el = document.getElementById(id)
+    if (el) el.textContent = id === 'balanceLabel' ? '0.00 pUSDC' : '0.00'
+  })
+  updateMintWalletStatus()
+  /* Slot badge ve maxed durumlarını sıfırla */
+  NFT_CARDS.forEach((_, i) => {
+    const slot = g(`slot-${i}`)
+    if (!slot) return
+    slot.classList.remove('maxed')
+    slot.onclick = () => selectNft(i)
+    const badge = slot.querySelector('.owned-badge')
+    if (badge) badge.remove()
+  })
+  selectedNft = null
+  g('mintBtn').disabled = true
+  g('mintCost').textContent = '— pUSDC'
+  g('mintSelected').textContent = 'No card selected'
+  toast('Disconnected', 'info')
+}
+
+/* ── CHAIN ───────────────────────────────────────────────────────── */
+async function switchChain() {
+  try {
+    await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: CHAIN_HEX }] })
+  } catch(e) {
+    if (e.code === 4902 || e.code === -32603) {
+      await window.ethereum.request({
+        method: 'wallet_addEthereumChain',
+        params: [{
+          chainId: CHAIN_HEX,
+          chainName: 'Arc Testnet',
+          nativeCurrency: { name: 'USDC', symbol: 'USDC', decimals: 18 },
+          rpcUrls: [RPC],
+          blockExplorerUrls: [],
+        }]
+      })
+    } else throw e
+  }
+}
+
+/* ── NFT MINT UI ─────────────────────────────────────────────────── */
+const NFT_CARDS = [
+  { id: 0, name: 'Enchanted Ribbon Sylveon',  price: 195, supply: 4444  },
+  { id: 1, name: 'Golden Jewel Pikachu',      price: 175, supply: 5555  },
+  { id: 2, name: 'Mystical Crown Espeon',     price: 155, supply: 5555  },
+  { id: 3, name: 'Prismatic Power Pikachu',   price: 130, supply: 7300  },
+  { id: 4, name: 'Verdant Guardian Leafeon',  price: 115, supply: 8400  },
+  { id: 5, name: 'StormRage Pikachu',         price: 85,  supply: 10000 },
+]
+let selectedNft = null
+
+function selectNft(id) {
+  // Önceki seçimi kaldır
+  if (selectedNft !== null) {
+    g(`slot-${selectedNft}`)?.classList.remove('selected')
+  }
+  // Aynı karta tekrar tıklama → seçimi iptal et
+  if (selectedNft === id) {
+    selectedNft = null
+    g('mintBtn').disabled = true
+    g('mintCost').textContent = '— pUSDC'
+    g('mintSelected').textContent = 'No card selected'
+    return
+  }
+  selectedNft = id
+  g(`slot-${id}`)?.classList.add('selected')
+  const card = NFT_CARDS[id]
+  g('mintCost').textContent = `${card.price} pUSDC`
+  g('mintSelected').textContent = card.name
+  g('mintBtn').disabled = !account  // cüzdan bağlıysa aktif
+}
+
+function updateMintWalletStatus() {
+  const dot   = g('mintWalletStatus')?.querySelector('.status-dot')
+  const label = g('mintWalletLabel')
+  if (!dot || !label) return
+  if (account) {
+    dot.style.background  = 'var(--ok)'
+    dot.style.boxShadow   = '0 0 7px var(--ok)'
+    label.textContent = account.slice(0,6) + '…' + account.slice(-4)
+  } else {
+    dot.style.background = 'var(--t3)'
+    dot.style.boxShadow  = 'none'
+    label.textContent    = 'Not connected'
+  }
+  // Seçili kart varsa mint butonunu güncelle
+  if (selectedNft !== null) g('mintBtn').disabled = !account
+}
+
+async function doMint() {
+  if (!account)             { toast('Connect your wallet first', 'error'); return }
+  if (selectedNft === null) { toast('Select an NFT card', 'error'); return }
+
+  const card       = NFT_CARDS[selectedNft]
+  const contractId = selectedNft + 1   // contract: 1–6
+
+  try {
+    const pikamon = new ethers.Contract(PIKAMON_ADDR, PIKAMON_ABI, provider)
+
+    /* ── 1. Kontrat'tan gerçek fiyatı oku ── */
+    const cardInfo = await pikamon.getCard(contractId)
+    const priceWei = cardInfo.price   // kontratın beklediği tam değer
+
+    /* ── 2. Kaç tane sahip olduğunu kontrol et ── */
+    const owned = await pikamon.balanceOf(account, contractId)
+
+    if (Number(owned) >= MAX_PER_WALLET) {
+      toast(`Max ${MAX_PER_WALLET} per wallet — you already own ${owned} of this card`, 'error')
+      return
+    }
+
+    /* ── 3. pUSDC approve ── */
+    const displayPrice = Number(ethers.formatUnits(priceWei, 18))
+    showOverlay(`Approving ${displayPrice} pUSDC…`)
+    const pusdc     = new ethers.Contract(PUSDC_ADDR, PUSDC_ABI, signer)
+    const allowance = await pusdc.allowance(account, PIKAMON_ADDR)
+
+    if (allowance < priceWei) {
+      const approveTx = await pusdc.approve(PIKAMON_ADDR, priceWei)
+      await approveTx.wait()
+    }
+
+    /* ── 4. Mint ── */
+    showOverlay(`Minting ${card.name}…`)
+    const pikamonW = new ethers.Contract(PIKAMON_ADDR, PIKAMON_ABI, signer)
+    const tx       = await pikamonW.mintCard(contractId)
+    await tx.wait()
+
+    hideOverlay()
+    toast(`${card.name} minted! 🎉`, 'success')
+
+    /* ── 5. Slot durumunu güncelle ── */
+    const newOwned = Number(owned) + 1
+    updateSlotState(selectedNft, newOwned)
+
+    /* ── 6. pUSDC bakiyesini yenile ── */
+    await fetchUser()
+
+  } catch (e) {
+    hideOverlay()
+    console.error(e)
+    if (e.code === 4001 || e.code === 'ACTION_REJECTED') {
+      toast('Transaction rejected', 'error')
+    } else {
+      toast(e.reason || e.message?.slice(0, 80) || 'Mint failed', 'error')
+    }
+  }
+}
+
+/* Slot üzerindeki mint sayacını ve maxed stilini güncelle */
+function updateSlotState(jsId, owned) {
+  profileOwnedCounts[jsId] = owned   // profile panel sync
+  const slot = g(`slot-${jsId}`)
+  if (!slot) return
+  if (owned >= MAX_PER_WALLET) {
+    slot.classList.add('maxed')
+    slot.onclick = null
+    if (selectedNft === jsId) {
+      selectedNft = null
+      g('mintBtn').disabled = true
+      g('mintCost').textContent = '— pUSDC'
+      g('mintSelected').textContent = 'No card selected'
+    }
+  }
+  /* Owned badge */
+  let badge = slot.querySelector('.owned-badge')
+  if (!badge) {
+    badge = document.createElement('span')
+    badge.className = 'owned-badge'
+    slot.appendChild(badge)
+  }
+  badge.textContent = `${owned}/${MAX_PER_WALLET}`
+}
+
+/* Cüzdan bağlandığında tüm kartların bakiyesini oku */
+async function checkMintedCards() {
+  if (!account || !provider) return
+  const pikamon = new ethers.Contract(PIKAMON_ADDR, PIKAMON_ABI, provider)
+  for (let i = 0; i < NFT_CARDS.length; i++) {
+    try {
+      const owned = await pikamon.balanceOf(account, i + 1)
+      if (Number(owned) > 0) updateSlotState(i, Number(owned))
+    } catch (_) {}
+  }
+}
+
+/* ── STAKE ───────────────────────────────────────────────────────── */
+async function doStake() {
+  if (!needWallet()) return
+  const raw = document.getElementById('stakeAmt').value.trim()
+  if (!raw || isNaN(+raw) || +raw <= 0) { toast('Enter a valid amount', 'error'); return }
+
+  const amt = ethers.parseUnits(raw, USDC_DEC)
+  showOverlay('Approving USDC…')
+  try {
+    const usdc    = new ethers.Contract(USDC_ADDR,  USDC_ABI,  signer)
+    const staking = new ethers.Contract(STAKE_ADDR, STAKE_ABI, signer)
+
+    const allowance = await usdc.allowance(account, STAKE_ADDR)
+    if (allowance < amt) {
+      const approveTx = await usdc.approve(STAKE_ADDR, amt)
+      await approveTx.wait()
+    }
+
+    showOverlay('Staking…')
+    const tx = await staking.stake(amt)
+    await tx.wait()
+    toast('Staked successfully! ⚡', 'success')
+    document.getElementById('stakeAmt').value = ''
+    await Promise.all([fetchUser(), fetchPublic()])
+  } catch(e) {
+    console.error('Stake error:', e)
+    toast(e.code === 4001 ? 'Rejected' : (e.reason || e.message?.slice(0,80) || 'Stake failed'), 'error')
+  } finally { hideOverlay() }
+}
+
+/* ── WITHDRAW ────────────────────────────────────────────────────── */
+async function doWithdraw() {
+  if (!needWallet()) return
+  const raw = document.getElementById('withdrawAmt').value.trim()
+  if (!raw || isNaN(+raw) || +raw <= 0) { toast('Enter a valid amount', 'error'); return }
+
+  const amt = ethers.parseUnits(raw, USDC_DEC)
+  if (amt > myStaked) { toast('Exceeds staked balance', 'error'); return }
+
+  showOverlay('Withdrawing…')
+  try {
+    const staking = new ethers.Contract(STAKE_ADDR, STAKE_ABI, signer)
+    const tx = await staking.withdraw(amt)
+    await tx.wait()
+    toast('Withdrawn successfully!', 'success')
+    document.getElementById('withdrawAmt').value = ''
+    await Promise.all([fetchUser(), fetchPublic()])
+  } catch(e) {
+    console.error('Withdraw error:', e)
+    toast(e.code === 4001 ? 'Rejected' : (e.reason || e.message?.slice(0,80) || 'Withdraw failed'), 'error')
+  } finally { hideOverlay() }
+}
+
+/* ── CLAIM ───────────────────────────────────────────────────────── */
+async function doClaim() {
+  if (!needWallet()) return
+  showOverlay('Claiming rewards…')
+  try {
+    let tx
+
+    // Pattern 1: claimRewards()
+    try {
+      const staking = new ethers.Contract(STAKE_ADDR, STAKE_ABI, signer)
+      await staking.claimRewards.estimateGas()
+      tx = await staking.claimRewards()
+      console.log('✓ claimRewards() pattern worked')
+    } catch(_) {
+      // Pattern 2: claim()
+      const c = new ethers.Contract(STAKE_ADDR, ['function claim() nonpayable'], signer)
+      await c.claim.estimateGas()
+      tx = await c.claim()
+      console.log('✓ claim() pattern worked')
+    }
+
+    await tx.wait()
+    toast('Rewards claimed! ⚡', 'success')
+    await fetchUser()
+  } catch(e) {
+    console.error('Claim error:', e)
+    toast(e.code === 4001 ? 'Rejected' : (e.reason || e.message?.slice(0,80) || 'Claim failed'), 'error')
+  } finally { hideOverlay() }
+}
+
+/* ── TABS ────────────────────────────────────────────────────────── */
+function goTab(name, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'))
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'))
+  btn.classList.add('on')
+  document.getElementById('panel-' + name)?.classList.add('on')
+}
+
+/* ── LOCK OPTIONS ────────────────────────────────────────────────── */
+function pickLock(el) {
+  document.querySelectorAll('.lock-opt').forEach(o => o.classList.remove('on'))
+  el.classList.add('on')
+}
+
+/* ── MAX HELPERS ─────────────────────────────────────────────────── */
+function maxStake() {
+  const v = document.getElementById('walletBal').textContent
+  document.getElementById('stakeAmt').value = v.replace(/,/g, '')
+}
+function maxWithdraw() {
+  const v = document.getElementById('stakedBal').textContent
+  document.getElementById('withdrawAmt').value = v.replace(/,/g, '')
+}
+
+/* ── OVERLAY ─────────────────────────────────────────────────────── */
+function showOverlay(msg) {
+  g('overlay').classList.add('on')
+  g('overlayMsg').textContent = msg
+}
+function hideOverlay() { g('overlay').classList.remove('on') }
+
+/* ── TOAST ───────────────────────────────────────────────────────── */
+function toast(msg, type = 'info') {
+  const icon = { success: '✅', error: '❌', info: '⚡' }[type] || 'ℹ️'
+  const el = document.createElement('div')
+  el.className = `toast ${type}`
+  el.innerHTML = `<span class="toast-icon">${icon}</span><span class="toast-text">${msg}</span>`
+  g('toasts').prepend(el)
+  setTimeout(() => el.remove(), 4500)
+}
+
+/* ── UTILS ───────────────────────────────────────────────────────── */
+function g(id) { return document.getElementById(id) }
+function set(id, v) { const e = g(id); if (e) e.textContent = v }
+
+function setBtn(id, disabled, html) {
+  const el = g(id)
+  el.disabled = disabled
+  el.innerHTML = html
+}
+
+function fmtN(raw, dec) {
+  return Number(ethers.formatUnits(raw, dec ?? PUSDC_DEC)).toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 4,
+  })
+}
+function fmtUsdc(raw)  { return fmtN(raw, USDC_DEC) }
+function fmtPusdc(raw) { return fmtN(raw, PUSDC_DEC) }
+
+function shortAddr(a) { return `${a.slice(0,6)}…${a.slice(-4)}` }
+function needWallet() {
+  if (!account) { toast('Connect your wallet first', 'error'); return false }
+  return true
+}
+
+/* ── PROFILE PANEL ───────────────────────────────────────────────── */
+let _beamRaf = null
+const _beamStart = performance.now()
+
+function _tickBeam() {
+  const angle = (((performance.now() - _beamStart) / 6000) * 360) % 360
+  const grid = g('profileNftGrid')
+  if (grid) grid.style.setProperty('--beam-angle', angle.toFixed(2) + 'deg')
+  _beamRaf = requestAnimationFrame(_tickBeam)
+}
+
+function openProfile() {
+  g('profileOverlay').classList.add('open')
+  document.body.style.overflow = 'hidden'
+  renderProfile()
+  if (account) loadProfileNfts()
+  if (!_beamRaf) _beamRaf = requestAnimationFrame(_tickBeam)
+}
+
+function closeProfile() {
+  g('profileOverlay').classList.remove('open')
+  document.body.style.overflow = ''
+  if (_beamRaf) { cancelAnimationFrame(_beamRaf); _beamRaf = null }
+}
+
+function handleProfileOverlayClick(e) {
+  if (e.target === g('profileOverlay')) closeProfile()
+}
+
+function renderProfile() {
+  /* Header */
+  if (account) {
+    g('profileAddr').textContent = shortAddr(account)
+    const bl = g('balanceLabel')
+    g('profileBalance').textContent = bl ? bl.textContent : '— pUSDC'
+  } else {
+    g('profileAddr').textContent = 'Connect wallet to view'
+    g('profileBalance').textContent = '— pUSDC'
+  }
+
+  /* NFT grid */
+  const grid = g('profileNftGrid')
+  grid.innerHTML = ''
+
+  let totalOwned = 0
+  let uniqueOwned = 0
+
+  for (let i = 0; i < NFT_CARDS.length; i++) {
+    const card  = NFT_CARDS[i]
+    const owned = profileOwnedCounts[i]
+    if (owned > 0) { totalOwned += owned; uniqueOwned++ }
+
+    const isOwned = owned > 0
+
+    const el = document.createElement('div')
+    el.className = `profile-card${isOwned ? ' owned' : ''}`
+
+    const badgeHtml = isOwned
+      ? `<span class="profile-owned-badge">✦ OWNED</span>`
+      : `<span class="profile-notminted-badge">NOT MINTED</span>`
+
+    const countHtml = isOwned
+      ? `<div class="profile-card-count">✦ ${owned} / ${MAX_PER_WALLET}</div>`
+      : ''
+
+    el.innerHTML = `
+      ${badgeHtml}
+      <div class="profile-card-art">
+        <img src="${NFT_IMAGES[i]}" alt="${card.name}" loading="lazy" />
+      </div>
+      <div class="profile-card-info">
+        <div class="profile-card-name">${card.name}</div>
+        ${countHtml}
+      </div>
+    `
+    grid.appendChild(el)
+  }
+
+  /* Stats */
+  const hasWallet = !!account
+  g('profileNftCount').textContent    = hasWallet ? `${totalOwned} / ${NFT_CARDS.length * MAX_PER_WALLET}` : '—'
+  g('profileUniqueCount').textContent = hasWallet ? `${uniqueOwned} / ${NFT_CARDS.length}` : '—'
+}
+
+async function loadProfileNfts() {
+  if (!account || !provider) return
+  const pikamon = new ethers.Contract(PIKAMON_ADDR, PIKAMON_ABI, provider)
+  const promises = NFT_CARDS.map(async (_, i) => {
+    try {
+      const owned = await pikamon.balanceOf(account, i + 1)
+      profileOwnedCounts[i] = Number(owned)
+    } catch (_) {}
+  })
+  await Promise.all(promises)
+  renderProfile()
+}
+</script>
+</body>
+</html>
