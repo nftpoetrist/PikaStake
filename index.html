@@ -1731,6 +1731,143 @@
       .profile-panel { padding: 20px 16px; }
       .profile-nft-grid { gap: 7px; }
     }
+
+    /* ══════════════════════════════════════════════
+       WALLET PICKER MODAL
+    ══════════════════════════════════════════════ */
+    .wallet-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 900;
+      background: rgba(4,2,0,0.82);
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.24s var(--ease);
+      contain: layout paint;
+    }
+    .wallet-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .wallet-modal {
+      width: 100%;
+      max-width: 360px;
+      background: linear-gradient(148deg, rgba(22,12,2,0.99) 0%, rgba(12,6,1,0.99) 100%);
+      border: 1px solid rgba(255,203,5,0.18);
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.75), 0 0 0 1px rgba(255,255,255,0.04);
+      transform: scale(0.93) translateY(14px);
+      transition: transform 0.32s var(--spring);
+      will-change: transform;
+    }
+    .wallet-overlay.open .wallet-modal {
+      transform: scale(1) translateY(0);
+    }
+    .wallet-modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .wallet-modal-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--t0);
+    }
+    .wallet-modal-close {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 50%;
+      color: var(--t2);
+      width: 30px; height: 30px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.18s var(--ease);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .wallet-modal-close:hover {
+      background: rgba(255,203,5,0.12);
+      border-color: rgba(255,203,5,0.3);
+      color: var(--y1);
+    }
+    .wallet-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .wallet-option {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 13px 16px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all 0.18s var(--ease);
+      color: var(--t0);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      text-align: left;
+    }
+    .wallet-option:hover {
+      background: rgba(255,203,5,0.07);
+      border-color: rgba(255,203,5,0.28);
+      transform: translateX(4px);
+    }
+    .wallet-option-icon {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+    .wallet-option-icon-fallback {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      background: rgba(255,203,5,0.12);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .wallet-option-name { flex: 1; }
+    .wallet-option-arrow {
+      color: var(--t3);
+      font-size: 16px;
+      transition: transform 0.18s var(--ease);
+    }
+    .wallet-option:hover .wallet-option-arrow {
+      transform: translateX(3px);
+      color: var(--y1);
+    }
+    .wallet-no-wallets {
+      text-align: center;
+      color: var(--t3);
+      font-size: 13px;
+      padding: 16px 0 8px;
+    }
+    .wallet-modal-footer {
+      text-align: center;
+      font-size: 12px;
+      color: var(--t3);
+      padding-top: 12px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .wallet-modal-footer a {
+      color: rgba(255,203,5,0.7);
+      text-decoration: none;
+      transition: color 0.18s;
+    }
+    .wallet-modal-footer a:hover { color: var(--y1); }
   </style>
 </head>
 <body>
@@ -2078,6 +2215,20 @@
 <!-- Toasts -->
 <div class="toasts" id="toasts"></div>
 
+<!-- ── WALLET PICKER ─────────────────────────────────────────── -->
+<div id="walletOverlay" class="wallet-overlay" onclick="handleWalletOverlayClick(event)">
+  <div class="wallet-modal" id="walletModal">
+    <div class="wallet-modal-head">
+      <span class="wallet-modal-title">Connect Wallet</span>
+      <button class="wallet-modal-close" onclick="closeWalletModal()">✕</button>
+    </div>
+    <div class="wallet-list" id="walletList"></div>
+    <div class="wallet-modal-footer">
+      Cüzdan yok mu? <a href="https://metamask.io/download/" target="_blank" rel="noreferrer">MetaMask indir ↗</a>
+    </div>
+  </div>
+</div>
+
 <!-- ── PROFILE PANEL ─────────────────────────────────────────── -->
 <div id="profileOverlay" class="profile-overlay" onclick="handleProfileOverlayClick(event)">
   <div class="profile-panel" id="profilePanel">
@@ -2180,33 +2331,53 @@ let profileOwnedCounts = [0, 0, 0, 0, 0, 0]
 /* ── BOOT ────────────────────────────────────────────────────────── */
 window.addEventListener('load', async () => {
   fetchPublic()
+  discoverWallets()
 
-  if (window.ethereum) {
-    // eth_accounts: popup çıkarmadan mevcut izinli hesabı döndürür
-    try {
-      const accs = await window.ethereum.request({ method: 'eth_accounts' })
-      if (accs.length) autoConnect()
-    } catch(_) {}
-
-    window.ethereum.on('accountsChanged', accs => {
-      accs.length ? autoConnect() : resetState()
-    })
-    window.ethereum.on('chainChanged', () => autoConnect())
-  }
+  // Sayfa yüklenince son kullanılan cüzdanı otomatik bağla
+  setTimeout(autoConnect, 100) // EIP-6963 duyurularının gelmesi için kısa bekle
 
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape' && g('profileOverlay')?.classList.contains('open')) closeProfile()
+    if (e.key === 'Escape') {
+      if (g('walletOverlay')?.classList.contains('open')) closeWalletModal()
+      if (g('profileOverlay')?.classList.contains('open')) closeProfile()
+    }
   })
 })
 
 async function autoConnect() {
-  try {
-    provider = new ethers.BrowserProvider(window.ethereum)
-    signer   = await provider.getSigner()
-    account  = await signer.getAddress()
-    renderConnected()
-    fetchUser()
-  } catch(e) { console.warn('autoConnect:', e) }
+  const rdns = sessionStorage.getItem(LAST_WALLET_KEY)
+
+  // Son kullanılan cüzdanı dene
+  if (rdns && walletProviders.has(rdns)) {
+    const rawProvider = walletProviders.get(rdns).provider
+    try {
+      const accs = await rawProvider.request({ method: 'eth_accounts' })
+      if (accs.length) {
+        provider = new ethers.BrowserProvider(rawProvider)
+        signer   = await provider.getSigner()
+        account  = await signer.getAddress()
+        rawProvider.on?.('accountsChanged', (a) => a.length ? reconnectProvider(rawProvider) : resetState())
+        rawProvider.on?.('chainChanged', () => reconnectProvider(rawProvider))
+        renderConnected()
+        fetchUser()
+        return
+      }
+    } catch(_) {}
+  }
+
+  // Fallback: window.ethereum (legacy)
+  if (window.ethereum) {
+    try {
+      const accs = await window.ethereum.request({ method: 'eth_accounts' })
+      if (accs.length) {
+        provider = new ethers.BrowserProvider(window.ethereum)
+        signer   = await provider.getSigner()
+        account  = await signer.getAddress()
+        renderConnected()
+        fetchUser()
+      }
+    } catch(_) {}
+  }
 }
 
 /* ── PUBLIC DATA ─────────────────────────────────────────────────── */
@@ -2253,6 +2424,102 @@ async function fetchUser() {
   } catch(e) { console.error('fetchUser:', e) }
 }
 
+/* ── EIP-6963 MULTI-WALLET ───────────────────────────────────────── */
+const walletProviders = new Map() // rdns → { info, provider }
+const LAST_WALLET_KEY = 'pikastake_wallet'
+
+window.addEventListener('eip6963:announceProvider', (e) => {
+  walletProviders.set(e.detail.info.rdns, e.detail)
+  renderWalletList()
+})
+
+function discoverWallets() {
+  window.dispatchEvent(new Event('eip6963:requestProvider'))
+}
+
+function openWalletModal() {
+  discoverWallets()
+  renderWalletList()
+  g('walletOverlay').classList.add('open')
+  document.body.style.overflow = 'hidden'
+}
+
+function closeWalletModal() {
+  g('walletOverlay').classList.remove('open')
+  document.body.style.overflow = ''
+}
+
+function handleWalletOverlayClick(e) {
+  if (e.target === g('walletOverlay')) closeWalletModal()
+}
+
+function renderWalletList() {
+  const list = g('walletList')
+  if (!list) return
+  list.innerHTML = ''
+
+  if (walletProviders.size === 0) {
+    list.innerHTML = '<div class="wallet-no-wallets">Tarayıcıda cüzdan bulunamadı.<br>MetaMask veya Backpack yükleyin.</div>'
+    return
+  }
+
+  walletProviders.forEach(({ info, provider: rawProvider }) => {
+    const btn = document.createElement('button')
+    btn.className = 'wallet-option'
+    const iconHtml = info.icon
+      ? `<img src="${info.icon}" class="wallet-option-icon" alt="${info.name}" />`
+      : `<div class="wallet-option-icon-fallback">🔗</div>`
+    btn.innerHTML = `${iconHtml}<span class="wallet-option-name">${info.name}</span><span class="wallet-option-arrow">→</span>`
+    btn.onclick = () => connectWithProvider(info.rdns)
+    list.appendChild(btn)
+  })
+}
+
+async function connectWithProvider(rdns) {
+  const detail = walletProviders.get(rdns)
+  if (!detail) return
+  const rawProvider = detail.provider
+
+  closeWalletModal()
+  setBtn('connectBtn', true, '<span class="spin"></span> Connecting…')
+
+  try {
+    await switchChainWithProvider(rawProvider)
+    await rawProvider.request({ method: 'eth_requestAccounts' })
+
+    provider = new ethers.BrowserProvider(rawProvider)
+    signer   = await provider.getSigner()
+    account  = await signer.getAddress()
+
+    sessionStorage.setItem(LAST_WALLET_KEY, rdns)
+
+    rawProvider.on?.('accountsChanged', (accs) => {
+      accs.length ? reconnectProvider(rawProvider) : resetState()
+    })
+    rawProvider.on?.('chainChanged', () => reconnectProvider(rawProvider))
+
+    renderConnected()
+    await fetchUser()
+    toast('Wallet connected ⚡', 'success')
+  } catch(e) {
+    console.error(e)
+    const msg = e.code === 4001 ? 'İstek reddedildi' : (e.message?.slice(0,80) || 'Bağlantı başarısız')
+    toast(msg, 'error')
+    setBtn('connectBtn', false, 'Connect Wallet')
+    g('connectBtn').classList.remove('connected')
+  }
+}
+
+async function reconnectProvider(rawProvider) {
+  try {
+    provider = new ethers.BrowserProvider(rawProvider)
+    signer   = await provider.getSigner()
+    account  = await signer.getAddress()
+    renderConnected()
+    fetchUser()
+  } catch(_) { resetState() }
+}
+
 /* ── CONNECT ─────────────────────────────────────────────────────── */
 function connectTimeout(ms) {
   return new Promise((_, reject) =>
@@ -2260,40 +2527,9 @@ function connectTimeout(ms) {
   )
 }
 
-async function handleConnect() {
+function handleConnect() {
   if (account) { resetState(); return }
-  if (!window.ethereum) { toast('MetaMask not found', 'error'); return }
-
-  setBtn('connectBtn', true, '<span class="spin"></span> Connecting…')
-
-  const resetBtn = () => {
-    setBtn('connectBtn', false, 'Connect Wallet')
-    g('connectBtn').classList.remove('connected')
-  }
-
-  try {
-    await Promise.race([switchChain(), connectTimeout(15000)])
-    provider = new ethers.BrowserProvider(window.ethereum)
-    await Promise.race([
-      provider.send('eth_requestAccounts', []),
-      connectTimeout(30000)
-    ])
-    signer  = await provider.getSigner()
-    account = await signer.getAddress()
-    renderConnected()
-    await fetchUser()
-    toast('Wallet connected ⚡', 'success')
-  } catch(e) {
-    console.error(e)
-    if (e.code === 'TIMEOUT') {
-      toast('Bağlantı zaman aşımına uğradı', 'error')
-    } else if (e.code === 4001) {
-      toast('İstek reddedildi', 'error')
-    } else {
-      toast(e.message?.slice(0, 80) || 'Bağlantı başarısız', 'error')
-    }
-    resetBtn()
-  }
+  openWalletModal()
 }
 
 function renderConnected() {
@@ -2334,19 +2570,19 @@ function resetState() {
 }
 
 /* ── CHAIN ───────────────────────────────────────────────────────── */
-async function switchChain() {
+async function switchChainWithProvider(rawProvider) {
   try {
-    await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: CHAIN_HEX }] })
+    await rawProvider.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: CHAIN_HEX }] })
   } catch(e) {
     if (e.code === 4902 || e.code === -32603) {
-      await window.ethereum.request({
+      await rawProvider.request({
         method: 'wallet_addEthereumChain',
         params: [{
           chainId: CHAIN_HEX,
           chainName: 'Arc Testnet',
           nativeCurrency: { name: 'USDC', symbol: 'USDC', decimals: 18 },
           rpcUrls: [RPC],
-          blockExplorerUrls: [],
+          blockExplorerUrls: ['https://testnet.arcscan.app'],
         }]
       })
     } else throw e
