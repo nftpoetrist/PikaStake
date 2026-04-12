@@ -2442,7 +2442,7 @@ const WALLET_PRIORITY = [
 ]
 
 // Hidden wallets (blocked from list)
-const WALLET_BLOCKLIST = ['nightlu']
+const WALLET_BLOCKLIST = ['nightlu', 'nightly']
 
 window.addEventListener('eip6963:announceProvider', (e) => {
   walletProviders.set(e.detail.info.rdns, e.detail)
