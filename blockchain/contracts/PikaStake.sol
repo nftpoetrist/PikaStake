@@ -11,7 +11,8 @@ interface IPikaUSDC {
 /**
  * @title PikaStake
  * @notice Kullanicilar USDC (6 decimal) yatirir, pUSDC (18 decimal) kazanir.
- *         Gunluk APD orani owner tarafindan degistirilebilir (redeploy gerekmez).
+ *         Withdraw sadece USDC'yi geri verir, pUSDC ödüllerine dokunmaz.
+ *         pUSDC yalnizca claimRewards() cagirildiginda cüzdana gönderilir.
  *         dailyMultiplier = 100 → %100 APD, 200 → %200 APD vb.
  */
 contract PikaStake {
@@ -24,12 +25,13 @@ contract PikaStake {
     // USDC 6 decimal, pUSDC 18 decimal → fark 12 basamak
     uint256 private constant SCALE = 1e12;
 
-    // APD carpani: 100 = %100/gun, 200 = %200/gun
+    // APD carpani: 100 = %100/gun, 200 = %200 APD
     uint256 public dailyMultiplier = 200;
 
     struct StakeInfo {
-        uint256 amount;      // Yatirilan USDC (6 decimal)
-        uint256 lastClaimed; // Son claim timestamp
+        uint256 amount;             // Yatirilan USDC (6 decimal)
+        uint256 lastClaimed;        // Son hesaplama timestamp
+        uint256 accumulatedRewards; // Withdraw/stake sirasinda biriken pUSDC (mint edilmemis)
     }
 
     mapping(address => StakeInfo) public stakes;
@@ -53,7 +55,6 @@ contract PikaStake {
 
     // ─────────────────────────────────────────
     //  APD ORANINI GUNCELLE (sadece owner)
-    //  ornek: setDailyMultiplier(300) → %300 APD
     // ─────────────────────────────────────────
     function setDailyMultiplier(uint256 newMultiplier) external onlyOwner {
         require(newMultiplier > 0 && newMultiplier <= 10000, "Gecersiz carpan");
@@ -70,7 +71,8 @@ contract PikaStake {
         usdc.safeTransferFrom(msg.sender, address(this), amount);
 
         if (stakes[msg.sender].amount > 0) {
-            _claim(msg.sender);
+            // Mevcut stake varsa ödülleri kaydet ama MINT ETME
+            _saveRewards(msg.sender);
         } else {
             stakes[msg.sender].lastClaimed = block.timestamp;
         }
@@ -82,7 +84,7 @@ contract PikaStake {
     }
 
     // ─────────────────────────────────────────
-    //  USDC GERI CEK (otomatik claim de yapar)
+    //  USDC GERI CEK — pUSDC ödüllerine dokunmaz
     // ─────────────────────────────────────────
     function withdraw(uint256 amount) external {
         StakeInfo storage info = stakes[msg.sender];
@@ -94,13 +96,15 @@ contract PikaStake {
 
         require(toWithdraw <= info.amount, "Yetersiz bakiye");
 
-        _claim(msg.sender);
+        // Ödülleri kaydet (accumulated'a ekle) ama MINT ETME
+        _saveRewards(msg.sender);
 
         info.amount -= toWithdraw;
         totalStaked -= toWithdraw;
 
         if (info.amount == 0) {
             info.lastClaimed = 0;
+            // accumulatedRewards sıfırlanmaz — kullanıcı hâlâ claim edebilir
         }
 
         usdc.safeTransfer(msg.sender, toWithdraw);
@@ -109,22 +113,31 @@ contract PikaStake {
     }
 
     // ─────────────────────────────────────────
-    //  SADECE ODULU CLAIM ET
+    //  SADECE ODULU CLAIM ET — pUSDC cüzdana gönderilir
     // ─────────────────────────────────────────
     function claimRewards() external {
-        require(stakes[msg.sender].amount > 0, "Aktif stake bulunamadi");
-        require(pendingRewards(msg.sender) > 0, "Henuz odul birikmedi");
-        _claim(msg.sender);
+        StakeInfo storage info = stakes[msg.sender];
+        uint256 total = pendingRewards(msg.sender);
+        require(total > 0, "Henuz odul birikmedi");
+
+        info.accumulatedRewards = 0;
+        info.lastClaimed = block.timestamp;
+
+        pikaUSDC.mint(msg.sender, total);
+        emit Claimed(msg.sender, total);
     }
 
     // ─────────────────────────────────────────
-    //  BIRIKEN ODULU HESAPLA
+    //  BIRIKEN ODULU HESAPLA (accumulated + güncel)
     // ─────────────────────────────────────────
     function pendingRewards(address user) public view returns (uint256) {
         StakeInfo memory info = stakes[user];
-        if (info.amount == 0) return 0;
-        uint256 timeElapsed = block.timestamp - info.lastClaimed;
-        return (info.amount * SCALE * timeElapsed * dailyMultiplier) / (86400 * 100);
+        uint256 current = 0;
+        if (info.amount > 0 && info.lastClaimed > 0) {
+            uint256 timeElapsed = block.timestamp - info.lastClaimed;
+            current = (info.amount * SCALE * timeElapsed * dailyMultiplier) / (86400 * 100);
+        }
+        return info.accumulatedRewards + current;
     }
 
     // ─────────────────────────────────────────
@@ -143,14 +156,17 @@ contract PikaStake {
     }
 
     // ─────────────────────────────────────────
-    //  IC CLAIM FONKSIYONU
+    //  IC FONKSIYON — ödülleri kaydet, MINT ETME
     // ─────────────────────────────────────────
-    function _claim(address user) internal {
-        uint256 reward = pendingRewards(user);
-        stakes[user].lastClaimed = block.timestamp;
-        if (reward > 0) {
-            pikaUSDC.mint(user, reward);
-            emit Claimed(user, reward);
+    function _saveRewards(address user) internal {
+        StakeInfo storage info = stakes[user];
+        if (info.amount > 0 && info.lastClaimed > 0) {
+            uint256 timeElapsed = block.timestamp - info.lastClaimed;
+            uint256 reward = (info.amount * SCALE * timeElapsed * dailyMultiplier) / (86400 * 100);
+            if (reward > 0) {
+                info.accumulatedRewards += reward;
+            }
         }
+        info.lastClaimed = block.timestamp;
     }
 }
