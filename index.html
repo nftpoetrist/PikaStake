@@ -2428,6 +2428,22 @@ async function fetchUser() {
 const walletProviders = new Map() // rdns → { info, provider }
 const LAST_WALLET_KEY = 'pikastake_wallet'
 
+// Display order (most popular first)
+const WALLET_PRIORITY = [
+  'io.metamask',           // MetaMask
+  'app.phantom',           // Phantom
+  'com.okex.wallet',       // OKX Wallet
+  'xyz.okx.wallet',        // OKX Wallet (alt rdns)
+  'app.backpack',          // Backpack
+  'com.trustwallet.app',   // Trust Wallet
+  'trust.wallet',          // Trust Wallet (alt rdns)
+  'me.rainbow',            // Rainbow
+  'app.keplr',             // Keplr
+]
+
+// Hidden wallets (blocked from list)
+const WALLET_BLOCKLIST = ['nightlu']
+
 window.addEventListener('eip6963:announceProvider', (e) => {
   walletProviders.set(e.detail.info.rdns, e.detail)
   renderWalletList()
@@ -2458,12 +2474,26 @@ function renderWalletList() {
   if (!list) return
   list.innerHTML = ''
 
-  if (walletProviders.size === 0) {
-    list.innerHTML = '<div class="wallet-no-wallets">Tarayıcıda cüzdan bulunamadı.<br>MetaMask veya Backpack yükleyin.</div>'
+  const entries = [...walletProviders.values()]
+    .filter(({ info }) => {
+      const key = (info.rdns + info.name).toLowerCase()
+      return !WALLET_BLOCKLIST.some(b => key.includes(b))
+    })
+    .sort((a, b) => {
+      const ai = WALLET_PRIORITY.findIndex(p => a.info.rdns.includes(p) || p.includes(a.info.rdns))
+      const bi = WALLET_PRIORITY.findIndex(p => b.info.rdns.includes(p) || p.includes(b.info.rdns))
+      if (ai === -1 && bi === -1) return a.info.name.localeCompare(b.info.name)
+      if (ai === -1) return 1
+      if (bi === -1) return -1
+      return ai - bi
+    })
+
+  if (entries.length === 0) {
+    list.innerHTML = '<div class="wallet-no-wallets">No wallet found in your browser.<br>Install MetaMask or Phantom to get started.</div>'
     return
   }
 
-  walletProviders.forEach(({ info, provider: rawProvider }) => {
+  entries.forEach(({ info }) => {
     const btn = document.createElement('button')
     btn.className = 'wallet-option'
     const iconHtml = info.icon
@@ -2484,8 +2514,9 @@ async function connectWithProvider(rdns) {
   setBtn('connectBtn', true, '<span class="spin"></span> Connecting…')
 
   try {
-    await switchChainWithProvider(rawProvider)
+    // Authorize accounts first — required by Phantom, Trust, and others before chain switch
     await rawProvider.request({ method: 'eth_requestAccounts' })
+    await switchChainWithProvider(rawProvider)
 
     provider = new ethers.BrowserProvider(rawProvider)
     signer   = await provider.getSigner()
@@ -2503,7 +2534,7 @@ async function connectWithProvider(rdns) {
     toast('Wallet connected ⚡', 'success')
   } catch(e) {
     console.error(e)
-    const msg = e.code === 4001 ? 'İstek reddedildi' : (e.message?.slice(0,80) || 'Bağlantı başarısız')
+    const msg = e.code === 4001 ? 'Request rejected' : (e.message?.slice(0,80) || 'Connection failed')
     toast(msg, 'error')
     setBtn('connectBtn', false, 'Connect Wallet')
     g('connectBtn').classList.remove('connected')
@@ -2571,21 +2602,28 @@ function resetState() {
 
 /* ── CHAIN ───────────────────────────────────────────────────────── */
 async function switchChainWithProvider(rawProvider) {
+  const arcChain = {
+    chainId: CHAIN_HEX,
+    chainName: 'Arc Testnet',
+    nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
+    rpcUrls: [RPC],
+    blockExplorerUrls: ['https://testnet.arcscan.app'],
+  }
   try {
     await rawProvider.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: CHAIN_HEX }] })
-  } catch(e) {
-    if (e.code === 4902 || e.code === -32603) {
-      await rawProvider.request({
-        method: 'wallet_addEthereumChain',
-        params: [{
-          chainId: CHAIN_HEX,
-          chainName: 'Arc Testnet',
-          nativeCurrency: { name: 'USDC', symbol: 'USDC', decimals: 18 },
-          rpcUrls: [RPC],
-          blockExplorerUrls: ['https://testnet.arcscan.app'],
-        }]
-      })
-    } else throw e
+  } catch(switchErr) {
+    // 4902 = chain not added (MetaMask)
+    // -32603 = internal error (some wallets)
+    // Other codes = Backpack, OKX, Trust use different codes
+    // → Always try wallet_addEthereumChain if switch fails (except user rejection)
+    if (switchErr.code === 4001) throw switchErr // User explicitly rejected
+    try {
+      await rawProvider.request({ method: 'wallet_addEthereumChain', params: [arcChain] })
+    } catch(addErr) {
+      if (addErr.code === 4001) throw addErr // User rejected add
+      // Chain may already exist — try switching one more time
+      await rawProvider.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: CHAIN_HEX }] })
+    }
   }
 }
 
