@@ -5,7 +5,7 @@ async function main() {
   console.log("Deployer:", deployer.address);
 
   // Mevcut PikaUSDC adresini kullan
-  const PIKAUSDC_ADDRESS = "0xceB8Bc7d47c0416bEC98B90D23e968cA1f3B2eeD";
+  const PIKAUSDC_ADDRESS = process.env.PIKAUSDC_ADDRESS;
 
   console.log("\nPikaMon deploy ediliyor (yeni kartlarla)...");
   const PikaMon = await ethers.getContractFactory("PikaMon");

@@ -900,7 +900,7 @@
     ══════════════════════════════════════════════ */
     .mint-wrap {
       width: 100%;
-      max-width: 680px;
+      max-width: 1360px;
       position: relative;
       margin-bottom: 28px;
     }
@@ -961,10 +961,10 @@
       letter-spacing: 0.3px;
     }
 
-    /* 3×2 NFT grid */
+    /* 6×2 NFT grid */
     .nft-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(6, 1fr);
       gap: 10px;
       margin-bottom: 16px;
     }
@@ -979,18 +979,39 @@
       transition: all 0.2s var(--ease);
     }
     .nft-slot:hover {
-      border-color: rgba(255,203,5,0.45);
-      background: rgba(255,203,5,0.12);
+      border: 2px solid transparent;
+      background:
+        linear-gradient(rgba(12,6,0,0.92), rgba(12,6,0,0.92)) padding-box,
+        conic-gradient(
+          from var(--beam-angle, 0deg),
+          rgba(255,203,5,0.10)  0deg,
+          rgba(255,203,5,0.10) 10deg,
+          rgba(255,203,5,0.85) 30deg,
+          #fff8c0             105deg,
+          rgba(255,203,5,0.85) 180deg,
+          rgba(255,203,5,0.10) 230deg,
+          rgba(255,203,5,0.10) 360deg
+        ) border-box;
       transform: translateY(-2px);
       box-shadow: 0 8px 28px rgba(0,0,0,0.45), 0 0 20px rgba(255,203,5,0.12);
     }
     .nft-slot.selected {
-      border-color: var(--y1);
-      background: rgba(255,203,5,0.16);
+      border: 2px solid transparent;
+      background:
+        linear-gradient(rgba(12,6,0,0.92), rgba(12,6,0,0.92)) padding-box,
+        conic-gradient(
+          from var(--beam-angle, 0deg),
+          rgba(255,203,5,0.10)  0deg,
+          rgba(255,203,5,0.10) 50deg,
+          rgba(255,203,5,0.85) 75deg,
+          #fff8c0             105deg,
+          rgba(255,203,5,0.85) 135deg,
+          rgba(255,203,5,0.10) 190deg,
+          rgba(255,203,5,0.10) 360deg
+        ) border-box;
       box-shadow:
-        0 0 0 1px rgba(255,203,5,0.5),
-        0 8px 32px rgba(0,0,0,0.5),
-        0 0 28px rgba(255,203,5,0.20);
+        0 0 28px rgba(255,203,5,0.20),
+        0 8px 32px rgba(0,0,0,0.5);
       transform: translateY(-3px);
     }
 
@@ -1381,7 +1402,7 @@
     .profile-panel {
       position: relative;
       width: 100%;
-      max-width: 420px;
+      max-width: 820px;
       background: linear-gradient(148deg,
         rgba(30, 18, 0, 0.97) 0%,
         rgba(20, 11, 0, 0.98) 50%,
@@ -1549,7 +1570,7 @@
     /* ── Profile NFT Grid ───────────────────── */
     .profile-nft-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(6, 1fr);
       gap: 8px;
     }
 
@@ -1570,11 +1591,11 @@
         conic-gradient(
           from var(--beam-angle, 0deg),
           rgba(255,203,5,0.10)  0deg,
-          rgba(255,203,5,0.10) 60deg,
-          rgba(255,203,5,0.85) 90deg,
+          rgba(255,203,5,0.10) 50deg,
+          rgba(255,203,5,0.85) 75deg,
           #fff8c0             105deg,
-          rgba(255,203,5,0.85) 120deg,
-          rgba(255,203,5,0.10) 170deg,
+          rgba(255,203,5,0.85) 135deg,
+          rgba(255,203,5,0.10) 190deg,
           rgba(255,203,5,0.10) 360deg
         ) border-box;
       box-shadow:
@@ -2033,7 +2054,7 @@
       </div>
       <div class="metric">
         <div class="metric-icon">⚡</div>
-        <div class="metric-label">Base APD</div>
+        <div class="metric-label">Base APD Rate</div>
         <div class="metric-val" id="metricAPY">—</div>
       </div>
     </div>
@@ -2048,7 +2069,7 @@
       <!-- Header -->
       <div class="mint-head">
         <div class="mint-title" style="margin-left:-10px;"><img src="nftt.png" alt="" style="height:1.6em;width:auto;vertical-align:middle;margin-right:1px;" /><span style="margin-left:-10px;position:relative;top:2px;">NFT Mint</span></div>
-        <div class="mint-supply-badge">6 Collection</div>
+        <div class="mint-supply-badge">12 Collection</div>
       </div>
 
       <!-- 3×2 NFT Grid -->
@@ -2132,6 +2153,90 @@
             </div>
             <div class="nft-info">
               <div class="nft-name">StormRage Pikachu</div>
+              <div class="nft-price">85 pUSDC</div>
+              <div class="nft-supply">Max 10,000</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 6: Nature's Shelter Pikachu -->
+        <div class="nft-slot" id="slot-6" onclick="selectNft(6)">
+          <div class="nft-inner">
+            <div class="nft-art">
+              <img src="nft/pikachu-shelter.png" alt="Nature's Shelter Pikachu" loading="lazy" decoding="async" />
+            </div>
+            <div class="nft-info">
+              <div class="nft-name">Nature's Shelter Pikachu</div>
+              <div class="nft-price">195 pUSDC</div>
+              <div class="nft-supply">Max 4,444</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 7: Prismatic Bloom Ivysaur -->
+        <div class="nft-slot" id="slot-7" onclick="selectNft(7)">
+          <div class="nft-inner">
+            <div class="nft-art">
+              <img src="nft/ivysaur-bloom.png" alt="Prismatic Bloom Ivysaur" loading="lazy" decoding="async" />
+            </div>
+            <div class="nft-info">
+              <div class="nft-name">Prismatic Bloom Ivysaur</div>
+              <div class="nft-price">175 pUSDC</div>
+              <div class="nft-supply">Max 5,555</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 8: Electric Bond Pachirisu -->
+        <div class="nft-slot" id="slot-8" onclick="selectNft(8)">
+          <div class="nft-inner">
+            <div class="nft-art">
+              <img src="nft/pachirisu-bond.png" alt="Electric Bond Pachirisu" loading="lazy" decoding="async" />
+            </div>
+            <div class="nft-info">
+              <div class="nft-name">Electric Bond Pachirisu</div>
+              <div class="nft-price">155 pUSDC</div>
+              <div class="nft-supply">Max 5,555</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 9: Hearth Glow Vulpix -->
+        <div class="nft-slot" id="slot-9" onclick="selectNft(9)">
+          <div class="nft-inner">
+            <div class="nft-art">
+              <img src="nft/vulpix-hearth.png" alt="Hearth Glow Vulpix" loading="lazy" decoding="async" />
+            </div>
+            <div class="nft-info">
+              <div class="nft-name">Hearth Glow Vulpix</div>
+              <div class="nft-price">130 pUSDC</div>
+              <div class="nft-supply">Max 7,300</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 10: Sunlit Alley Litleo -->
+        <div class="nft-slot" id="slot-10" onclick="selectNft(10)">
+          <div class="nft-inner">
+            <div class="nft-art">
+              <img src="nft/litleo-sunlit.png" alt="Sunlit Alley Litleo" loading="lazy" decoding="async" />
+            </div>
+            <div class="nft-info">
+              <div class="nft-name">Sunlit Alley Litleo</div>
+              <div class="nft-price">115 pUSDC</div>
+              <div class="nft-supply">Max 8,400</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 11: Midnight Meteor Helioptile -->
+        <div class="nft-slot" id="slot-11" onclick="selectNft(11)">
+          <div class="nft-inner">
+            <div class="nft-art">
+              <img src="nft/helioptile-midnight.png" alt="Midnight Meteor Helioptile" loading="lazy" decoding="async" />
+            </div>
+            <div class="nft-info">
+              <div class="nft-name">Midnight Meteor Helioptile</div>
               <div class="nft-price">85 pUSDC</div>
               <div class="nft-supply">Max 10,000</div>
             </div>
@@ -2237,11 +2342,6 @@
     <div class="profile-header">
       <div class="profile-avatar-wrap"><img src="pikapfp.png" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" /></div>
       <div class="profile-info">
-        <div class="profile-addr" id="profileAddr">Connect wallet to view</div>
-        <div class="profile-balance-row">
-          <span class="balance-dot"></span>
-          <span id="profileBalance">— pUSDC</span>
-        </div>
       </div>
       <button class="profile-close" onclick="closeProfile()">✕</button>
     </div>
@@ -2275,7 +2375,7 @@
 const STAKE_ADDR   = '0x57bf29eDF062A617FAC74Fde4D77Ec04fF809B6B'
 const PUSDC_ADDR   = '0x04af969E356F67EB35F3A642871A6eF9791670b7'
 const USDC_ADDR    = '0x3600000000000000000000000000000000000000'
-const PIKAMON_ADDR = '0xa921D481D638036e1f3C2AF3Bad4323d3E1190eF'
+const PIKAMON_ADDR = '0x98A9d9E580582Ac9e24f570bFBb09C3929c3cD92'
 const MAX_PER_WALLET  = 2
 const CHAIN_ID     = 5042002
 const CHAIN_HEX    = '0x' + CHAIN_ID.toString(16)
@@ -2318,6 +2418,12 @@ const NFT_IMAGES = [
   'nft/pikachu-prismatic.png',
   'nft/leafeon.png',
   'nft/pikachu-storm.png',
+  'nft/pikachu-shelter.png',
+  'nft/ivysaur-bloom.png',
+  'nft/pachirisu-bond.png',
+  'nft/vulpix-hearth.png',
+  'nft/litleo-sunlit.png',
+  'nft/helioptile-midnight.png',
 ]
 
 /* ── STATE ───────────────────────────────────────────────────────── */
@@ -2332,6 +2438,19 @@ let profileOwnedCounts = [0, 0, 0, 0, 0, 0]
 window.addEventListener('load', async () => {
   fetchPublic()
   discoverWallets()
+
+  // Beam: start on mint card hover, stop when no card is hovered and profile is closed
+  const nftGrid = g('nftGrid')
+  if (nftGrid) {
+    nftGrid.addEventListener('mouseenter', () => {
+      if (!_beamRaf) _beamRaf = requestAnimationFrame(_tickBeam)
+    }, true)
+    nftGrid.addEventListener('mouseleave', () => {
+      if (!g('profileOverlay')?.classList.contains('open')) {
+        if (_beamRaf) { cancelAnimationFrame(_beamRaf); _beamRaf = null }
+      }
+    }, true)
+  }
 
   // Sayfa yüklenince son kullanılan cüzdanı otomatik bağla
   setTimeout(autoConnect, 100) // EIP-6963 duyurularının gelmesi için kısa bekle
@@ -2534,7 +2653,7 @@ async function connectWithProvider(rdns) {
     toast('Wallet connected ⚡', 'success')
   } catch(e) {
     console.error(e)
-    const msg = e.code === 4001 ? 'Request rejected' : (e.message?.slice(0,80) || 'Connection failed')
+    const msg = parseError(e)
     toast(msg, 'error')
     setBtn('connectBtn', false, 'Connect Wallet')
     g('connectBtn').classList.remove('connected')
@@ -2575,7 +2694,7 @@ function renderConnected() {
 function resetState() {
   provider = signer = account = null
   myStaked = myWallet = 0n
-  profileOwnedCounts = [0, 0, 0, 0, 0, 0]
+  profileOwnedCounts = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
   g('chainPill').style.display = 'none'
   g('connectBtn').classList.remove('connected')
   setBtn('connectBtn', false, 'Connect Wallet')
@@ -2629,12 +2748,18 @@ async function switchChainWithProvider(rawProvider) {
 
 /* ── NFT MINT UI ─────────────────────────────────────────────────── */
 const NFT_CARDS = [
-  { id: 0, name: 'Enchanted Ribbon Sylveon',  price: 195, supply: 4444  },
-  { id: 1, name: 'Golden Jewel Pikachu',      price: 175, supply: 5555  },
-  { id: 2, name: 'Mystical Crown Espeon',     price: 155, supply: 5555  },
-  { id: 3, name: 'Prismatic Power Pikachu',   price: 130, supply: 7300  },
-  { id: 4, name: 'Verdant Guardian Leafeon',  price: 115, supply: 8400  },
-  { id: 5, name: 'StormRage Pikachu',         price: 85,  supply: 10000 },
+  { id: 0,  name: 'Enchanted Ribbon Sylveon',   price: 195, supply: 4444  },
+  { id: 1,  name: 'Golden Jewel Pikachu',        price: 175, supply: 5555  },
+  { id: 2,  name: 'Mystical Crown Espeon',       price: 155, supply: 5555  },
+  { id: 3,  name: 'Prismatic Power Pikachu',     price: 130, supply: 7300  },
+  { id: 4,  name: 'Verdant Guardian Leafeon',    price: 115, supply: 8400  },
+  { id: 5,  name: 'StormRage Pikachu',           price: 85,  supply: 10000 },
+  { id: 6,  name: "Nature's Shelter Pikachu",    price: 195, supply: 4444  },
+  { id: 7,  name: 'Prismatic Bloom Ivysaur',     price: 175, supply: 5555  },
+  { id: 8,  name: 'Electric Bond Pachirisu',     price: 155, supply: 5555  },
+  { id: 9,  name: 'Hearth Glow Vulpix',          price: 130, supply: 7300  },
+  { id: 10, name: 'Sunlit Alley Litleo',         price: 115, supply: 8400  },
+  { id: 11, name: 'Midnight Meteor Helioptile',  price: 85,  supply: 10000 },
 ]
 let selectedNft = null
 
@@ -2681,28 +2806,28 @@ async function doMint() {
   if (selectedNft === null) { toast('Select an NFT card', 'error'); return }
 
   const card       = NFT_CARDS[selectedNft]
-  const contractId = selectedNft + 1   // contract: 1–6
+  const contractId = selectedNft + 1   // contract: 1–12
 
   try {
     const pikamon = new ethers.Contract(PIKAMON_ADDR, PIKAMON_ABI, provider)
+    const pusdc   = new ethers.Contract(PUSDC_ADDR, PUSDC_ABI, signer)
 
-    /* ── 1. Kontrat'tan gerçek fiyatı oku ── */
-    const cardInfo = await pikamon.getCard(contractId)
-    const priceWei = cardInfo.price   // kontratın beklediği tam değer
-
-    /* ── 2. Kaç tane sahip olduğunu kontrol et ── */
-    const owned = await pikamon.balanceOf(account, contractId)
+    /* ── 1. Tüm ön kontrolleri paralel yap ── */
+    const [cardInfo, owned, allowance] = await Promise.all([
+      pikamon.getCard(contractId),
+      pikamon.balanceOf(account, contractId),
+      pusdc.allowance(account, PIKAMON_ADDR),
+    ])
+    const priceWei = cardInfo.price
 
     if (Number(owned) >= MAX_PER_WALLET) {
       toast(`Max ${MAX_PER_WALLET} per wallet — you already own ${owned} of this card`, 'error')
       return
     }
 
-    /* ── 3. pUSDC approve ── */
+    /* ── 2. pUSDC approve ── */
     const displayPrice = Number(ethers.formatUnits(priceWei, 18))
     showOverlay(`Approving ${displayPrice} pUSDC…`)
-    const pusdc     = new ethers.Contract(PUSDC_ADDR, PUSDC_ABI, signer)
-    const allowance = await pusdc.allowance(account, PIKAMON_ADDR)
 
     if (allowance < priceWei) {
       const approveTx = await pusdc.approve(PIKAMON_ADDR, priceWei)
@@ -2728,11 +2853,7 @@ async function doMint() {
   } catch (e) {
     hideOverlay()
     console.error(e)
-    if (e.code === 4001 || e.code === 'ACTION_REJECTED') {
-      toast('Transaction rejected', 'error')
-    } else {
-      toast(e.reason || e.message?.slice(0, 80) || 'Mint failed', 'error')
-    }
+    toast(parseError(e), 'error')
   }
 }
 
@@ -2765,12 +2886,12 @@ function updateSlotState(jsId, owned) {
 async function checkMintedCards() {
   if (!account || !provider) return
   const pikamon = new ethers.Contract(PIKAMON_ADDR, PIKAMON_ABI, provider)
-  for (let i = 0; i < NFT_CARDS.length; i++) {
+  await Promise.all(NFT_CARDS.map(async (_, i) => {
     try {
       const owned = await pikamon.balanceOf(account, i + 1)
       if (Number(owned) > 0) updateSlotState(i, Number(owned))
     } catch (_) {}
-  }
+  }))
 }
 
 /* ── STAKE ───────────────────────────────────────────────────────── */
@@ -2799,7 +2920,7 @@ async function doStake() {
     await Promise.all([fetchUser(), fetchPublic()])
   } catch(e) {
     console.error('Stake error:', e)
-    toast(e.code === 4001 ? 'Rejected' : (e.reason || e.message?.slice(0,80) || 'Stake failed'), 'error')
+    toast(parseError(e), 'error')
   } finally { hideOverlay() }
 }
 
@@ -2822,7 +2943,7 @@ async function doWithdraw() {
     await Promise.all([fetchUser(), fetchPublic()])
   } catch(e) {
     console.error('Withdraw error:', e)
-    toast(e.code === 4001 ? 'Rejected' : (e.reason || e.message?.slice(0,80) || 'Withdraw failed'), 'error')
+    toast(parseError(e), 'error')
   } finally { hideOverlay() }
 }
 
@@ -2852,7 +2973,7 @@ async function doClaim() {
     await fetchUser()
   } catch(e) {
     console.error('Claim error:', e)
-    toast(e.code === 4001 ? 'Rejected' : (e.reason || e.message?.slice(0,80) || 'Claim failed'), 'error')
+    toast(parseError(e), 'error')
   } finally { hideOverlay() }
 }
 
@@ -2922,14 +3043,54 @@ function needWallet() {
   return true
 }
 
+function parseError(e) {
+  // User rejected
+  if (e.code === 4001 || e.code === 'ACTION_REJECTED') return 'Transaction rejected'
+
+  // Known contract revert reasons (Turkish → English)
+  const reason = e.reason || e.data?.message || ''
+  if (reason.includes('Sold out'))                 return 'This card is sold out'
+  if (reason.includes('Max 2 per wallet'))         return 'You already own the max (2) of this card'
+  if (reason.includes('Henuz odul birikmedi'))     return 'No rewards to claim yet'
+  if (reason.includes('Yatirilan USDC'))           return 'No staked balance found'
+  if (reason.includes('Yetersiz bakiye'))          return 'Insufficient staked balance'
+  if (reason.includes('Sifirdan fazla'))           return 'Amount must be greater than zero'
+  if (reason.includes('Card does not exist'))      return 'This card does not exist'
+  if (reason.includes('Aktif stake bulunamadi'))   return 'No active stake found'
+  if (reason.includes('burn amount exceeds'))      return 'Insufficient pUSDC balance'
+  if (reason.includes('insufficient allowance'))   return 'Approval failed — try again'
+  if (reason.length > 0)                           return reason
+
+  // Network / RPC errors
+  if (e.code === 'INSUFFICIENT_FUNDS')    return 'Insufficient funds for gas'
+  if (e.code === 'NETWORK_ERROR')         return 'Network unavailable — check your connection'
+  if (e.code === 'TIMEOUT' || e.code === 'ETIMEDOUT') return 'Request timed out — try again'
+  if (e.code === -32603 || e.code === 'SERVER_ERROR') return 'RPC error — please try again'
+  if (e.code === 'CALL_EXCEPTION')        return 'Transaction failed — check your balance'
+  if (e.code === 'UNPREDICTABLE_GAS_LIMIT') return 'Transaction may fail — check your balance'
+  if (e.code === 'NONCE_EXPIRED')         return 'Transaction expired — try again'
+
+  // Wallet / connection errors
+  if (e.code === 'UNKNOWN_NETWORK')       return 'Wrong network — please switch to Arc Testnet'
+  if (e.message?.includes('unknown network')) return 'Wrong network — please switch to Arc Testnet'
+  if (e.message?.includes('user rejected'))   return 'Transaction rejected'
+  if (e.message?.includes('not authorized'))  return 'Wallet not authorized — reconnect and try again'
+
+  // Fallback
+  return e.message?.slice(0, 90) || 'Something went wrong — try again'
+}
+
 /* ── PROFILE PANEL ───────────────────────────────────────────────── */
 let _beamRaf = null
 const _beamStart = performance.now()
 
 function _tickBeam() {
   const angle = (((performance.now() - _beamStart) / 6000) * 360) % 360
-  const grid = g('profileNftGrid')
-  if (grid) grid.style.setProperty('--beam-angle', angle.toFixed(2) + 'deg')
+  const deg = angle.toFixed(2) + 'deg'
+  const profileGrid = g('profileNftGrid')
+  if (profileGrid) profileGrid.style.setProperty('--beam-angle', deg)
+  const mintGrid = g('nftGrid')
+  if (mintGrid) mintGrid.style.setProperty('--beam-angle', deg)
   _beamRaf = requestAnimationFrame(_tickBeam)
 }
 
@@ -2944,7 +3105,10 @@ function openProfile() {
 function closeProfile() {
   g('profileOverlay').classList.remove('open')
   document.body.style.overflow = ''
-  if (_beamRaf) { cancelAnimationFrame(_beamRaf); _beamRaf = null }
+  // stop only if mint grid has no hovered card
+  if (!g('nftGrid')?.querySelector('.nft-slot:hover')) {
+    if (_beamRaf) { cancelAnimationFrame(_beamRaf); _beamRaf = null }
+  }
 }
 
 function handleProfileOverlayClick(e) {
@@ -2953,14 +3117,7 @@ function handleProfileOverlayClick(e) {
 
 function renderProfile() {
   /* Header */
-  if (account) {
-    g('profileAddr').textContent = shortAddr(account)
-    const bl = g('balanceLabel')
-    g('profileBalance').textContent = bl ? bl.textContent : '— pUSDC'
-  } else {
-    g('profileAddr').textContent = 'Connect wallet to view'
-    g('profileBalance').textContent = '— pUSDC'
-  }
+  // wallet address and balance intentionally not shown in profile
 
   /* NFT grid */
   const grid = g('profileNftGrid')
