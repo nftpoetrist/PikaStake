@@ -1959,11 +1959,6 @@
     </div>
 
     <div class="nav-right">
-      <div class="chain-pill" id="chainPill" style="display:none">
-        <div class="chain-dot"></div>
-        Arc Testnet
-      </div>
-
       <div class="balance-pill" id="balancePill">
         <div class="balance-dot"></div>
         <span id="balanceLabel">0.00 pUSDC</span>
@@ -2731,10 +2726,9 @@ function handleConnect() {
 }
 
 function renderConnected() {
-  g('chainPill').style.display  = 'flex'
   g('connectBtn').classList.add('connected')
   const short = shortAddr(account)
-  setBtn('connectBtn', false, `<span style="width:6px;height:6px;border-radius:50%;background:var(--ok);box-shadow:0 0 7px var(--ok);flex-shrink:0;display:inline-block"></span>${short}`)
+  setBtn('connectBtn', false, `<span style="width:6px;height:6px;border-radius:50%;background:var(--ok);box-shadow:0 0 7px var(--ok);flex-shrink:0;display:inline-block"></span><span style="color:var(--ok)">Arc Testnet</span> ${short}`)
   updateMintWalletStatus()
   checkMintedCards()
 }
@@ -2743,7 +2737,6 @@ function resetState() {
   provider = signer = account = null
   myStaked = myWallet = 0n
   profileOwnedCounts = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-  g('chainPill').style.display = 'none'
   g('connectBtn').classList.remove('connected')
   setBtn('connectBtn', false, 'Connect Wallet')
 ;['balanceLabel','walletBal','stakedBal','statStaked','statRewards','claimNum'].forEach(id => {
@@ -3085,7 +3078,7 @@ function fmtN(raw, dec) {
 function fmtUsdc(raw)  { return fmtN(raw, USDC_DEC) }
 function fmtPusdc(raw) { return fmtN(raw, PUSDC_DEC) }
 
-function shortAddr(a) { return `${a.slice(0,6)}…${a.slice(-4)}` }
+function shortAddr(a) { return `${a.slice(0,4)}…${a.slice(-4)}` }
 function needWallet() {
   if (!account) { toast('Connect your wallet first', 'error'); return false }
   return true
