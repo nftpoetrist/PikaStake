@@ -21,7 +21,7 @@ The `pikastake/` Next.js app is a **separate, older prototype** — do not confu
 ```
 PikaStake/
 ├── index.html           # ← Active website (HTML/CSS/JS + ethers.js)
-├── nft/                 # NFT card images (12 cards total)
+├── nft/                 # NFT card images (sylveon.png, pikachu-gold.png, etc.)
 ├── blockchain/          # Hardhat smart contracts
 │   ├── contracts/
 │   │   ├── PikaUSDC.sol
@@ -55,15 +55,13 @@ After redeploying PikaMon, update `PIKAMON_ADDR` in `index.html` and `PIKAMON_AD
 | Contract | Type | Role |
 |----------|------|------|
 | `PikaUSDC.sol` | ERC20Burnable | Reward token; only PikaStake can mint |
-| `PikaStake.sol` | Custom | Accepts staked USDC, emits pUSDC at configurable APD (default 200% APD) |
-| `PikaMon.sol` | ERC1155 | 12 NFT cards; minted by burning pUSDC; max 2 per wallet enforced on-chain; `addCard()` allows adding new cards without redeployment |
+| `PikaStake.sol` | Custom | Accepts staked USDC value, emits pUSDC at 100% APY |
+| `PikaMon.sol` | ERC1155 | 6 NFT cards; minted by burning pUSDC; max 2 per wallet enforced on-chain |
 
-**Reward formula:** `(stakedAmount * SCALE * timeElapsedSeconds * dailyMultiplier) / (86400 * 100)`
+**Reward formula:** `(stakedAmount * SCALE * timeElapsedSeconds) / 86400`
 *(SCALE = 1e12 — USDC is 6 decimals, pUSDC is 18 decimals)*
 
-**Terminology:** Always use **APD** (not APY) throughout the UI.
-
-**PikaMon cards (contract IDs 1–12):**
+**PikaMon cards (contract IDs 1–6):**
 | ID | Name | Price | Supply |
 |----|------|-------|--------|
 | 1 | Enchanted Ribbon Sylveon | 195 pUSDC | 4,444 |
@@ -72,20 +70,12 @@ After redeploying PikaMon, update `PIKAMON_ADDR` in `index.html` and `PIKAMON_AD
 | 4 | Prismatic Power Pikachu | 130 pUSDC | 7,300 |
 | 5 | Verdant Guardian Leafeon | 115 pUSDC | 8,400 |
 | 6 | StormRage Pikachu | 85 pUSDC | 10,000 |
-| 7 | Nature's Shelter Pikachu | 195 pUSDC | 4,444 |
-| 8 | Prismatic Bloom Ivysaur | 175 pUSDC | 5,555 |
-| 9 | Electric Bond Pachirisu | 155 pUSDC | 5,555 |
-| 10 | Hearth Glow Vulpix | 130 pUSDC | 7,300 |
-| 11 | Sunlit Alley Litleo | 115 pUSDC | 8,400 |
-| 12 | Midnight Meteor Helioptile | 85 pUSDC | 10,000 |
 
 **Deployed addresses (Arc Testnet):**
 - USDC (ERC20, 6 dec): `0x3600000000000000000000000000000000000000`
 - PikaUSDC: `0x940dA31Fcc2c678E9B53217C9d9bAc29e15c70E7`
 - PikaStake: `0x57bf29eDF062A617FAC74Fde4D77Ec04fF809B6B`
-- PikaMon: `0x98A9d9E580582Ac9e24f570bFBb09C3929c3cD92`
-
-**Deployer wallet:** `0xd76B24F43bCF5C3fFe09906A7414CD4D02EA7cDe`
+- PikaMon: `0xFBF26c37F2e057A912af0aE65D80a35557C33839`
 
 ---
 
@@ -95,33 +85,20 @@ Single-file app using ethers.js v6 (CDN). Key sections inside `<script>`:
 
 **Constants:** `STAKE_ADDR`, `PUSDC_ADDR`, `PIKAMON_ADDR`, `MAX_PER_WALLET = 2`
 
-**JS card ID mapping:** `NFT_CARDS[i]` (JS index 0–11) maps to contract card ID `i+1` (1–12).
+**JS card ID mapping:** `NFT_CARDS[i]` (JS index 0–5) maps to contract card ID `i+1` (1–6).
 
 **Mint flow in `doMint()`:**
-1. Parallel `Promise.all([getCard(), balanceOf(), allowance()])` for speed
-2. Read actual price from contract via `getCard(contractId)` — never use frontend price for approval
-3. Check `balanceOf` to enforce 2/wallet limit
-4. `approve` pUSDC → `mintCard(contractId)`
-
-**Error handling:** `parseError(e)` maps all contract/wallet errors to user-friendly English messages.
+1. Read actual price from contract via `getCard(contractId)` — never use frontend price for approval
+2. Check `balanceOf` to enforce 2/wallet limit
+3. `approve` pUSDC → `mintCard(contractId)`
 
 **Key UI sections:**
 - Floating glass navbar (`position: absolute`, not fixed — scrolls with page)
 - Staking panel (`.card`) — stake/withdraw/claim tabs
-- NFT mint panel (`.mint-panel`) — 6×2 grid (12 cards), select card → MINT bar at bottom
-- My Profile panel (`#profileOverlay`) — shows owned NFTs in 6-column grid, editable nickname (saved to localStorage), no wallet address or pUSDC balance shown
+- NFT mint panel (`.mint-panel`) — 3×2 grid, select card → MINT bar at bottom
 - `selectNft(id)` / `updateSlotState(id, owned)` / `checkMintedCards()` manage mint UI state
 
-**Beam effect:** Conic-gradient animated beam on `.nft-slot:hover` and profile cards. RAF loop starts only on `mouseenter` of nftGrid or when profile is open — stops on `mouseleave` (if profile closed) to avoid CPU waste.
-
-**Connect wallet:**
-- Wallet order: MetaMask, Phantom, OKX, Backpack, Trust, Rainbow, Keplr
-- Nightly wallet is blocklisted (`WALLET_BLOCKLIST`)
-- `eth_requestAccounts` runs BEFORE `switchChain` (required for Phantom/Trust)
-- `switchChainWithProvider` catches ALL errors (except 4001) and tries `wallet_addEthereumChain` as fallback
-- `eth_requestAccounts` has 30s timeout; `switchChain` has 15s
-
-**Nickname:** `loadNick()` / `startNickEdit()` / `saveNick()` — stored in `localStorage` key `pikaStakeNick`. Shows input field directly if no nickname saved yet.
+**Connect wallet timeout:** `eth_requestAccounts` has a 30s timeout; `switchChain` has 15s — prevents infinite "Connecting…" spinner if popup is closed.
 
 ---
 
@@ -129,5 +106,4 @@ Single-file app using ethers.js v6 (CDN). Key sections inside `<script>`:
 
 - Chain ID: `5042002`
 - RPC: `https://5042002.rpc.thirdweb.com`
-- Block explorer: `https://testnet.arcscan.app`
 - Configured in `blockchain/hardhat.config.js` and `index.html` constants
