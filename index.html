@@ -1474,7 +1474,48 @@
       box-shadow: 0 0 24px rgba(255,203,5,0.22), inset 0 1px 0 rgba(255,255,255,0.12);
     }
 
-    .profile-info { flex: 1; min-width: 0; }
+    .profile-info { flex: 1; min-width: 0; display: flex; align-items: center; gap: 7px; }
+
+    /* ── Nickname ───────────────────────────── */
+    .profile-nick-display {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--t0);
+      letter-spacing: -0.2px;
+      cursor: pointer;
+      display: flex; align-items: center; gap: 6px;
+      max-width: 180px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    .profile-nick-display .nick-edit-icon {
+      font-size: 11px;
+      color: var(--t3);
+      opacity: 0;
+      transition: opacity 0.18s;
+      flex-shrink: 0;
+    }
+    .profile-nick-display:hover .nick-edit-icon { opacity: 1; }
+
+    .profile-nick-input {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--t0);
+      background: rgba(255,255,255,0.06);
+      border: 1.5px solid rgba(255,203,5,0.45);
+      border-radius: 8px;
+      padding: 4px 10px;
+      outline: none;
+      width: 150px;
+      letter-spacing: -0.2px;
+      caret-color: var(--y1);
+      transition: border-color 0.18s;
+    }
+    .profile-nick-input:focus { border-color: var(--y1); }
+    .profile-nick-input::placeholder { color: var(--t3); font-weight: 500; }
 
     .profile-addr {
       font-family: 'Space Grotesk', sans-serif;
@@ -2342,6 +2383,13 @@
     <div class="profile-header">
       <div class="profile-avatar-wrap"><img src="pikapfp.png" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" /></div>
       <div class="profile-info">
+        <span class="profile-nick-display" id="profileNickDisplay" onclick="startNickEdit()">
+          <span id="profileNickText">Trainer</span>
+          <span class="nick-edit-icon">✎</span>
+        </span>
+        <input class="profile-nick-input" id="profileNickInput" type="text" maxlength="24"
+          placeholder="Enter nickname…" style="display:none;"
+          onblur="saveNick()" onkeydown="if(event.key==='Enter')saveNick();" />
       </div>
       <button class="profile-close" onclick="closeProfile()">✕</button>
     </div>
@@ -3094,9 +3142,49 @@ function _tickBeam() {
   _beamRaf = requestAnimationFrame(_tickBeam)
 }
 
+/* ── Nickname ─────────────────────────────── */
+function loadNick() {
+  const saved = localStorage.getItem('pikaStakeNick')
+  if (saved) {
+    g('profileNickText').textContent = saved
+    g('profileNickDisplay').style.display = 'flex'
+    g('profileNickInput').style.display = 'none'
+  } else {
+    g('profileNickDisplay').style.display = 'none'
+    g('profileNickInput').style.display = 'block'
+    g('profileNickInput').value = ''
+  }
+}
+function startNickEdit() {
+  const inp = g('profileNickInput')
+  const disp = g('profileNickDisplay')
+  inp.value = g('profileNickText').textContent === 'Trainer' &&
+              !localStorage.getItem('pikaStakeNick') ? '' : g('profileNickText').textContent
+  disp.style.display = 'none'
+  inp.style.display = 'block'
+  inp.focus()
+  inp.select()
+}
+function saveNick() {
+  const inp = g('profileNickInput')
+  const disp = g('profileNickDisplay')
+  const val = inp.value.trim()
+  if (val) {
+    localStorage.setItem('pikaStakeNick', val)
+    g('profileNickText').textContent = val
+    inp.style.display = 'none'
+    disp.style.display = 'flex'
+  } else {
+    localStorage.removeItem('pikaStakeNick')
+    inp.style.display = 'block'
+    disp.style.display = 'none'
+  }
+}
+
 function openProfile() {
   g('profileOverlay').classList.add('open')
   document.body.style.overflow = 'hidden'
+  loadNick()
   renderProfile()
   if (account) loadProfileNfts()
   if (!_beamRaf) _beamRaf = requestAnimationFrame(_tickBeam)
