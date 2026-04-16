@@ -643,6 +643,24 @@
       object-fit: cover;
       display: block;
       border-radius: 13px 13px 0 0;
+      opacity: 0;
+      transition: opacity 0.35s ease;
+    }
+    .gallery-card img.img-loaded {
+      opacity: 1;
+    }
+    .gallery-card-img-wrap {
+      flex: 1;
+      min-height: 0;
+      border-radius: 13px 13px 0 0;
+      overflow: hidden;
+      position: relative;
+    }
+    .gallery-card-img-wrap img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
     }
     .gallery-card-info {
       padding: 6px 8px 8px;
@@ -677,6 +695,34 @@
       color: rgba(255,255,255,0.5);
       font-size: 14px;
       grid-column: 1 / -1;
+    }
+    .gallery-loading-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      background: linear-gradient(135deg, #C47A00 0%, #7A4200 100%);
+      border-radius: var(--r-xl);
+      transition: opacity 0.3s var(--ease);
+    }
+    .gallery-loading-overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .gallery-loading-overlay .spin.light {
+      width: 40px; height: 40px;
+      border-width: 3.5px;
+    }
+    .gallery-loading-text {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.55);
+      letter-spacing: 0.3px;
     }
     /* Gallery pagination */
     .gallery-pagination {
@@ -2044,6 +2090,28 @@
       border-color: rgba(255,255,255,0.18);
     }
 
+    .profile-disconnect {
+      height: 36px;
+      padding: 0 14px;
+      border-radius: 10px;
+      background: rgba(220,50,50,0.08);
+      border: 1px solid rgba(220,50,50,0.22);
+      color: rgba(255,100,100,0.85);
+      font-size: 12px;
+      font-weight: 700;
+      font-family: 'Space Grotesk', sans-serif;
+      letter-spacing: 0.3px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.18s var(--ease);
+    }
+    .profile-disconnect:hover {
+      background: rgba(220,50,50,0.18);
+      border-color: rgba(220,50,50,0.45);
+      color: #ff6b6b;
+    }
+
     /* ── Profile Stats Row ──────────────────── */
     .profile-stats-row {
       display: flex;
@@ -2253,16 +2321,27 @@
       margin-top: 3px;
     }
 
-    /* ── My Profile Navbar Button ───────────── */
+    /* ── Profile/Connect unified button ─────── */
     #profileBtn {
       cursor: pointer;
       user-select: none;
       transition: all 0.18s var(--ease);
+      appearance: none;
+      -webkit-appearance: none;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.2px;
     }
-    #profileBtn:hover {
+    #profileBtn:hover:not(:disabled) {
       background: var(--s2);
       border-color: rgba(255,203,5,0.5);
       box-shadow: 0 0 16px rgba(255,203,5,0.18);
+      transform: translateY(-1px);
+    }
+    #profileBtn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
     }
 
     @media (max-width: 520px) {
@@ -2450,15 +2529,11 @@
         <span id="balanceLabel"><span id="balanceAmt">0.00</span> <span class="pusdc-unit">pUSDC</span></span>
       </div>
 
-      <button class="connect-btn" id="connectBtn" onclick="handleConnect()">
-        <span id="connectBtnContent">Connect Wallet</span>
+      <button class="balance-pill" id="profileBtn" onclick="handleWalletBtn()">
+        <div class="balance-dot" id="profileDot"></div>
+        <span id="profileBtnText">Connect Wallet</span>
+        <img id="profilePic" src="pikapfp.png" alt="" style="width:22px;height:22px;border-radius:50%;object-fit:cover;margin-left:6px;display:none;" />
       </button>
-
-      <div class="balance-pill" id="profileBtn" onclick="openProfile()">
-        <div class="balance-dot"></div>
-        My Profile
-        <img src="pikapfp.png" alt="" style="width:22px;height:22px;border-radius:50%;object-fit:cover;margin-left:6px;vertical-align:middle;" />
-      </div>
     </div>
 
   </div>
@@ -2884,9 +2959,11 @@
 
   <div class="gallery-section">
     <div class="gallery-panel">
-      <div class="gallery-grid" id="galleryGrid">
-        <div class="gallery-loading" id="galleryLoading">Loading gallery…</div>
+      <div class="gallery-loading-overlay" id="galleryLoadingOverlay">
+        <div class="spin light"></div>
+        <div class="gallery-loading-text">Loading gallery…</div>
       </div>
+      <div class="gallery-grid" id="galleryGrid"></div>
       <div class="gallery-pagination" id="galleryPagination" style="display:none;">
         <button class="gallery-page-btn" id="galleryPrevBtn" onclick="galleryPageChange(-1)">&#8592; Prev</button>
         <span class="gallery-page-indicator" id="galleryPageIndicator">1 / 1</span>
@@ -2968,6 +3045,7 @@
           placeholder="Enter nickname…" style="display:none;"
           onblur="saveNick()" onkeydown="if(event.key==='Enter')saveNick();" />
       </div>
+      <button class="profile-disconnect" onclick="closeProfile(); resetState()">Disconnect</button>
       <button class="profile-close" onclick="closeProfile()">✕</button>
     </div>
 
@@ -3363,12 +3441,27 @@ function _renderGalleryPage() {
   slice.forEach(({ name, image, addr }) => {
     const card = document.createElement('div')
     card.className = 'gallery-card'
-    card.innerHTML = `
-      <img src="${image}" alt="${name}" />
-      <div class="gallery-card-info">
-        <div class="gallery-card-name">${name}</div>
-        <div class="gallery-card-addr">${addr}</div>
-      </div>`
+
+    const wrap = document.createElement('div')
+    wrap.className = 'gallery-card-img-wrap'
+
+    const img = document.createElement('img')
+    img.alt = name
+
+    let _timer
+    const _reveal = () => {
+      clearTimeout(_timer)
+      img.classList.add('img-loaded')
+    }
+    img.onload  = _reveal
+    img.onerror = _reveal
+    _timer = setTimeout(_reveal, 12000)
+
+    wrap.appendChild(img)
+    img.src = image  // src en son set edilmeli
+
+    card.innerHTML = `<div class="gallery-card-info"><div class="gallery-card-name">${name}</div><div class="gallery-card-addr">${addr}</div></div>`
+    card.insertBefore(wrap, card.firstChild)
     grid.appendChild(card)
   })
 
@@ -3387,13 +3480,19 @@ function galleryPageChange(dir) {
 
 /* ── PikaGallery: Tüm NFT'leri yükle ───────────────────────────── */
 async function loadGallery() {
-  const grid = g('galleryGrid')
+  const grid    = g('galleryGrid')
+  const overlay = g('galleryLoadingOverlay')
   if (!grid) return
 
   // 1. Cache'den anında göster
   const cached = _loadGalleryCache()
   _galleryAll  = cached.slice()
   _galleryPage = 0
+
+  // Cache boşsa loading overlay'i göster
+  if (cached.length === 0 && overlay) overlay.classList.remove('hidden')
+  else if (overlay) overlay.classList.add('hidden')
+
   _renderGalleryPage()
 
   // 2. Zincirden toplam sayıyı al
@@ -3402,8 +3501,8 @@ async function loadGallery() {
     const pikacreate = new ethers.Contract(PIKACREATE_ADDR, PIKACREATE_ABI, ro)
     const total      = Number(await pikacreate.totalSupply())
 
-    if (total === 0) { _galleryAll = []; _renderGalleryPage(); return }
-    if (total === cached.length) return  // Yeni NFT yok
+    if (total === 0) { _galleryAll = []; _renderGalleryPage(); overlay?.classList.add('hidden'); return }
+    if (total === cached.length) { overlay?.classList.add('hidden'); return }  // Yeni NFT yok
 
     // 3. Yeni olanları paralel çek — en yeniden eskiye
     const ids = []
@@ -3434,8 +3533,10 @@ async function loadGallery() {
     _galleryPage = 0
     _saveGalleryCache()
     _renderGalleryPage()
+    overlay?.classList.add('hidden')
   } catch (err) {
     console.error('loadGallery error:', err)
+    overlay?.classList.add('hidden')
   }
 }
 
@@ -3754,7 +3855,8 @@ async function connectWithProvider(rdns) {
   const rawProvider = detail.provider
 
   closeWalletModal()
-  setBtn('connectBtn', true, '<span class="spin"></span> Connecting…')
+  g('profileBtn').disabled = true
+  const _ct = g('profileBtnText'); if (_ct) _ct.innerHTML = '<span class="spin"></span> Connecting…'
 
   try {
     // Authorize accounts first — required by Phantom, Trust, and others before chain switch
@@ -3781,8 +3883,8 @@ async function connectWithProvider(rdns) {
     console.error(e)
     const msg = parseError(e)
     toast(msg, 'error')
-    setBtn('connectBtn', false, 'Connect Wallet')
-    g('connectBtn').classList.remove('connected')
+    g('profileBtn').disabled = false
+    const _et = g('profileBtnText'); if (_et) _et.textContent = 'Connect Wallet'
   }
 }
 
@@ -3803,15 +3905,25 @@ function connectTimeout(ms) {
   )
 }
 
+function handleWalletBtn() {
+  if (account) openProfile()
+  else openWalletModal()
+}
+
 function handleConnect() {
-  if (account) { resetState(); return }
   openWalletModal()
 }
 
 function renderConnected() {
-  g('connectBtn').classList.add('connected')
   const short = shortAddr(account)
-  setBtn('connectBtn', false, `<span style="width:6px;height:6px;border-radius:50%;background:var(--ok);box-shadow:0 0 7px var(--ok);flex-shrink:0;display:inline-block"></span><span style="color:var(--ok)">Arc Testnet</span> <span style="color:#fff">${short}</span>`)
+  const btn  = g('profileBtn')
+  const dot  = g('profileDot')
+  const text = g('profileBtnText')
+  const pic  = g('profilePic')
+  if (btn)  btn.disabled = false
+  if (dot)  { dot.style.cssText = 'display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--ok);box-shadow:0 0 7px var(--ok);flex-shrink:0;' }
+  if (text) text.innerHTML = `<span style="color:var(--ok)">Arc</span> <span style="color:#fff">${short}</span>`
+  if (pic)  pic.style.display = 'inline-block'
   updateMintWalletStatus()
   checkMintedCards()
 }
@@ -3826,8 +3938,10 @@ function resetState() {
   myStaked = myWallet = 0n
   profileOwnedCounts = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
   localStorage.removeItem(LAST_WALLET_KEY)
-  g('connectBtn').classList.remove('connected')
-  setBtn('connectBtn', false, 'Connect Wallet')
+  g('profileBtn').disabled = false
+  const _t = g('profileBtnText'); if (_t) _t.textContent = 'Connect Wallet'
+  const _d = g('profileDot');     if (_d) _d.removeAttribute('style')
+  const _p = g('profilePic');     if (_p) _p.style.display = 'none'
 ;['balanceAmt','walletBal','stakedBal','statStaked','statRewards','claimNum'].forEach(id => {
     const el = document.getElementById(id)
     if (el) el.textContent = '0.00'

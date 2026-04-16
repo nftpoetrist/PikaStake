@@ -108,16 +108,20 @@ Single-file app using ethers.js v6 (CDN). Key sections inside `<script>`:
 4. Add to `Your Minted NFTs` panel and `PikaGallery` cache
 
 **localStorage cache keys:**
-- `pikacreate_nfts_${address.toLowerCase()}` — per-wallet minted NFT history `{ name, imageSrc, date }`
+- `pikacreate_nfts_${address.toLowerCase()}` — per-wallet minted NFT history `{ name, imageSrc, date }`. `imageSrc` is stored as **base64 data URL** (≤500 KB) for instant load; larger images fall back to IPFS URL.
 - `pikagallery_cache` — global gallery cache `{ name, image, addr }`
 - `LAST_WALLET_KEY` — last connected wallet rdns for auto-connect
 
+**Image caching (`_toDataUrl`):** Converts IPFS URLs to base64 on first load and saves to localStorage. On `loadMintedNfts`, existing IPFS URL entries in cache are upgraded to base64 in the background.
+
 **Key UI sections:**
-- Navbar: logo, PikaCreate btn (yellow), PikaGallery btn (yellow), pUSDC pill (white text), connect btn, My Profile btn
+- Navbar: logo, PikaCreate btn (yellow), PikaGallery btn (yellow), pUSDC pill (`"pUSDC"` text is yellow), **single unified wallet button** (`#profileBtn`)
+- `#profileBtn` — dual-purpose: shows `Connect Wallet` when disconnected (calls `openWalletModal`), shows `Arc + short address + avatar` when connected (calls `openProfile`). Do NOT add a separate connect button.
 - Staking panel (`.card`) — stake/withdraw/claim tabs
-- NFT mint panel (`.mint-panel`) — 3×2 grid "Genesis Collection", select card → MINT bar at bottom
-- PikaCreate page — upload zone + `Your Minted NFTs` panel (4/page pagination, newest first)
-- PikaGallery page — 5×2 grid, all users' NFTs, 10/page pagination, localStorage cache + parallel fetch
+- NFT mint panel (`.mint-panel`) — 6×2 grid "Genesis Collection", select card → MINT bar at bottom
+- PikaCreate page — upload zone + `Your Minted NFTs` panel (3×2 grid, 6/page, height matches Create panel `--create-panel-h: 620px`)
+- PikaGallery page — 6×2 grid, fixed `700px` height, all users' NFTs, 12/page, localStorage cache + parallel fetch. Loading overlay (`#galleryLoadingOverlay`) shown on first visit (empty cache).
+- Profile overlay (`#profileOverlay`) — shows wallet stats, Genesis Collection NFTs, nickname editor. Has **Disconnect** button (`.profile-disconnect`) left of the close ✕ button.
 
 **Connect wallet timeout:** `eth_requestAccounts` has 30s timeout; `switchChain` has 15s.
 
@@ -130,6 +134,8 @@ Single-file app using ethers.js v6 (CDN). Key sections inside `<script>`:
 - **MAX withdraw rounding bug (fixed):** `fmtN` rounds to 4 decimals; using UI text as amount could exceed on-chain balance. Now uses raw BigInt.
 - **Auto-connect NFT load (fixed):** Both EIP-6963 and legacy paths call `loadMintedNfts()` + `loadCreatePageStats()` on reconnect.
 - **Gallery parallel fetch:** NFTs fetched with `Promise.all` — not sequential.
+- **Gallery img onload order (fixed):** `img.src` must be set AFTER `onload`/`onerror` handlers and after appending to DOM, otherwise cached images miss the event. 12-second fallback (`setTimeout`) forces visibility if IPFS is slow.
+- **CSS animation CPU usage:** Never use `background-position` for animations — causes continuous repaints. Always use `transform` or `opacity` (GPU-accelerated via compositor).
 
 ---
 
