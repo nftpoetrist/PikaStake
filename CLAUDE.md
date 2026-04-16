@@ -138,3 +138,37 @@ Single-file app using ethers.js v6 (CDN). Key sections inside `<script>`:
 - Chain ID: `5042002`
 - RPC: `https://5042002.rpc.thirdweb.com`
 - Configured in `blockchain/hardhat.config.js` and `index.html` constants
+
+---
+
+## Skills
+
+This project uses two skill packages that give Claude Code pre-loaded context for Arc and deployment.
+
+### Circle Skills (Arc + USDC context)
+
+Provides Claude Code with correct Arc Testnet chain ID, USDC contract addresses, wallet integration patterns, and USDC transfer logic — eliminates guessing and wrong-address mistakes.
+
+**Install (run once in project root):**
+```bash
+npx skills add https://github.com/circlefin/skills
+```
+Select these when prompted:
+- `use-arc` — Arc Testnet configuration and RPC details
+- `use-usdc` — USDC contract addresses and transfer patterns
+
+Scope: **Project** | Method: **Symlink** | Install find-skills: **Yes**
+
+### Vercel Skills (deployment automation)
+
+Lets Claude Code connect to Vercel, configure the project, and run deploys automatically — no manual deployment steps needed.
+
+**Install (run once in project root):**
+```bash
+npx skills add vercel-labs/agent-skills
+```
+Select `deploy-to-vercel`. Authorize Vercel in the browser that opens (create a free account at vercel.com if needed).
+
+### When to use
+- Working with USDC transfers, Arc wallet connections, or any on-chain interaction → Circle Skills already loaded
+- Deploying or redeploying the app → use Vercel Skills via Claude Code instead of manual `git push`
