@@ -3358,15 +3358,17 @@ async function loadGallery() {
     if (total === 0) { _galleryAll = []; _renderGalleryPage(); return }
     if (total === cached.length) return  // Yeni NFT yok
 
-    // 3. Yeni olanları (cache'de olmayanları) yükle — en yeniden eskiye
-    const newCount = total - cached.length
-    const newItems = []
-    for (let id = total; id > cached.length; id--) {
-      try {
-        const uri   = await pikacreate.tokenURI(id)
-        const owner = await pikacreate.ownerOf(id)
-        let name = `NFT #${id}`, image = ''
+    // 3. Yeni olanları paralel çek — en yeniden eskiye
+    const ids = []
+    for (let id = total; id > cached.length; id--) ids.push(id)
 
+    const newItems = await Promise.all(ids.map(async id => {
+      try {
+        const [uri, owner] = await Promise.all([
+          pikacreate.tokenURI(id),
+          pikacreate.ownerOf(id)
+        ])
+        let name = `NFT #${id}`, image = ''
         if (uri.startsWith('ipfs://')) {
           const meta = await fetch(IPFS_GATEWAY + uri.slice(7)).then(r => r.json())
           name  = meta.name  || name
@@ -3374,13 +3376,14 @@ async function loadGallery() {
             ? IPFS_GATEWAY + meta.image.slice(7)
             : meta.image || ''
         }
+        return { name, image, addr: owner.slice(0,6) + '…' + owner.slice(-4) }
+      } catch (_) { return null }
+    }))
 
-        newItems.push({ name, image, addr: owner.slice(0,6) + '…' + owner.slice(-4) })
-      } catch (_) {}
-    }
+    const filtered = newItems.filter(Boolean)
 
     // Yeni NFT'leri başa ekle (en yeni önce)
-    _galleryAll = [...newItems, ...cached]
+    _galleryAll = [...filtered, ...cached]
     _galleryPage = 0
     _saveGalleryCache()
     _renderGalleryPage()
