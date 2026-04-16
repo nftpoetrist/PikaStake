@@ -50,6 +50,8 @@
 
       --ease: cubic-bezier(0.4, 0, 0.2, 1);
       --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+      --create-panel-h: 620px;
     }
 
     /* ══════════════════════════════════════════════
@@ -91,7 +93,7 @@
     .orb {
       position: absolute;
       border-radius: 50%;
-      filter: blur(72px);
+      filter: blur(4px);
       pointer-events: none;
       will-change: transform;
     }
@@ -264,6 +266,496 @@
       user-select: none;
     }
 
+    /* Nav left group (logo + nav links) */
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    /* ── SPA ROUTER ─────────────────────────────── */
+    /* Inactive sections: out of flow */
+    .page[data-page]        { display: none; }
+    .page[data-page].active { display: flex; }
+
+    /* ── CREATE PAGE ─────────────────────────────── */
+    .create-layout {
+      width: 100%;
+      max-width: 1360px;
+      padding: 0 24px;
+      margin-bottom: 40px;
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+    }
+
+    .create-nft-panel {
+      width: 55%;
+      flex-shrink: 0;
+      height: var(--create-panel-h);
+      overflow: hidden;
+      background: linear-gradient(135deg, #C47A00 0%, #7A4200 100%);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: var(--r-xl);
+      box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,0.06),
+        0 40px 100px rgba(0,0,0,0.6);
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .create-nft-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--t0);
+      letter-spacing: -0.3px;
+    }
+
+    .nft-upload-zone {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      max-height: 260px;
+      border: 2px dashed rgba(255,255,255,0.15);
+      border-radius: 16px;
+      background: rgba(255,255,255,0.03);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: all 0.22s var(--ease);
+      overflow: hidden;
+      position: relative;
+    }
+    .nft-upload-zone:hover {
+      border-color: rgba(192,132,252,0.4);
+      background: rgba(168,85,247,0.06);
+    }
+    .nft-upload-zone.dragover {
+      border-color: rgba(192,132,252,0.7);
+      background: rgba(168,85,247,0.12);
+    }
+    .nft-upload-zone input[type="file"] {
+      position: absolute; inset: 0;
+      opacity: 0; cursor: pointer;
+      width: 100%; height: 100%;
+    }
+    .nft-upload-zone img {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: contain;
+      border-radius: 14px;
+    }
+    .upload-icon { font-size: 36px; opacity: 0.4; }
+    .upload-hint {
+      font-size: 12px;
+      color: var(--t3);
+      text-align: center;
+      line-height: 1.5;
+    }
+    .upload-remove-btn {
+      display: none;
+      position: absolute;
+      top: 8px; right: 8px;
+      z-index: 10;
+      background: rgba(0,0,0,0.65);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 50%;
+      width: 28px; height: 28px;
+      color: #fff;
+      font-size: 14px;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+      line-height: 1;
+    }
+    .upload-remove-btn:hover { background: rgba(220,50,50,0.75); }
+
+    .create-input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .create-input-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #ffffff;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding-left: 4px;
+    }
+    .create-input {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 14px;
+      color: var(--t0);
+      outline: none;
+      transition: border-color 0.2s var(--ease);
+      resize: none;
+    }
+    .create-input::placeholder { color: var(--t3); opacity: 0.6; }
+    .create-input:focus { border-color: rgba(192,132,252,0.45); }
+
+    .create-info-box {
+      background: linear-gradient(148deg,
+        rgba(255,203,5,0.09) 0%,
+        rgba(240,165,0,0.05) 50%,
+        rgba(255,203,5,0.06) 100%
+      );
+      border: 1px solid rgba(255,203,5,0.22);
+      border-radius: 14px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .create-info-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .create-info-row + .create-info-row {
+      border-top: 1px solid rgba(255,203,5,0.12);
+      padding-top: 10px;
+    }
+    .create-info-key {
+      font-size: 11px;
+      font-weight: 600;
+      color: #ffffff;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .create-info-val {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--y1);
+    }
+
+    /* Minted NFTs panel */
+    .minted-nfts-panel {
+      flex: 1;
+      min-width: 0;
+      height: 620px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: var(--r-xl);
+      box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,0.07),
+        0 40px 100px rgba(0,0,0,0.5);
+      padding: 28px 28px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .minted-nfts-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--t0);
+      letter-spacing: -0.3px;
+      text-align: center;
+    }
+
+    .minted-nfts-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .minted-nft-card {
+      background: #9A5C00;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      overflow: hidden;
+      transition: all 0.22s var(--ease);
+    }
+    .minted-nft-card:hover {
+      border-color: rgba(255,255,255,0.16);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    }
+    .minted-nft-card img {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: contain;
+      background: rgba(0,0,0,0.15);
+      display: block;
+    }
+    .minted-nft-info {
+      padding: 8px 10px;
+    }
+    .minted-nft-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--t0);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .minted-nft-date {
+      font-size: 10px;
+      color: var(--t3);
+      margin-top: 2px;
+    }
+
+    #mintedNftsContent {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .minted-nfts-empty {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      color: var(--t0);
+      text-align: center;
+      width: 100%;
+      pointer-events: none;
+    }
+    .minted-nfts-empty-icon { font-size: 58px; opacity: 0.45; filter: none; }
+    .minted-nfts-empty-text { font-size: 16px; line-height: 1.6; opacity: 0.5; color: var(--t0); }
+
+    /* Minted NFTs pagination */
+    .minted-pagination {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding-top: 6px;
+    }
+    .minted-page-btn {
+      background: linear-gradient(135deg, var(--y1) 0%, var(--g1) 100%);
+      color: #1A0800;
+      box-shadow: 0 0 20px rgba(255,203,5,0.22), 0 4px 12px rgba(0,0,0,0.3);
+      border: none;
+      border-radius: 10px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      padding: 4px 18px;
+      cursor: pointer;
+      transition: opacity 0.18s, box-shadow 0.18s;
+    }
+    .minted-page-btn:hover:not(:disabled) { opacity: 0.88; box-shadow: 0 0 28px rgba(255,203,5,0.35), 0 6px 16px rgba(0,0,0,0.35); }
+    .minted-page-btn:disabled { opacity: 0.3; cursor: not-allowed; box-shadow: none; }
+    .minted-page-indicator {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 13px;
+      color: rgba(255,255,255,0.55);
+      min-width: 60px;
+      text-align: center;
+    }
+
+    /* ── PikaGallery ─────────────────────────────── */
+    .gallery-section {
+      width: 100%;
+      max-width: 1360px;
+      padding: 0 24px;
+      margin-bottom: 48px;
+    }
+    .gallery-panel {
+      width: 100%;
+      height: 540px;
+      background: linear-gradient(135deg, #C47A00 0%, #7A4200 100%);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: var(--r-xl);
+      box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,0.06),
+        0 40px 100px rgba(0,0,0,0.6);
+      padding: 28px 28px 14px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .gallery-grid {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      align-content: start;
+      gap: 12px;
+      overflow: hidden;
+    }
+    .gallery-card {
+      background: #9A5C00;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      overflow: hidden;
+      transition: all 0.22s var(--ease);
+    }
+    .gallery-card:hover {
+      border-color: rgba(255,255,255,0.16);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    }
+    .gallery-card img {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: contain;
+      background: rgba(0,0,0,0.15);
+      display: block;
+    }
+    .gallery-card-info {
+      padding: 8px 10px;
+    }
+    .gallery-card-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--t0);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .gallery-card-addr {
+      font-size: 10px;
+      color: var(--t3);
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .gallery-empty {
+      text-align: center;
+      padding: 48px 0;
+      color: rgba(255,255,255,0.4);
+      font-size: 15px;
+      grid-column: 1 / -1;
+    }
+    .gallery-loading {
+      text-align: center;
+      padding: 48px 0;
+      color: rgba(255,255,255,0.5);
+      font-size: 14px;
+      grid-column: 1 / -1;
+    }
+    /* Gallery pagination */
+    .gallery-pagination {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-top: auto;
+      padding-top: 10px;
+    }
+    .gallery-page-btn {
+      background: linear-gradient(135deg, var(--y1) 0%, var(--g1) 100%);
+      color: #1A0800;
+      box-shadow: 0 0 20px rgba(255,203,5,0.22), 0 4px 12px rgba(0,0,0,0.3);
+      border: none;
+      border-radius: 10px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      padding: 4px 18px;
+      cursor: pointer;
+      transition: opacity 0.18s, box-shadow 0.18s;
+    }
+    .gallery-page-btn:hover:not(:disabled) { opacity: 0.88; }
+    .gallery-page-btn:disabled { opacity: 0.3; cursor: not-allowed; box-shadow: none; }
+    .gallery-page-indicator {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 13px;
+      color: rgba(255,255,255,0.55);
+      min-width: 60px;
+      text-align: center;
+    }
+
+    /* PikaCreate nav button */
+    .pikacreate-btn {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 16px;
+      background: rgba(255, 203, 5, 0.08);
+      border: 1px solid rgba(255, 203, 5, 0.28);
+      border-radius: var(--r-pill);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--y1);
+      letter-spacing: 0.3px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s var(--ease);
+      white-space: nowrap;
+    }
+    .pikacreate-btn:hover {
+      background: rgba(255, 203, 5, 0.15);
+      border-color: rgba(255, 203, 5, 0.5);
+      box-shadow: 0 0 18px rgba(255, 203, 5, 0.22);
+      transform: translateY(-1px);
+    }
+    .pikacreate-btn.active {
+      background: rgba(255, 203, 5, 0.18);
+      border-color: rgba(255, 203, 5, 0.55);
+      box-shadow: 0 0 22px rgba(255, 203, 5, 0.28);
+    }
+    .pikacreate-btn .pc-dot {
+      width: 5px; height: 5px;
+      background: var(--y1);
+      border-radius: 50%;
+      box-shadow: 0 0 7px rgba(255,203,5,0.8);
+      flex-shrink: 0;
+    }
+
+    /* PikaGallery nav button */
+    .pikagallery-btn {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 16px;
+      background: rgba(255, 203, 5, 0.08);
+      border: 1px solid rgba(255, 203, 5, 0.28);
+      border-radius: var(--r-pill);
+      color: var(--y1);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s var(--ease);
+      white-space: nowrap;
+    }
+    .pikagallery-btn:hover {
+      background: rgba(255, 203, 5, 0.15);
+      border-color: rgba(255, 203, 5, 0.5);
+      box-shadow: 0 0 18px rgba(255, 203, 5, 0.22);
+      transform: translateY(-1px);
+    }
+    .pikagallery-btn.active {
+      background: rgba(255, 203, 5, 0.18);
+      border-color: rgba(255, 203, 5, 0.55);
+      box-shadow: 0 0 22px rgba(255, 203, 5, 0.28);
+    }
+    .pikagallery-btn .pg-dot {
+      width: 5px; height: 5px;
+      background: var(--y1);
+      border-radius: 50%;
+      box-shadow: 0 0 7px rgba(255,203,5,0.8);
+      flex-shrink: 0;
+    }
+
     /* Nav right */
     .nav-right {
       display: flex;
@@ -302,16 +794,12 @@
       border-radius: var(--r-pill);
       font-size: 13px;
       font-weight: 600;
-      color: var(--y1);
+      color: #fff;
       letter-spacing: 0.2px;
       white-space: nowrap;
     }
     .balance-dot {
-      width: 5px; height: 5px;
-      background: var(--y1);
-      border-radius: 50%;
-      box-shadow: 0 0 8px rgba(255,203,5,0.8);
-      flex-shrink: 0;
+      display: none;
     }
 
     .connect-btn {
@@ -340,7 +828,7 @@
     .connect-btn.connected {
       background: var(--s1);
       border: 1px solid var(--s3);
-      color: var(--y1);
+      color: #fff;
       box-shadow: none;
     }
     .connect-btn.connected:hover {
@@ -412,6 +900,9 @@
       background-clip: text;
       margin-bottom: 18px;
     }
+    .page[data-page="create"] .hero h1 {
+      font-size: clamp(30px, 5vw, 50px);
+    }
 
     .hero p {
       font-size: 17px;
@@ -451,8 +942,8 @@
       border: 1px solid rgba(255,203,5,0.22);
       border-radius: var(--r-xl);
       padding: 28px;
-      backdrop-filter: blur(48px) saturate(180%);
-      -webkit-backdrop-filter: blur(48px) saturate(180%);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
       box-shadow:
         inset 0 0 0 1px rgba(255,255,255,0.06),
         0 40px 100px rgba(0,0,0,0.6),
@@ -907,17 +1398,10 @@
 
     .mint-panel {
       position: relative;
-      background: linear-gradient(148deg,
-        rgba(255,203,5,0.09) 0%,
-        rgba(240,165,0,0.05) 35%,
-        rgba(232,138,0,0.07) 70%,
-        rgba(255,203,5,0.06) 100%
-      );
-      border: 1px solid rgba(255,203,5,0.22);
+      background: linear-gradient(135deg, #C47A00 0%, #7A4200 100%);
+      border: 1px solid rgba(255,255,255,0.18);
       border-radius: var(--r-xl);
       padding: 24px 70px 0;
-      backdrop-filter: blur(48px) saturate(180%);
-      -webkit-backdrop-filter: blur(48px) saturate(180%);
       box-shadow:
         inset 0 0 0 1px rgba(255,255,255,0.06),
         0 40px 100px rgba(0,0,0,0.6),
@@ -979,36 +1463,12 @@
       transition: all 0.2s var(--ease);
     }
     .nft-slot:hover {
-      border: 2px solid transparent;
-      background:
-        linear-gradient(rgba(12,6,0,0.92), rgba(12,6,0,0.92)) padding-box,
-        conic-gradient(
-          from var(--beam-angle, 0deg),
-          rgba(255,203,5,0.10)  0deg,
-          rgba(255,203,5,0.10) 10deg,
-          rgba(255,203,5,0.85) 30deg,
-          #fff8c0             105deg,
-          rgba(255,203,5,0.85) 180deg,
-          rgba(255,203,5,0.10) 230deg,
-          rgba(255,203,5,0.10) 360deg
-        ) border-box;
+      border: 2px solid rgba(255,203,5,0.55);
       transform: translateY(-2px);
       box-shadow: 0 8px 28px rgba(0,0,0,0.45), 0 0 20px rgba(255,203,5,0.12);
     }
     .nft-slot.selected {
-      border: 2px solid transparent;
-      background:
-        linear-gradient(rgba(12,6,0,0.92), rgba(12,6,0,0.92)) padding-box,
-        conic-gradient(
-          from var(--beam-angle, 0deg),
-          rgba(255,203,5,0.10)  0deg,
-          rgba(255,203,5,0.10) 50deg,
-          rgba(255,203,5,0.85) 75deg,
-          #fff8c0             105deg,
-          rgba(255,203,5,0.85) 135deg,
-          rgba(255,203,5,0.10) 190deg,
-          rgba(255,203,5,0.10) 360deg
-        ) border-box;
+      border: 2px solid rgba(255,203,5,0.80);
       box-shadow:
         0 0 28px rgba(255,203,5,0.20),
         0 8px 32px rgba(0,0,0,0.5);
@@ -1228,7 +1688,7 @@
     /* ══════════════════════════════════════════════
        FOOTER
     ══════════════════════════════════════════════ */
-    .footer {
+    .site-footer {
       position: relative;
       z-index: 1;
       width: 100%;
@@ -1236,7 +1696,7 @@
       margin-top: 12px;
     }
 
-    .footer-inner {
+    .site-footer-inner {
       max-width: 760px;
       margin: 0 auto;
     }
@@ -1262,6 +1722,55 @@
       gap: 6px;
       margin-bottom: 0;
       flex-wrap: wrap;
+    }
+
+    /* Bottom bar */
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 24px;
+    }
+
+    .footer-brand {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--t3);
+      letter-spacing: 0.3px;
+    }
+    .footer-brand span { color: var(--y1); }
+
+    .footer-chain-tag {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 11px;
+      background: rgba(74,222,128,0.06);
+      border: 1px solid rgba(74,222,128,0.14);
+      border-radius: var(--r-pill);
+      font-size: 11px;
+      font-weight: 600;
+      color: rgba(74,222,128,0.7);
+    }
+    .footer-chain-dot {
+      width: 5px; height: 5px;
+      background: var(--ok);
+      border-radius: 50%;
+      box-shadow: 0 0 6px var(--ok);
+      flex-shrink: 0;
+    }
+
+    .footer-copy {
+      font-size: 11px;
+      color: var(--t3);
+      opacity: 0.55;
+    }
+
+    @media (max-width: 600px) {
+      .footer-bottom { justify-content: center; text-align: center; }
     }
 
     .footer-card {
@@ -1310,57 +1819,6 @@
       transform: translateX(2px);
     }
 
-    /* Bottom bar */
-    .footer-bottom {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .footer-brand {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--t3);
-      letter-spacing: 0.3px;
-    }
-    .footer-brand span { color: var(--y1); }
-
-    .footer-chain-tag {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 5px 11px;
-      background: rgba(74,222,128,0.06);
-      border: 1px solid rgba(74,222,128,0.14);
-      border-radius: var(--r-pill);
-      font-size: 11px;
-      font-weight: 600;
-      color: rgba(74,222,128,0.7);
-    }
-    .footer-chain-dot {
-      width: 5px; height: 5px;
-      background: var(--ok);
-      border-radius: 50%;
-      box-shadow: 0 0 6px var(--ok);
-      flex-shrink: 0;
-    }
-
-    .footer-copy {
-      font-size: 11px;
-      color: var(--t3);
-      opacity: 0.55;
-    }
-
-    @media (max-width: 600px) {
-      .footer-resources { grid-template-columns: 1fr 1fr; }
-      .footer-bottom { justify-content: center; text-align: center; }
-    }
-    @media (max-width: 380px) {
-      .footer-resources { grid-template-columns: 1fr; }
-    }
 
     /* ══════════════════════════════════════════════
        RESPONSIVE
@@ -1624,21 +2082,8 @@
       transition: all 0.24s var(--ease);
     }
 
-    /* Rotating golden border beam on owned cards */
     .profile-card.owned {
-      border: 3px solid transparent;
-      background:
-        linear-gradient(rgba(12,6,0,0.94), rgba(12,6,0,0.94)) padding-box,
-        conic-gradient(
-          from var(--beam-angle, 0deg),
-          rgba(255,203,5,0.10)  0deg,
-          rgba(255,203,5,0.10) 50deg,
-          rgba(255,203,5,0.85) 75deg,
-          #fff8c0             105deg,
-          rgba(255,203,5,0.85) 135deg,
-          rgba(255,203,5,0.10) 190deg,
-          rgba(255,203,5,0.10) 360deg
-        ) border-box;
+      border: 3px solid rgba(255,203,5,0.65);
       box-shadow:
         0 0 24px rgba(255,203,5,0.15),
         0 4px 20px rgba(0,0,0,0.5),
@@ -1954,8 +2399,18 @@
   <div class="navbar-bg"></div>
   <div class="nav-inner">
 
-    <div class="logo" onclick="scrollTo(0,0)">
-      <img class="logo-img" src="logo.png" alt="PikaStake" draggable="false" />
+    <div class="nav-left">
+      <div class="logo" onclick="navigate('stake')">
+        <img class="logo-img" src="logo.png" alt="PikaStake" draggable="false" />
+      </div>
+      <div class="pikacreate-btn" id="pikacreateNavBtn" onclick="navigate('create')">
+        <span class="pc-dot"></span>
+        PikaCreate
+      </div>
+      <div class="pikagallery-btn" id="pikagalleryNavBtn" onclick="navigate('gallery')">
+        <span class="pg-dot"></span>
+        PikaGallery
+      </div>
     </div>
 
     <div class="nav-right">
@@ -1978,13 +2433,13 @@
   </div>
 </nav>
 
-<!-- ── PAGE ───────────────────────────────────────────────────────────── -->
-<div class="page">
+<!-- ── PAGE: STAKE ───────────────────────────────────────────────────── -->
+<div class="page" data-page="stake">
 
   <!-- Hero -->
   <div class="hero">
     <h1>Stake<br/>Earn</h1>
-    <p>Deposit USDC and benefit from high-yield pUSDC returns powered by the Arc network.</p>
+    <p>Deposit USDC and benefit from high-yield pUSDC returns powered by the Arc testnet.</p>
   </div>
 
   <!-- Staking Card -->
@@ -2306,47 +2761,143 @@
     </div><!-- /mint-panel -->
   </div><!-- /mint-wrap -->
 
-</div><!-- /page -->
+</div><!-- /page stake -->
 
-<!-- Footer -->
-<footer class="footer">
-  <div class="footer-inner">
+<!-- ── PAGE: CREATE ──────────────────────────────────────────────────── -->
+<div class="page" data-page="create">
+
+  <!-- Hero -->
+  <div class="hero">
+    <h1>Create Pokémon NFTs</h1>
+    <p>Create and mint your own Pokémon NFT on Arc Testnet.</p>
+  </div>
+
+  <!-- Create NFT Panel -->
+  <div class="create-layout">
+    <div class="create-nft-panel">
+
+      <div class="create-nft-title">✦ Create Your NFTs</div>
+
+      <!-- Image Upload -->
+      <div class="nft-upload-zone" id="uploadZone">
+        <input type="file" id="nftImageInput" accept="image/*" onchange="handleNftImageSelect(event)" />
+        <button class="upload-remove-btn" id="uploadRemoveBtn" onclick="removeNftImage(event)">✕</button>
+        <div class="upload-icon">🖼️</div>
+        <div class="upload-hint">Drop your image here<br/>or click to browse</div>
+      </div>
+
+      <!-- NFT Name -->
+      <div class="create-input-group">
+        <div class="create-input-label">NFT Name</div>
+        <input class="create-input" type="text" id="nftNameInput" placeholder="e.g. Golden Pikachu #001" maxlength="64" />
+      </div>
+
+      <!-- Description -->
+      <div class="create-input-group">
+        <div class="create-input-label">Description</div>
+        <textarea class="create-input" id="nftDescInput" placeholder="Describe your NFT…" rows="3" maxlength="280"></textarea>
+      </div>
+
+      <!-- Info Box -->
+      <div class="create-info-box">
+        <div class="create-info-row">
+          <div class="create-info-key">Network</div>
+          <div class="create-info-val">Arc Testnet</div>
+        </div>
+        <div class="create-info-row">
+          <div class="create-info-key">Total Minted</div>
+          <div class="create-info-val" id="createTotalMinted">—</div>
+        </div>
+      </div>
+
+      <!-- Mint Button -->
+      <button class="btn btn-primary" id="mintNftBtn" onclick="doCreateMint()">
+        Mint NFT
+      </button>
+
+    </div>
+
+    <!-- Your Minted NFTs Panel -->
+    <div class="minted-nfts-panel" id="mintedNftsPanel">
+      <div class="minted-nfts-title">Your Minted NFTs</div>
+      <div id="mintedNftsContent">
+        <!-- Empty state -->
+        <div class="minted-nfts-empty" id="mintedNftsEmpty">
+          <div class="minted-nfts-empty-icon">🖼️</div>
+          <div class="minted-nfts-empty-text">You haven't minted<br/>any NFTs yet.</div>
+        </div>
+        <!-- Grid (hidden when empty) -->
+        <div class="minted-nfts-grid" id="mintedNftsGrid" style="display:none;"></div>
+      </div>
+      <!-- Pagination controls -->
+      <div class="minted-pagination" id="mintedPagination" style="display:none;">
+        <button class="minted-page-btn" id="mintedPrevBtn" onclick="mintedPageChange(-1)">&#8592; Prev</button>
+        <span class="minted-page-indicator" id="mintedPageIndicator">1 / 1</span>
+        <button class="minted-page-btn" id="mintedNextBtn" onclick="mintedPageChange(1)">Next &#8594;</button>
+      </div>
+    </div>
+
+  </div>
+
+  </div>
+
+</div><!-- /page create -->
+
+<!-- ── PAGE: GALLERY ────────────────────────────────────────────────── -->
+<div class="page" data-page="gallery">
+
+  <div class="hero">
+    <h1>PikaGallery</h1>
+    <p>All NFTs minted with PikaCreate</p>
+  </div>
+
+  <div class="gallery-section">
+    <div class="gallery-panel">
+      <div class="gallery-grid" id="galleryGrid">
+        <div class="gallery-loading" id="galleryLoading">Loading gallery…</div>
+      </div>
+      <div class="gallery-pagination" id="galleryPagination" style="display:none;">
+        <button class="gallery-page-btn" id="galleryPrevBtn" onclick="galleryPageChange(-1)">&#8592; Prev</button>
+        <span class="gallery-page-indicator" id="galleryPageIndicator">1 / 1</span>
+        <button class="gallery-page-btn" id="galleryNextBtn" onclick="galleryPageChange(1)">Next &#8594;</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /page gallery -->
+
+<!-- ── FOOTER ────────────────────────────────────────────────────── -->
+<footer class="site-footer">
+  <div class="site-footer-inner">
 
     <div class="footer-divider"></div>
 
-    <!-- Resource cards -->
     <div class="footer-resources">
-
       <a class="footer-card" href="https://x.com/arc" target="_blank" rel="noreferrer">
         <span class="footer-card-icon" style="color:#fff">𝕏</span>
         <span class="footer-card-label">Arc</span>
         <span class="footer-card-arrow">↗</span>
       </a>
-
       <a class="footer-card" href="https://x.com/PikaStake" target="_blank" rel="noreferrer">
         <span class="footer-card-icon" style="color:#fff">𝕏</span>
         <span class="footer-card-label">PikaStake</span>
         <span class="footer-card-arrow">↗</span>
       </a>
-
       <a class="footer-card" href="https://faucet.circle.com" target="_blank" rel="noreferrer">
         <span class="footer-card-icon">💧</span>
         <span class="footer-card-label">Circle Faucet</span>
         <span class="footer-card-arrow">↗</span>
       </a>
-
       <a class="footer-card" href="https://docs.arc.network/arc/concepts/welcome-to-arc" target="_blank" rel="noreferrer">
         <span class="footer-card-icon">📄</span>
         <span class="footer-card-label">Arc Docs</span>
         <span class="footer-card-arrow">↗</span>
       </a>
-
       <a class="footer-card" href="https://5042002.rpc.thirdweb.com" target="_blank" rel="noreferrer">
         <span class="footer-card-icon">⚡</span>
         <span class="footer-card-label">Arc RPC</span>
         <span class="footer-card-arrow">↗</span>
       </a>
-
     </div>
 
 
@@ -2418,7 +2969,10 @@
 const STAKE_ADDR   = '0x57bf29eDF062A617FAC74Fde4D77Ec04fF809B6B'
 const PUSDC_ADDR   = '0x04af969E356F67EB35F3A642871A6eF9791670b7'
 const USDC_ADDR    = '0x3600000000000000000000000000000000000000'
-const PIKAMON_ADDR = '0x98A9d9E580582Ac9e24f570bFBb09C3929c3cD92'
+const PIKAMON_ADDR    = '0x98A9d9E580582Ac9e24f570bFBb09C3929c3cD92'
+const PIKACREATE_ADDR  = '0x960Da00dfC0670604a4331A5794c208B869b64DB'
+const PINATA_JWT       = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiIyOTYwNzFiNi01NjE1LTQwYWMtOWE5Yy1mMDQxOGYyOTMwN2MiLCJlbWFpbCI6Im5mdHBvZXRyaXN0QGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJwaW5fcG9saWN5Ijp7InJlZ2lvbnMiOlt7ImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxLCJpZCI6IkZSQTEifSx7ImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxLCJpZCI6Ik5ZQzEifV0sInZlcnNpb24iOjF9LCJtZmFfZW5hYmxlZCI6ZmFsc2UsInN0YXR1cyI6IkFDVElWRSJ9LCJhdXRoZW50aWNhdGlvblR5cGUiOiJzY29wZWRLZXkiLCJzY29wZWRLZXlLZXkiOiJkZWRkOTk0Y2JkZjc1ZjJjNjhhNyIsInNjb3BlZEtleVNlY3JldCI6ImZkYmEwMjgxN2ViYzU3ZWQ2ZGIzMGNiMWIzMzgxOGE2ZjJhODIyNjQyYTQ4NTg3NTA2NmNjZDQxNjYyNGMzNzgiLCJleHAiOjE4MDc4MzM0NDN9.n-SVk50mlh5UnzUUpcfCahJjSjduskRdC1_JIWcfZug'
+const IPFS_GATEWAY      = 'https://gateway.pinata.cloud/ipfs/'
 const MAX_PER_WALLET  = 2
 const CHAIN_ID     = 5042002
 const CHAIN_HEX    = '0x' + CHAIN_ID.toString(16)
@@ -2453,6 +3007,14 @@ const PIKAMON_ABI = [
   'function getCard(uint256 cardId) view returns (string name, uint256 price, uint256 maxSupply, uint256 minted, uint256 remaining)',
 ]
 
+const PIKACREATE_ABI = [
+  'function mint(string tokenURI) external returns (uint256)',
+  'function totalSupply() view returns (uint256)',
+  'function tokensOfOwner(address owner) view returns (uint256[])',
+  'function tokenURI(uint256 tokenId) view returns (string)',
+  'function ownerOf(uint256 tokenId) view returns (address)',
+]
+
 /* ── NFT IMAGE MAP ───────────────────────────────────────────────── */
 const NFT_IMAGES = [
   'nft/sylveon.png',
@@ -2478,22 +3040,464 @@ let myWallet = 0n
 let profileOwnedCounts = [0, 0, 0, 0, 0, 0]
 
 /* ── BOOT ────────────────────────────────────────────────────────── */
+/* ── SPA ROUTER ──────────────────────────────────────────────────── */
+let _currentPage = 'stake'
+let _navLock = false
+
+function navigate(page) {
+  if (_navLock || page === _currentPage) return
+  _navLock = true
+  _currentPage = page
+
+  history.replaceState(null, '', page === 'stake' ? '#/' : `#/${page}`)
+  _setNavActive(page)
+
+  document.querySelectorAll('.page[data-page]').forEach(el => {
+    el.classList.toggle('active', el.dataset.page === page)
+  })
+  scrollTo(0, 0)
+  _navLock = false
+
+  if (page === 'gallery') loadGallery()
+}
+
+function _setNavActive(page) {
+  g('pikacreateNavBtn')?.classList.toggle('active', page === 'create')
+  g('pikagalleryNavBtn')?.classList.toggle('active', page === 'gallery')
+}
+
+/* ── CREATE PAGE ─────────────────────────────────────────────────── */
+let _preUploadedImageHash = null   // görsel seçilince arka planda yüklenir
+let _preUploadPromise     = null   // aynı anda iki yükleme olmasın
+
+function handleNftImageSelect(e) {
+  const file = e.target.files[0]
+  if (!file) return
+
+  // Görseli ekranda göster
+  const zone = g('uploadZone')
+  const prev = zone.querySelector('img')
+  if (prev) prev.remove()
+  const img = document.createElement('img')
+  img.src = URL.createObjectURL(file)
+  zone.appendChild(img)
+  zone.querySelector('.upload-icon').style.display = 'none'
+  zone.querySelector('.upload-hint').style.display = 'none'
+  const removeBtn = g('uploadRemoveBtn')
+  if (removeBtn) removeBtn.style.display = 'flex'
+
+  // Arka planda IPFS'e yüklemeye başla
+  _preUploadedImageHash = null
+  _preUploadPromise = _uploadImageToIPFS(file)
+    .then(hash => { _preUploadedImageHash = hash })
+    .catch(() => { _preUploadedImageHash = null; _preUploadPromise = null })
+}
+
+function removeNftImage(e) {
+  e.stopPropagation()
+  const zone = g('uploadZone')
+  const img = zone.querySelector('img')
+  if (img) img.remove()
+  zone.querySelector('.upload-icon').style.display = ''
+  zone.querySelector('.upload-hint').style.display = ''
+  const removeBtn = g('uploadRemoveBtn')
+  if (removeBtn) removeBtn.style.display = 'none'
+  const input = g('nftImageInput')
+  if (input) input.value = ''
+  _preUploadedImageHash = null
+  _preUploadPromise     = null
+}
+
+// drag-and-drop support
+document.addEventListener('DOMContentLoaded', () => {
+  const zone = g('uploadZone')
+  if (!zone) return
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover') })
+  zone.addEventListener('dragleave', () => zone.classList.remove('dragover'))
+  zone.addEventListener('drop', e => {
+    e.preventDefault()
+    zone.classList.remove('dragover')
+    const file = e.dataTransfer.files[0]
+    if (!file || !file.type.startsWith('image/')) return
+    const input = g('nftImageInput')
+    const dt = new DataTransfer()
+    dt.items.add(file)
+    input.files = dt.files
+    handleNftImageSelect({ target: input })
+  })
+})
+
+/* ── PikaCreate: Görseli IPFS'e yükle (Pinata) ──────────────────── */
+async function _uploadImageToIPFS(file) {
+  const formData = new FormData()
+  formData.append('file', file)
+
+  const res = await fetch('https://api.pinata.cloud/pinning/pinFileToIPFS', {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${PINATA_JWT}` },
+    body: formData
+  })
+  if (!res.ok) {
+    const err = await res.text()
+    throw new Error('Image upload failed: ' + err)
+  }
+  const data = await res.json()
+  return data.IpfsHash
+}
+
+async function _uploadMetadataToIPFS(name, description, imageHash) {
+  const res = await fetch('https://api.pinata.cloud/pinning/pinJSONToIPFS', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${PINATA_JWT}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      pinataContent: { name, description, image: `ipfs://${imageHash}` },
+      pinataMetadata: { name: name + '-metadata' }
+    })
+  })
+  if (!res.ok) {
+    const err = await res.text()
+    throw new Error('Metadata upload failed: ' + err)
+  }
+  const data = await res.json()
+  return data.IpfsHash
+}
+
+/* ── PikaCreate: Mint ────────────────────────────────────────────── */
+async function doCreateMint() {
+  if (!account || !provider) { toast('Please connect your wallet first', 'error'); return }
+
+  const imageInput = g('nftImageInput')
+  const nameVal    = g('nftNameInput').value.trim()
+  const descVal    = g('nftDescInput').value.trim()
+
+  if (!imageInput.files[0]) { toast('Please upload an image', 'error'); return }
+  if (!nameVal)              { toast('Please enter an NFT name', 'error'); return }
+
+  const btn = g('mintNftBtn')
+  btn.disabled = true
+
+  try {
+    // 1. Görseli IPFS'e yükle (ön yükleme bittiyse anında geç)
+    let imageHash = _preUploadedImageHash
+    if (!imageHash) {
+      btn.textContent = 'Uploading image…'
+      if (_preUploadPromise) {
+        await _preUploadPromise   // zaten yükleniyor, tamamlanmasını bekle
+        imageHash = _preUploadedImageHash
+      }
+      if (!imageHash) {
+        imageHash = await _uploadImageToIPFS(imageInput.files[0])
+      }
+    }
+
+    // 2. Metadata JSON'u IPFS'e yükle
+    btn.textContent = 'Uploading metadata…'
+    const metadataHash = await _uploadMetadataToIPFS(nameVal, descVal, imageHash)
+
+    // 3. Zincire sadece kısa ipfs:// URI yaz
+    btn.textContent = 'Minting…'
+    const signer     = await provider.getSigner()
+    const pikacreate = new ethers.Contract(PIKACREATE_ADDR, PIKACREATE_ABI, signer)
+    const tx         = await pikacreate.mint(`ipfs://${metadataHash}`)
+    await tx.wait()
+
+    // 4. Panele ekle
+    _addMintedNftCard(nameVal, IPFS_GATEWAY + imageHash)
+
+    // 5. Gallery'e de ekle
+    const short = account.slice(0,6) + '…' + account.slice(-4)
+    _galleryAll.unshift({ name: nameVal, image: IPFS_GATEWAY + imageHash, addr: short })
+    _saveGalleryCache()
+    _galleryPage = 0
+    _renderGalleryPage()
+
+    // 5. Formu sıfırla
+    g('nftNameInput').value = ''
+    g('nftDescInput').value  = ''
+    removeNftImage({ stopPropagation: () => {} })
+
+    // 6. İstatistikleri güncelle
+    loadCreatePageStats()
+
+    toast('NFT minted successfully! 🎉', 'success')
+
+  } catch (err) {
+    console.error(err)
+    toast('Mint failed: ' + (err.reason || err.shortMessage || err.message || 'Unknown error'), 'error')
+  } finally {
+    btn.disabled    = false
+    btn.textContent = 'Mint NFT'
+  }
+}
+
+/* ── PikaCreate: Cüzdan bağlanınca minted NFT'leri yükle ────────── */
+async function loadMintedNfts() {
+  if (!account || !provider) return
+  if (!g('mintedNftsGrid')) return
+
+  // 1. Önce cache'den yükle — anında görünür
+  const cached = _loadMintedCache()
+  _mintedNftsAll  = cached.slice()
+  _mintedNftsPage = 0
+  _renderMintedPage()
+
+  // 2. Zincirden token sayısını al; cache yeterliyse sadece yeni olanları ekle
+  try {
+    const pikacreate = new ethers.Contract(PIKACREATE_ADDR, PIKACREATE_ABI, provider)
+    const tokenIds   = await pikacreate.tokensOfOwner(account)
+
+    if (tokenIds.length <= cached.length) return  // Yeni NFT yok
+
+    // Cache'deki kadarını atla, sadece yenilerini çek
+    const newIds = tokenIds.slice(cached.length)
+    for (const tokenId of newIds) {
+      try {
+        const uri = await pikacreate.tokenURI(tokenId)
+        let name = `NFT #${tokenId}`, image = ''
+
+        if (uri.startsWith('ipfs://')) {
+          const metaUrl = IPFS_GATEWAY + uri.slice(7)
+          const meta    = await fetch(metaUrl).then(r => r.json())
+          name  = meta.name  || name
+          image = meta.image?.startsWith('ipfs://')
+            ? IPFS_GATEWAY + meta.image.slice(7)
+            : meta.image || ''
+        } else if (uri.startsWith('data:application/json;base64,')) {
+          const meta = JSON.parse(decodeURIComponent(escape(atob(uri.slice(29)))))
+          name  = meta.name  || name
+          image = meta.image || ''
+        }
+
+        _addMintedNftCard(name, image)
+      } catch (_) {}
+    }
+  } catch (err) {
+    console.error('loadMintedNfts error:', err)
+  }
+}
+
+/* ── PikaGallery: State ─────────────────────────────────────────── */
+let _galleryAll  = []   // { name, image, addr }
+let _galleryPage = 0
+const _GALLERY_PER_PAGE = 10  // 5 sütun × 2 satır
+const _GALLERY_CACHE_KEY = 'pikagallery_cache'
+
+function _saveGalleryCache() {
+  try { localStorage.setItem(_GALLERY_CACHE_KEY, JSON.stringify(_galleryAll)) } catch(_) {}
+}
+function _loadGalleryCache() {
+  try { return JSON.parse(localStorage.getItem(_GALLERY_CACHE_KEY) || '[]') } catch(_) { return [] }
+}
+
+function _renderGalleryPage() {
+  const grid  = g('galleryGrid')
+  const pager = g('galleryPagination')
+  const prev  = g('galleryPrevBtn')
+  const next  = g('galleryNextBtn')
+  const ind   = g('galleryPageIndicator')
+  if (!grid) return
+
+  const total = _galleryAll.length
+  if (total === 0) {
+    grid.innerHTML = '<div class="gallery-empty">No NFTs minted yet.</div>'
+    if (pager) pager.style.display = 'none'
+    return
+  }
+
+  const totalPages = Math.ceil(total / _GALLERY_PER_PAGE)
+  _galleryPage = Math.max(0, Math.min(_galleryPage, totalPages - 1))
+  const start  = _galleryPage * _GALLERY_PER_PAGE
+  const slice  = _galleryAll.slice(start, start + _GALLERY_PER_PAGE)
+
+  grid.innerHTML = ''
+  slice.forEach(({ name, image, addr }) => {
+    const card = document.createElement('div')
+    card.className = 'gallery-card'
+    card.innerHTML = `
+      <img src="${image}" alt="${name}" />
+      <div class="gallery-card-info">
+        <div class="gallery-card-name">${name}</div>
+        <div class="gallery-card-addr">${addr}</div>
+      </div>`
+    grid.appendChild(card)
+  })
+
+  if (pager) {
+    pager.style.display = totalPages > 1 ? 'flex' : 'none'
+    if (ind)  ind.textContent = `${_galleryPage + 1} / ${totalPages}`
+    if (prev) prev.disabled   = _galleryPage === 0
+    if (next) next.disabled   = _galleryPage >= totalPages - 1
+  }
+}
+
+function galleryPageChange(dir) {
+  _galleryPage += dir
+  _renderGalleryPage()
+}
+
+/* ── PikaGallery: Tüm NFT'leri yükle ───────────────────────────── */
+async function loadGallery() {
+  const grid = g('galleryGrid')
+  if (!grid) return
+
+  // 1. Cache'den anında göster
+  const cached = _loadGalleryCache()
+  _galleryAll  = cached.slice()
+  _galleryPage = 0
+  _renderGalleryPage()
+
+  // 2. Zincirden toplam sayıyı al
+  try {
+    const ro         = new ethers.JsonRpcProvider(RPC)
+    const pikacreate = new ethers.Contract(PIKACREATE_ADDR, PIKACREATE_ABI, ro)
+    const total      = Number(await pikacreate.totalSupply())
+
+    if (total === 0) { _galleryAll = []; _renderGalleryPage(); return }
+    if (total === cached.length) return  // Yeni NFT yok
+
+    // 3. Yeni olanları (cache'de olmayanları) yükle — en yeniden eskiye
+    const newCount = total - cached.length
+    const newItems = []
+    for (let id = total; id > cached.length; id--) {
+      try {
+        const uri   = await pikacreate.tokenURI(id)
+        const owner = await pikacreate.ownerOf(id)
+        let name = `NFT #${id}`, image = ''
+
+        if (uri.startsWith('ipfs://')) {
+          const meta = await fetch(IPFS_GATEWAY + uri.slice(7)).then(r => r.json())
+          name  = meta.name  || name
+          image = meta.image?.startsWith('ipfs://')
+            ? IPFS_GATEWAY + meta.image.slice(7)
+            : meta.image || ''
+        }
+
+        newItems.push({ name, image, addr: owner.slice(0,6) + '…' + owner.slice(-4) })
+      } catch (_) {}
+    }
+
+    // Yeni NFT'leri başa ekle (en yeni önce)
+    _galleryAll = [...newItems, ...cached]
+    _galleryPage = 0
+    _saveGalleryCache()
+    _renderGalleryPage()
+  } catch (err) {
+    console.error('loadGallery error:', err)
+  }
+}
+
+/* ── PikaCreate: Total Minted istatistiği ───────────────────────── */
+async function loadCreatePageStats() {
+  try {
+    const ro         = new ethers.JsonRpcProvider(RPC)
+    const pikacreate = new ethers.Contract(PIKACREATE_ADDR, PIKACREATE_ABI, ro)
+    const total      = await pikacreate.totalSupply()
+    const el         = g('createTotalMinted')
+    if (el) el.textContent = total.toString()
+  } catch (_) {}
+}
+
+/* ── PikaCreate: Pagination state ───────────────────────────────── */
+let _mintedNftsAll  = []   // { name, imageSrc, date }
+let _mintedNftsPage = 0    // 0-indexed current page
+const _MINTED_PER_PAGE = 4
+
+function _mintedCacheKey() {
+  return account ? `pikacreate_nfts_${account.toLowerCase()}` : null
+}
+function _saveMintedCache() {
+  const key = _mintedCacheKey()
+  if (!key) return
+  try { localStorage.setItem(key, JSON.stringify(_mintedNftsAll)) } catch(_) {}
+}
+function _loadMintedCache() {
+  const key = _mintedCacheKey()
+  if (!key) return []
+  try { return JSON.parse(localStorage.getItem(key) || '[]') } catch(_) { return [] }
+}
+
+function _renderMintedPage() {
+  const grid  = g('mintedNftsGrid')
+  const empty = g('mintedNftsEmpty')
+  const pager = g('mintedPagination')
+  const prev  = g('mintedPrevBtn')
+  const next  = g('mintedNextBtn')
+  const ind   = g('mintedPageIndicator')
+  if (!grid) return
+
+  const total = _mintedNftsAll.length
+  if (total === 0) {
+    grid.style.display = 'none'
+    if (empty) empty.style.display = 'flex'
+    if (pager) pager.style.display = 'none'
+    return
+  }
+
+  if (empty) empty.style.display = 'none'
+  grid.style.display = 'grid'
+
+  const totalPages = Math.ceil(total / _MINTED_PER_PAGE)
+  _mintedNftsPage  = Math.max(0, Math.min(_mintedNftsPage, totalPages - 1))
+
+  const reversed = _mintedNftsAll.slice().reverse()
+  const start    = _mintedNftsPage * _MINTED_PER_PAGE
+  const slice    = reversed.slice(start, start + _MINTED_PER_PAGE)
+
+  grid.innerHTML = ''
+  slice.forEach(({ name, imageSrc, date }) => {
+    const card = document.createElement('div')
+    card.className = 'minted-nft-card'
+    card.innerHTML = `
+      <img src="${imageSrc}" alt="${name}" />
+      <div class="minted-nft-info">
+        <div class="minted-nft-name">${name}</div>
+        <div class="minted-nft-date">${date}</div>
+      </div>`
+    grid.appendChild(card)
+  })
+
+  if (pager) {
+    pager.style.display = totalPages > 1 ? 'flex' : 'none'
+    if (ind)  ind.textContent  = `${_mintedNftsPage + 1} / ${totalPages}`
+    if (prev) prev.disabled    = _mintedNftsPage === 0
+    if (next) next.disabled    = _mintedNftsPage >= totalPages - 1
+  }
+}
+
+function mintedPageChange(dir) {
+  _mintedNftsPage += dir
+  _renderMintedPage()
+}
+
+function _addMintedNftCard(name, imageSrc, date) {
+  const d = date || new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+  _mintedNftsAll.push({ name, imageSrc, date: d })
+  _saveMintedCache()
+  _mintedNftsPage = 0  // En yeni ilk sayfada göster
+  _renderMintedPage()
+}
+
+function initRouter() {
+  const hash = location.hash
+  const page = hash.includes('gallery') ? 'gallery' : hash.includes('create') ? 'create' : 'stake'
+  _currentPage = page
+  document.querySelectorAll('.page[data-page]').forEach(el => {
+    el.classList.toggle('active', el.dataset.page === page)
+  })
+  _setNavActive(page)
+  if (page === 'gallery') loadGallery()
+}
+
+/* ── BOOT ────────────────────────────────────────────────────────── */
 window.addEventListener('load', async () => {
+  initRouter()
   fetchPublic()
+  loadCreatePageStats()
   discoverWallets()
 
-  // Beam: start on mint card hover, stop when no card is hovered and profile is closed
-  const nftGrid = g('nftGrid')
-  if (nftGrid) {
-    nftGrid.addEventListener('mouseenter', () => {
-      if (!_beamRaf) _beamRaf = requestAnimationFrame(_tickBeam)
-    }, true)
-    nftGrid.addEventListener('mouseleave', () => {
-      if (!g('profileOverlay')?.classList.contains('open')) {
-        if (_beamRaf) { cancelAnimationFrame(_beamRaf); _beamRaf = null }
-      }
-    }, true)
-  }
 
   // Sayfa yüklenince son kullanılan cüzdanı otomatik bağla
   setTimeout(autoConnect, 100) // EIP-6963 duyurularının gelmesi için kısa bekle
@@ -2507,7 +3511,8 @@ window.addEventListener('load', async () => {
 })
 
 async function autoConnect() {
-  const rdns = sessionStorage.getItem(LAST_WALLET_KEY)
+  if (account) return  // zaten bağlı
+  const rdns = localStorage.getItem(LAST_WALLET_KEY)
 
   // Son kullanılan cüzdanı dene
   if (rdns && walletProviders.has(rdns)) {
@@ -2522,6 +3527,8 @@ async function autoConnect() {
         rawProvider.on?.('chainChanged', () => reconnectProvider(rawProvider))
         renderConnected()
         fetchUser()
+        loadMintedNfts()
+        loadCreatePageStats()
         return
       }
     } catch(_) {}
@@ -2537,6 +3544,8 @@ async function autoConnect() {
         account  = await signer.getAddress()
         renderConnected()
         fetchUser()
+        loadMintedNfts()
+        loadCreatePageStats()
       }
     } catch(_) {}
   }
@@ -2609,6 +3618,10 @@ const WALLET_BLOCKLIST = ['nightlu', 'nightly']
 window.addEventListener('eip6963:announceProvider', (e) => {
   walletProviders.set(e.detail.info.rdns, e.detail)
   renderWalletList()
+  // Kaydedilmiş cüzdan duyurulduğu anda otomatik bağlan (sayfa yükleme optimizasyonu)
+  if (!account && e.detail.info.rdns === localStorage.getItem(LAST_WALLET_KEY)) {
+    autoConnect()
+  }
 })
 
 function discoverWallets() {
@@ -2684,7 +3697,7 @@ async function connectWithProvider(rdns) {
     signer   = await provider.getSigner()
     account  = await signer.getAddress()
 
-    sessionStorage.setItem(LAST_WALLET_KEY, rdns)
+    localStorage.setItem(LAST_WALLET_KEY, rdns)
 
     rawProvider.on?.('accountsChanged', (accs) => {
       accs.length ? reconnectProvider(rawProvider) : resetState()
@@ -2693,6 +3706,8 @@ async function connectWithProvider(rdns) {
 
     renderConnected()
     await fetchUser()
+    loadMintedNfts()
+    loadCreatePageStats()
     toast('Wallet connected ⚡', 'success')
   } catch(e) {
     console.error(e)
@@ -2728,15 +3743,21 @@ function handleConnect() {
 function renderConnected() {
   g('connectBtn').classList.add('connected')
   const short = shortAddr(account)
-  setBtn('connectBtn', false, `<span style="width:6px;height:6px;border-radius:50%;background:var(--ok);box-shadow:0 0 7px var(--ok);flex-shrink:0;display:inline-block"></span><span style="color:var(--ok)">Arc Testnet</span> ${short}`)
+  setBtn('connectBtn', false, `<span style="width:6px;height:6px;border-radius:50%;background:var(--ok);box-shadow:0 0 7px var(--ok);flex-shrink:0;display:inline-block"></span><span style="color:var(--ok)">Arc Testnet</span> <span style="color:#fff">${short}</span>`)
   updateMintWalletStatus()
   checkMintedCards()
 }
 
 function resetState() {
+  // NFT listesini sıfırla (cüzdan değişebilir)
+  _mintedNftsAll  = []
+  _mintedNftsPage = 0
+  _renderMintedPage()
+
   provider = signer = account = null
   myStaked = myWallet = 0n
   profileOwnedCounts = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  localStorage.removeItem(LAST_WALLET_KEY)
   g('connectBtn').classList.remove('connected')
   setBtn('connectBtn', false, 'Connect Wallet')
 ;['balanceLabel','walletBal','stakedBal','statStaked','statRewards','claimNum'].forEach(id => {
@@ -3038,8 +4059,8 @@ function maxStake() {
   document.getElementById('stakeAmt').value = v.replace(/,/g, '')
 }
 function maxWithdraw() {
-  const v = document.getElementById('stakedBal').textContent
-  document.getElementById('withdrawAmt').value = v.replace(/,/g, '')
+  if (!myStaked) return
+  document.getElementById('withdrawAmt').value = ethers.formatUnits(myStaked, USDC_DEC)
 }
 
 /* ── OVERLAY ─────────────────────────────────────────────────────── */
@@ -3122,18 +4143,6 @@ function parseError(e) {
 }
 
 /* ── PROFILE PANEL ───────────────────────────────────────────────── */
-let _beamRaf = null
-const _beamStart = performance.now()
-
-function _tickBeam() {
-  const angle = (((performance.now() - _beamStart) / 6000) * 360) % 360
-  const deg = angle.toFixed(2) + 'deg'
-  const profileGrid = g('profileNftGrid')
-  if (profileGrid) profileGrid.style.setProperty('--beam-angle', deg)
-  const mintGrid = g('nftGrid')
-  if (mintGrid) mintGrid.style.setProperty('--beam-angle', deg)
-  _beamRaf = requestAnimationFrame(_tickBeam)
-}
 
 /* ── Nickname ─────────────────────────────── */
 function loadNick() {
@@ -3180,16 +4189,11 @@ function openProfile() {
   loadNick()
   renderProfile()
   if (account) loadProfileNfts()
-  if (!_beamRaf) _beamRaf = requestAnimationFrame(_tickBeam)
 }
 
 function closeProfile() {
   g('profileOverlay').classList.remove('open')
   document.body.style.overflow = ''
-  // stop only if mint grid has no hovered card
-  if (!g('nftGrid')?.querySelector('.nft-slot:hover')) {
-    if (_beamRaf) { cancelAnimationFrame(_beamRaf); _beamRaf = null }
-  }
 }
 
 function handleProfileOverlayClick(e) {
