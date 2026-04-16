@@ -444,19 +444,27 @@
     .minted-nfts-panel {
       flex: 1;
       min-width: 0;
-      height: 620px;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.10);
+      height: var(--create-panel-h);
+      background: linear-gradient(135deg, #C47A00 0%, #7A4200 100%);
+      border: 1px solid rgba(255,255,255,0.18);
       border-radius: var(--r-xl);
       box-shadow:
-        inset 0 0 0 1px rgba(255,255,255,0.07),
-        0 40px 100px rgba(0,0,0,0.5);
-      padding: 28px 28px 14px;
+        inset 0 0 0 1px rgba(255,255,255,0.06),
+        0 40px 100px rgba(0,0,0,0.6),
+        0 0 100px rgba(255,203,5,0.06);
+      padding: 24px 28px 24px;
       display: flex;
       flex-direction: column;
       gap: 16px;
       position: relative;
       overflow: hidden;
+    }
+    .minted-nfts-panel::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 15%; right: 15%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,203,5,0.7), rgba(255,255,255,0.4), rgba(255,203,5,0.7), transparent);
     }
 
     .minted-nfts-title {
@@ -466,35 +474,45 @@
       color: var(--t0);
       letter-spacing: -0.3px;
       text-align: center;
+      flex-shrink: 0;
     }
 
     .minted-nfts-grid {
+      flex: 1;
+      min-height: 0;
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      gap: 10px;
+      overflow: hidden;
     }
 
     .minted-nft-card {
-      background: #9A5C00;
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 14px;
+      position: relative;
+      border-radius: 16px;
+      padding: 2px;
+      background: rgba(255,203,5,0.07);
+      border: 1.5px solid rgba(255,203,5,0.14);
       overflow: hidden;
-      transition: all 0.22s var(--ease);
+      transition: all 0.2s var(--ease);
+      display: flex;
+      flex-direction: column;
     }
     .minted-nft-card:hover {
-      border-color: rgba(255,255,255,0.16);
+      border: 2px solid rgba(255,203,5,0.55);
       transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      box-shadow: 0 8px 28px rgba(0,0,0,0.45), 0 0 20px rgba(255,203,5,0.12);
     }
     .minted-nft-card img {
+      flex: 1;
+      min-height: 0;
       width: 100%;
-      aspect-ratio: 4 / 3;
       object-fit: contain;
-      background: rgba(0,0,0,0.15);
       display: block;
+      border-radius: 13px 13px 0 0;
     }
     .minted-nft-info {
-      padding: 8px 10px;
+      padding: 6px 8px 8px;
     }
     .minted-nft-name {
       font-family: 'Space Grotesk', sans-serif;
@@ -518,17 +536,14 @@
       flex-direction: column;
     }
     .minted-nfts-empty {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: center;
       gap: 10px;
       color: var(--t0);
       text-align: center;
-      width: 100%;
+      padding: 48px 0;
       pointer-events: none;
     }
     .minted-nfts-empty-icon { font-size: 58px; opacity: 0.45; filter: none; }
@@ -574,49 +589,63 @@
       margin-bottom: 48px;
     }
     .gallery-panel {
+      position: relative;
       width: 100%;
-      height: 540px;
+      height: 700px;
       background: linear-gradient(135deg, #C47A00 0%, #7A4200 100%);
       border: 1px solid rgba(255,255,255,0.18);
       border-radius: var(--r-xl);
       box-shadow:
         inset 0 0 0 1px rgba(255,255,255,0.06),
-        0 40px 100px rgba(0,0,0,0.6);
-      padding: 28px 28px 14px;
+        0 40px 100px rgba(0,0,0,0.6),
+        0 0 100px rgba(255,203,5,0.06);
+      padding: 24px 70px 24px;
       display: flex;
       flex-direction: column;
       overflow: hidden;
+    }
+    .gallery-panel::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 15%; right: 15%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,203,5,0.7), rgba(255,255,255,0.4), rgba(255,203,5,0.7), transparent);
     }
     .gallery-grid {
       flex: 1;
       min-height: 0;
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      align-content: start;
-      gap: 12px;
+      grid-template-columns: repeat(6, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      gap: 10px;
       overflow: hidden;
     }
     .gallery-card {
-      background: #9A5C00;
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 14px;
+      position: relative;
+      border-radius: 16px;
+      padding: 2px;
+      background: rgba(255,203,5,0.07);
+      border: 1.5px solid rgba(255,203,5,0.14);
       overflow: hidden;
-      transition: all 0.22s var(--ease);
+      transition: all 0.2s var(--ease);
+      display: flex;
+      flex-direction: column;
     }
     .gallery-card:hover {
-      border-color: rgba(255,255,255,0.16);
+      border: 2px solid rgba(255,203,5,0.55);
       transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      box-shadow: 0 8px 28px rgba(0,0,0,0.45), 0 0 20px rgba(255,203,5,0.12);
     }
     .gallery-card img {
+      flex: 1;
+      min-height: 0;
       width: 100%;
-      aspect-ratio: 4 / 3;
-      object-fit: contain;
-      background: rgba(0,0,0,0.15);
+      object-fit: cover;
       display: block;
+      border-radius: 13px 13px 0 0;
     }
     .gallery-card-info {
-      padding: 8px 10px;
+      padding: 6px 8px 8px;
     }
     .gallery-card-name {
       font-family: 'Space Grotesk', sans-serif;
@@ -656,8 +685,7 @@
       align-items: center;
       justify-content: center;
       gap: 12px;
-      margin-top: auto;
-      padding-top: 10px;
+      padding-top: 16px;
     }
     .gallery-page-btn {
       background: linear-gradient(135deg, var(--y1) 0%, var(--g1) 100%);
@@ -800,6 +828,9 @@
     }
     .balance-dot {
       display: none;
+    }
+    .pusdc-unit {
+      color: var(--y1);
     }
 
     .connect-btn {
@@ -2416,7 +2447,7 @@
     <div class="nav-right">
       <div class="balance-pill" id="balancePill">
         <div class="balance-dot"></div>
-        <span id="balanceLabel">0.00 pUSDC</span>
+        <span id="balanceLabel"><span id="balanceAmt">0.00</span> <span class="pusdc-unit">pUSDC</span></span>
       </div>
 
       <button class="connect-btn" id="connectBtn" onclick="handleConnect()">
@@ -3244,6 +3275,22 @@ async function loadMintedNfts() {
   _mintedNftsPage = 0
   _renderMintedPage()
 
+  // 1b. Cache'deki eski IPFS URL'lerini arka planda base64'e yükselt
+  ;(async () => {
+    let upgraded = false
+    for (let i = 0; i < _mintedNftsAll.length; i++) {
+      const entry = _mintedNftsAll[i]
+      if (entry.imageSrc && !entry.imageSrc.startsWith('data:')) {
+        const dataUrl = await _toDataUrl(entry.imageSrc)
+        if (dataUrl !== entry.imageSrc) {
+          _mintedNftsAll[i] = { ...entry, imageSrc: dataUrl }
+          upgraded = true
+        }
+      }
+    }
+    if (upgraded) { _saveMintedCache(); _renderMintedPage() }
+  })()
+
   // 2. Zincirden token sayısını al; cache yeterliyse sadece yeni olanları ekle
   try {
     const pikacreate = new ethers.Contract(PIKACREATE_ADDR, PIKACREATE_ABI, provider)
@@ -3282,7 +3329,7 @@ async function loadMintedNfts() {
 /* ── PikaGallery: State ─────────────────────────────────────────── */
 let _galleryAll  = []   // { name, image, addr }
 let _galleryPage = 0
-const _GALLERY_PER_PAGE = 10  // 5 sütun × 2 satır
+const _GALLERY_PER_PAGE = 12  // 6 sütun × 2 satır
 const _GALLERY_CACHE_KEY = 'pikagallery_cache'
 
 function _saveGalleryCache() {
@@ -3406,11 +3453,28 @@ async function loadCreatePageStats() {
 /* ── PikaCreate: Pagination state ───────────────────────────────── */
 let _mintedNftsAll  = []   // { name, imageSrc, date }
 let _mintedNftsPage = 0    // 0-indexed current page
-const _MINTED_PER_PAGE = 4
+const _MINTED_PER_PAGE = 6  // 3 sütun × 2 satır
 
 function _mintedCacheKey() {
   return account ? `pikacreate_nfts_${account.toLowerCase()}` : null
 }
+
+/* Görseli base64 data URL'ye çevir (≤500 KB ise); büyükse orijinal URL döner */
+async function _toDataUrl(url) {
+  if (!url || url.startsWith('data:')) return url
+  try {
+    const res  = await fetch(url)
+    const blob = await res.blob()
+    if (blob.size > 500_000) return url
+    return await new Promise(resolve => {
+      const r = new FileReader()
+      r.onload  = () => resolve(r.result)
+      r.onerror = () => resolve(url)
+      r.readAsDataURL(blob)
+    })
+  } catch { return url }
+}
+
 function _saveMintedCache() {
   const key = _mintedCacheKey()
   if (!key) return
@@ -3475,9 +3539,10 @@ function mintedPageChange(dir) {
   _renderMintedPage()
 }
 
-function _addMintedNftCard(name, imageSrc, date) {
+async function _addMintedNftCard(name, imageSrc, date) {
   const d = date || new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-  _mintedNftsAll.push({ name, imageSrc, date: d })
+  const cached = await _toDataUrl(imageSrc)
+  _mintedNftsAll.push({ name, imageSrc: cached, date: d })
   _saveMintedCache()
   _mintedNftsPage = 0  // En yeni ilk sayfada göster
   _renderMintedPage()
@@ -3589,7 +3654,7 @@ async function fetchUser() {
     myWallet = usdcBal
     myStaked = info[0]
 
-    set('balanceLabel', fmtPusdc(pusdcBal) + ' pUSDC')
+    set('balanceAmt', fmtPusdc(pusdcBal))
     set('walletBal',    fmtUsdc(usdcBal))
     set('stakedBal',    fmtUsdc(myStaked))
     set('statStaked',   fmtUsdc(myStaked))
@@ -3763,9 +3828,9 @@ function resetState() {
   localStorage.removeItem(LAST_WALLET_KEY)
   g('connectBtn').classList.remove('connected')
   setBtn('connectBtn', false, 'Connect Wallet')
-;['balanceLabel','walletBal','stakedBal','statStaked','statRewards','claimNum'].forEach(id => {
+;['balanceAmt','walletBal','stakedBal','statStaked','statRewards','claimNum'].forEach(id => {
     const el = document.getElementById(id)
-    if (el) el.textContent = id === 'balanceLabel' ? '0.00 pUSDC' : '0.00'
+    if (el) el.textContent = '0.00'
   })
   updateMintWalletStatus()
   /* Slot badge ve maxed durumlarını sıfırla */
