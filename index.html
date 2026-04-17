@@ -90,47 +90,6 @@
       pointer-events: none;
     }
 
-    .orb {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(4px);
-      pointer-events: none;
-      will-change: transform;
-    }
-    .orb-1 {
-      width: 700px; height: 700px;
-      background: radial-gradient(circle, rgba(255,203,5,0.05) 0%, transparent 70%);
-      top: -200px; left: 50%; transform: translateX(-50%);
-      animation: orbA 12s ease-in-out infinite;
-    }
-    .orb-2 {
-      width: 450px; height: 450px;
-      background: radial-gradient(circle, rgba(240,165,0,0.04) 0%, transparent 70%);
-      bottom: -50px; right: -80px;
-      animation: orbB 15s ease-in-out infinite;
-    }
-    .orb-3 {
-      width: 320px; height: 320px;
-      background: radial-gradient(circle, rgba(255,122,43,0.03) 0%, transparent 70%);
-      top: 40%; left: -60px;
-      animation: orbC 18s ease-in-out infinite;
-    }
-
-    @keyframes orbA {
-      0%,100%{transform:translateX(-50%) translateY(0)   scale(1)   }
-      40%    {transform:translateX(-50%) translateY(-50px) scale(1.06)}
-      70%    {transform:translateX(-50%) translateY(20px)  scale(0.96)}
-    }
-    @keyframes orbB {
-      0%,100%{transform:translateY(0)    scale(1)  }
-      35%    {transform:translateY(-40px) scale(1.08)}
-      65%    {transform:translateY(25px)  scale(0.95)}
-    }
-    @keyframes orbC {
-      0%,100%{transform:translateY(0)    scale(1)  }
-      30%    {transform:translateY(35px)  scale(1.05)}
-      60%    {transform:translateY(-20px) scale(0.97)}
-    }
 
     /* ── BACKGROUND STRIPS ───────────────────────── */
     .bg-strip {
@@ -207,8 +166,8 @@
         rgba(0,0,0,0.72) 40%,
         rgba(0,0,0,0.78) 100%
       );
-      backdrop-filter: blur(40px) saturate(160%);
-      -webkit-backdrop-filter: blur(40px) saturate(160%);
+      backdrop-filter: blur(14px) saturate(140%);
+      -webkit-backdrop-filter: blur(14px) saturate(140%);
       border: 1px solid rgba(255,255,255,0.07);
       border-bottom-color: rgba(255,203,5,0.15);
       box-shadow:
@@ -1381,7 +1340,6 @@
       border-radius: 16px;
       padding: 14px 12px;
       text-align: center;
-      backdrop-filter: blur(16px);
       transition: all 0.22s var(--ease);
     }
     .metric:hover {
@@ -1861,8 +1819,6 @@
       text-decoration: none;
       transition: all 0.2s var(--ease);
       cursor: pointer;
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
     }
     .footer-card:hover {
       background: rgba(38, 22, 2, 0.90);
@@ -2246,7 +2202,12 @@
         transparent 75%
       );
       animation: profileHolo 3.5s ease-in-out infinite;
+      animation-play-state: paused;
       pointer-events: none;
+    }
+
+    .profile-overlay.open .profile-card.owned .profile-card-art::after {
+      animation-play-state: running;
     }
 
     @keyframes profileHolo {
@@ -2330,10 +2291,26 @@
       -webkit-appearance: none;
       font-family: 'Space Grotesk', sans-serif;
       font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+      background: linear-gradient(135deg, var(--y1) 0%, var(--g1) 100%);
+      border-color: transparent;
+      color: #1A0800;
+      box-shadow: 0 0 22px rgba(255,203,5,0.35), 0 4px 14px rgba(0,0,0,0.3);
+    }
+    #profileBtn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 0 36px rgba(255,203,5,0.55), 0 8px 20px rgba(0,0,0,0.4);
+    }
+    #profileBtn.connected {
+      background: var(--s1);
+      border-color: var(--s3);
+      color: #fff;
+      box-shadow: none;
       font-weight: 600;
       letter-spacing: 0.2px;
     }
-    #profileBtn:hover:not(:disabled) {
+    #profileBtn.connected:hover:not(:disabled) {
       background: var(--s2);
       border-color: rgba(255,203,5,0.5);
       box-shadow: 0 0 16px rgba(255,203,5,0.18);
@@ -2499,9 +2476,6 @@
   <div class="bg-strip bg-strip-2">
     <img src="background2.png" alt="" />
   </div>
-  <div class="orb orb-1"></div>
-  <div class="orb orb-2"></div>
-  <div class="orb orb-3"></div>
 </div>
 
 <!-- ── NAVBAR ────────────────────────────────────────────────────────── -->
@@ -3081,7 +3055,13 @@ const USDC_ADDR    = '0x3600000000000000000000000000000000000000'
 const PIKAMON_ADDR    = '0x98A9d9E580582Ac9e24f570bFBb09C3929c3cD92'
 const PIKACREATE_ADDR  = '0x960Da00dfC0670604a4331A5794c208B869b64DB'
 const PINATA_JWT       = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiIyOTYwNzFiNi01NjE1LTQwYWMtOWE5Yy1mMDQxOGYyOTMwN2MiLCJlbWFpbCI6Im5mdHBvZXRyaXN0QGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJwaW5fcG9saWN5Ijp7InJlZ2lvbnMiOlt7ImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxLCJpZCI6IkZSQTEifSx7ImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxLCJpZCI6Ik5ZQzEifV0sInZlcnNpb24iOjF9LCJtZmFfZW5hYmxlZCI6ZmFsc2UsInN0YXR1cyI6IkFDVElWRSJ9LCJhdXRoZW50aWNhdGlvblR5cGUiOiJzY29wZWRLZXkiLCJzY29wZWRLZXlLZXkiOiJkZWRkOTk0Y2JkZjc1ZjJjNjhhNyIsInNjb3BlZEtleVNlY3JldCI6ImZkYmEwMjgxN2ViYzU3ZWQ2ZGIzMGNiMWIzMzgxOGE2ZjJhODIyNjQyYTQ4NTg3NTA2NmNjZDQxNjYyNGMzNzgiLCJleHAiOjE4MDc4MzM0NDN9.n-SVk50mlh5UnzUUpcfCahJjSjduskRdC1_JIWcfZug'
-const IPFS_GATEWAY      = 'https://gateway.pinata.cloud/ipfs/'
+const IPFS_GATEWAY      = 'https://ipfs.io/ipfs/'
+const IPFS_GATEWAYS     = [
+  'https://ipfs.io/ipfs/',
+  'https://cloudflare-ipfs.com/ipfs/',
+  'https://dweb.link/ipfs/',
+  'https://gateway.pinata.cloud/ipfs/'
+]
 const MAX_PER_WALLET  = 2
 const CHAIN_ID     = 5042002
 const CHAIN_HEX    = '0x' + CHAIN_ID.toString(16)
@@ -3414,7 +3394,13 @@ function _saveGalleryCache() {
   try { localStorage.setItem(_GALLERY_CACHE_KEY, JSON.stringify(_galleryAll)) } catch(_) {}
 }
 function _loadGalleryCache() {
-  try { return JSON.parse(localStorage.getItem(_GALLERY_CACHE_KEY) || '[]') } catch(_) { return [] }
+  try {
+    const data = JSON.parse(localStorage.getItem(_GALLERY_CACHE_KEY) || '[]')
+    return data.map(item => {
+      const hash = _ipfsHash(item.image || '')
+      return hash ? { ...item, image: IPFS_GATEWAY + hash } : item
+    })
+  } catch(_) { return [] }
 }
 
 function _renderGalleryPage() {
@@ -3449,16 +3435,32 @@ function _renderGalleryPage() {
     img.alt = name
 
     let _timer
-    const _reveal = () => {
+    const _reveal = () => { clearTimeout(_timer); img.classList.add('img-loaded') }
+    const _fail   = () => {
       clearTimeout(_timer)
-      img.classList.add('img-loaded')
+      img.style.display = 'none'
+      const ph = document.createElement('div')
+      ph.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:28px;opacity:0.25;'
+      ph.textContent = '🖼'
+      wrap.appendChild(ph)
     }
+    const hash = _ipfsHash(image)
+    let _gwIdx = 0
     img.onload  = _reveal
-    img.onerror = _reveal
-    _timer = setTimeout(_reveal, 12000)
+    img.onerror = () => {
+      _gwIdx++
+      if (hash && _gwIdx < IPFS_GATEWAYS.length) {
+        img.src = IPFS_GATEWAYS[_gwIdx] + hash
+      } else {
+        _fail()
+      }
+    }
+    _timer = setTimeout(_reveal, 14000)
 
     wrap.appendChild(img)
-    img.src = image  // src en son set edilmeli
+    if (hash) img.src = IPFS_GATEWAYS[0] + hash
+    else if (image) img.src = image
+    else _fail()
 
     card.innerHTML = `<div class="gallery-card-info"><div class="gallery-card-name">${name}</div><div class="gallery-card-addr">${addr}</div></div>`
     card.insertBefore(wrap, card.firstChild)
@@ -3516,13 +3518,16 @@ async function loadGallery() {
         ])
         let name = `NFT #${id}`, image = ''
         if (uri.startsWith('ipfs://')) {
-          const meta = await fetch(IPFS_GATEWAY + uri.slice(7)).then(r => r.json())
-          name  = meta.name  || name
-          image = meta.image?.startsWith('ipfs://')
-            ? IPFS_GATEWAY + meta.image.slice(7)
-            : meta.image || ''
+          try {
+            const hash = uri.slice(7)
+            const meta = await _fetchIpfs(hash).then(r => r.json())
+            name  = meta.name  || name
+            const imgHash = _ipfsHash(meta.image || '')
+            image = imgHash ? IPFS_GATEWAY + imgHash : meta.image || ''
+          } catch (_) { /* metadata fetch failed, keep name as NFT #id */ }
         }
-        return { name, image, addr: owner.slice(0,6) + '…' + owner.slice(-4) }
+        const addr = owner.slice(0,6) + '…' + owner.slice(-4)
+        return { name, image, addr }
       } catch (_) { return null }
     }))
 
@@ -3537,6 +3542,10 @@ async function loadGallery() {
   } catch (err) {
     console.error('loadGallery error:', err)
     overlay?.classList.add('hidden')
+    if (_galleryAll.length === 0) {
+      const grid = g('galleryGrid')
+      if (grid) grid.innerHTML = '<div class="gallery-empty">Could not load gallery. Check your connection and refresh.</div>'
+    }
   }
 }
 
@@ -3560,11 +3569,34 @@ function _mintedCacheKey() {
   return account ? `pikacreate_nfts_${account.toLowerCase()}` : null
 }
 
+/* IPFS URL'sinden hash çıkar */
+function _ipfsHash(url) {
+  if (!url) return null
+  if (url.startsWith('ipfs://')) return url.slice(7)
+  const m = url.match(/\/ipfs\/(.+)/)
+  return m ? m[1] : null
+}
+
+/* IPFS hash'i için sırayla gateway dene */
+async function _fetchIpfs(hash) {
+  for (const gw of IPFS_GATEWAYS) {
+    try {
+      const ctrl  = new AbortController()
+      const timer = setTimeout(() => ctrl.abort(), 9000)
+      const r = await fetch(gw + hash, { signal: ctrl.signal })
+      clearTimeout(timer)
+      if (r.ok) return r
+    } catch (_) {}
+  }
+  throw new Error('All IPFS gateways failed: ' + hash)
+}
+
 /* Görseli base64 data URL'ye çevir (≤500 KB ise); büyükse orijinal URL döner */
 async function _toDataUrl(url) {
   if (!url || url.startsWith('data:')) return url
   try {
-    const res  = await fetch(url)
+    const hash = _ipfsHash(url)
+    const res  = hash ? await _fetchIpfs(hash) : await fetch(url)
     const blob = await res.blob()
     if (blob.size > 500_000) return url
     return await new Promise(resolve => {
@@ -3920,7 +3952,7 @@ function renderConnected() {
   const dot  = g('profileDot')
   const text = g('profileBtnText')
   const pic  = g('profilePic')
-  if (btn)  btn.disabled = false
+  if (btn)  { btn.disabled = false; btn.classList.add('connected') }
   if (dot)  { dot.style.cssText = 'display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--ok);box-shadow:0 0 7px var(--ok);flex-shrink:0;' }
   if (text) text.innerHTML = `<span style="color:var(--ok)">Arc</span> <span style="color:#fff">${short}</span>`
   if (pic)  pic.style.display = 'inline-block'
@@ -3938,7 +3970,7 @@ function resetState() {
   myStaked = myWallet = 0n
   profileOwnedCounts = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
   localStorage.removeItem(LAST_WALLET_KEY)
-  g('profileBtn').disabled = false
+  const _b = g('profileBtn'); if (_b) { _b.disabled = false; _b.classList.remove('connected') }
   const _t = g('profileBtnText'); if (_t) _t.textContent = 'Connect Wallet'
   const _d = g('profileDot');     if (_d) _d.removeAttribute('style')
   const _p = g('profilePic');     if (_p) _p.style.display = 'none'
