@@ -789,6 +789,199 @@
       flex-shrink: 0;
     }
 
+    /* ══════════════════════════════════════════════
+       PIKA NAME SERVICE PAGE
+    ══════════════════════════════════════════════ */
+    .pika-wrap {
+      width: 100%;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 24px 60px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    .pika-search-bar {
+      display: flex;
+      align-items: center;
+      background: #6B3D00;
+      border: 1.5px solid rgba(255,203,5,0.3);
+      border-radius: var(--r-pill);
+      padding: 6px 6px 6px 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      transition: box-shadow 0.2s, border-color 0.2s;
+    }
+    .pika-search-bar:focus-within {
+      box-shadow: 0 4px 28px rgba(0,0,0,0.4);
+      border-color: rgba(255,203,5,0.55);
+    }
+    .pika-search-icon { font-size: 17px; opacity: 0.45; margin-right: 12px; flex-shrink: 0; }
+    .pika-search-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--t0);
+      min-width: 0;
+    }
+    .pika-search-input::placeholder { color: rgba(255,255,255,0.35); font-weight: 500; }
+    .pika-mint-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 28px;
+      background: linear-gradient(135deg, #4E8A00 0%, #244400 100%);
+      border: none;
+      border-radius: var(--r-pill);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+      cursor: pointer;
+      letter-spacing: 0.4px;
+      transition: all 0.18s var(--ease);
+      flex-shrink: 0;
+      box-shadow: 0 0 22px rgba(106,175,0,0.3), 0 4px 14px rgba(0,0,0,0.3);
+    }
+    .pika-mint-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 36px rgba(106,175,0,0.5), 0 8px 20px rgba(0,0,0,0.4);
+    }
+    .pika-panels {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+    .pika-panel {
+      background: linear-gradient(135deg, #C47A00 0%, #7A4200 100%);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: var(--r-lg);
+      padding: 24px;
+      min-height: 440px;
+      display: flex;
+      flex-direction: column;
+    }
+    .pika-panel-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .pika-mint-list { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+    .pika-mint-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      background: rgba(0,0,0,0.18);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: var(--r-md);
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .pika-mint-item:hover { background: rgba(0,0,0,0.28); border-color: rgba(255,255,255,0.22); }
+    .pika-mint-item .pika-emoji { font-size: 18px; flex-shrink: 0; }
+    .pika-mint-item .pika-domain-name { flex: 1; font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 600; color: #fff; }
+    .pika-mint-item .pika-time { font-size: 12px; color: rgba(255,255,255,0.5); }
+    .pika-domain-list { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+    .pika-domain-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      background: rgba(0,0,0,0.18);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: var(--r-md);
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .pika-domain-item:hover { background: rgba(0,0,0,0.28); border-color: rgba(255,255,255,0.22); }
+    .pika-domain-item .pika-domain-name { flex: 1; font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 600; color: #fff; }
+    .pika-domain-actions { display: flex; gap: 8px; }
+    .pika-action-btn {
+      font-size: 12px; font-weight: 600; color: #1a1000;
+      background: var(--y1); border: none; border-radius: 6px;
+      padding: 4px 10px; cursor: pointer; transition: all 0.15s;
+    }
+    .pika-action-btn:hover { background: var(--y2); box-shadow: 0 0 10px rgba(255,203,5,0.4); }
+    .pika-empty {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: rgba(255,255,255,0.5);
+      font-size: 13px;
+      padding-bottom: 40px;
+    }
+    .pika-empty-icon { font-size: 32px; margin-bottom: 10px; }
+    .pika-load-more {
+      margin-top: 12px;
+      width: 100%;
+      padding: 9px;
+      background: rgba(0,0,0,0.2);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: var(--r-md);
+      color: rgba(255,255,255,0.7);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.18s;
+      flex-shrink: 0;
+    }
+    .pika-load-more:hover {
+      background: rgba(0,0,0,0.35);
+      border-color: rgba(255,255,255,0.28);
+      color: #fff;
+    }
+    @media (max-width: 640px) { .pika-panels { grid-template-columns: 1fr; } }
+
+    /* PikaDomain nav button */
+    .pikadomain-btn {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 16px;
+      background: rgba(255,203,5,0.08);
+      border: 1px solid rgba(255,203,5,0.28);
+      border-radius: var(--r-pill);
+      color: var(--y1);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s var(--ease);
+      white-space: nowrap;
+    }
+    .pikadomain-btn:hover {
+      background: rgba(255,203,5,0.15);
+      border-color: rgba(255,203,5,0.5);
+      box-shadow: 0 0 18px rgba(255,203,5,0.22);
+      transform: translateY(-1px);
+    }
+    .pikadomain-btn.active {
+      background: rgba(255,203,5,0.18);
+      border-color: rgba(255,203,5,0.55);
+      box-shadow: 0 0 22px rgba(255,203,5,0.28);
+    }
+    .pikadomain-btn .pd-dot {
+      width: 5px; height: 5px;
+      background: var(--y1);
+      border-radius: 50%;
+      box-shadow: 0 0 7px rgba(255,203,5,0.8);
+      flex-shrink: 0;
+    }
+    @media (max-width: 640px) { .pns-panels { grid-template-columns: 1fr; } }
+
     /* Nav right */
     .nav-right {
       display: flex;
@@ -936,7 +1129,8 @@
       background-clip: text;
       margin-bottom: 18px;
     }
-    .page[data-page="create"] .hero h1 {
+    .page[data-page="create"] .hero h1,
+    .page[data-page="domain"] .hero h1 {
       font-size: clamp(30px, 5vw, 50px);
     }
 
@@ -2495,6 +2689,10 @@
         <span class="pg-dot"></span>
         PikaGallery
       </div>
+      <div class="pikadomain-btn" id="pikadomainNavBtn" onclick="navigate('domain')">
+        <span class="pd-dot"></span>
+        PikaDomain
+      </div>
     </div>
 
     <div class="nav-right">
@@ -2948,6 +3146,49 @@
 
 </div><!-- /page gallery -->
 
+<!-- ── PAGE: DOMAIN ─────────────────────────────────────────────────── -->
+<div class="page" data-page="domain">
+
+  <div class="hero">
+    <h1>Pika Name Service</h1>
+    <p>Your identity across ARC — one name for all your crypto addresses and your decentralized website.</p>
+  </div>
+
+  <div class="pika-wrap">
+
+    <div class="pika-search-bar">
+      <span class="pika-search-icon">🔍</span>
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;">
+        <input id="pikaSearchInput" class="pika-search-input" type="text"
+          placeholder="Search for your Pokémon domain (e.g., ash.pika, pikachu.pika)"
+          oninput="onPikaSearchInput(event)" autocomplete="off" spellcheck="false" />
+        <div id="pikaSearchStatus" style="font-size:12px;font-weight:600;padding-left:2px;min-height:16px;"></div>
+      </div>
+      <button id="pikaMintBtn" class="pika-mint-btn" onclick="doPikaMint()" disabled>⚡ MINT</button>
+    </div>
+
+    <div class="pika-panels">
+
+      <div class="pika-panel">
+        <div class="pika-panel-title">🕐 Recent Mints</div>
+        <div class="pika-mint-list" id="pikaRecentMints"></div>
+      </div>
+
+      <div class="pika-panel">
+        <div class="pika-panel-title">🏷️ My Domains</div>
+        <div class="pika-domain-list" id="pikaMyDomains">
+          <div class="pika-empty">
+            <div class="pika-empty-icon">🔌</div>
+            Connect your wallet to view your domains.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- /page domain -->
+
 <!-- ── FOOTER ────────────────────────────────────────────────────── -->
 <footer class="site-footer">
   <div class="site-footer-inner">
@@ -3054,6 +3295,14 @@ const PUSDC_ADDR   = '0x04af969E356F67EB35F3A642871A6eF9791670b7'
 const USDC_ADDR    = '0x3600000000000000000000000000000000000000'
 const PIKAMON_ADDR    = '0x98A9d9E580582Ac9e24f570bFBb09C3929c3cD92'
 const PIKACREATE_ADDR  = '0x960Da00dfC0670604a4331A5794c208B869b64DB'
+const PIKANAME_ADDR    = '0x089D7b3CA59629F7364eE22F499Ef087a46f55cd'
+
+const PIKANAME_ABI = [
+  'function isAvailable(string) view returns (bool)',
+  'function mint(string) external',
+  'function getOwnerDomains(address) view returns (string[])',
+  'event DomainMinted(address indexed owner, string domain, uint256 tokenId)',
+]
 const PINATA_JWT       = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiIyOTYwNzFiNi01NjE1LTQwYWMtOWE5Yy1mMDQxOGYyOTMwN2MiLCJlbWFpbCI6Im5mdHBvZXRyaXN0QGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJwaW5fcG9saWN5Ijp7InJlZ2lvbnMiOlt7ImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxLCJpZCI6IkZSQTEifSx7ImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxLCJpZCI6Ik5ZQzEifV0sInZlcnNpb24iOjF9LCJtZmFfZW5hYmxlZCI6ZmFsc2UsInN0YXR1cyI6IkFDVElWRSJ9LCJhdXRoZW50aWNhdGlvblR5cGUiOiJzY29wZWRLZXkiLCJzY29wZWRLZXlLZXkiOiJkZWRkOTk0Y2JkZjc1ZjJjNjhhNyIsInNjb3BlZEtleVNlY3JldCI6ImZkYmEwMjgxN2ViYzU3ZWQ2ZGIzMGNiMWIzMzgxOGE2ZjJhODIyNjQyYTQ4NTg3NTA2NmNjZDQxNjYyNGMzNzgiLCJleHAiOjE4MDc4MzM0NDN9.n-SVk50mlh5UnzUUpcfCahJjSjduskRdC1_JIWcfZug'
 const IPFS_GATEWAY      = 'https://ipfs.io/ipfs/'
 const IPFS_GATEWAYS     = [
@@ -3148,11 +3397,13 @@ function navigate(page) {
   _navLock = false
 
   if (page === 'gallery') loadGallery()
+  if (page === 'domain') { loadPikaMyDomains(); loadPikaRecentMints() }
 }
 
 function _setNavActive(page) {
   g('pikacreateNavBtn')?.classList.toggle('active', page === 'create')
   g('pikagalleryNavBtn')?.classList.toggle('active', page === 'gallery')
+  g('pikadomainNavBtn')?.classList.toggle('active', page === 'domain')
 }
 
 /* ── CREATE PAGE ─────────────────────────────────────────────────── */
@@ -3690,6 +3941,7 @@ function initRouter() {
   })
   _setNavActive(page)
   if (page === 'gallery') loadGallery()
+  if (page === 'domain') { loadPikaMyDomains(); loadPikaRecentMints() }
 }
 
 /* ── BOOT ────────────────────────────────────────────────────────── */
@@ -3730,6 +3982,7 @@ async function autoConnect() {
         fetchUser()
         loadMintedNfts()
         loadCreatePageStats()
+        loadPikaMyDomains()
         return
       }
     } catch(_) {}
@@ -3747,6 +4000,7 @@ async function autoConnect() {
         fetchUser()
         loadMintedNfts()
         loadCreatePageStats()
+        loadPikaMyDomains()
       }
     } catch(_) {}
   }
@@ -3910,6 +4164,7 @@ async function connectWithProvider(rdns) {
     await fetchUser()
     loadMintedNfts()
     loadCreatePageStats()
+    loadPikaMyDomains()
     toast('Wallet connected ⚡', 'success')
   } catch(e) {
     console.error(e)
@@ -3965,6 +4220,10 @@ function resetState() {
   _mintedNftsAll  = []
   _mintedNftsPage = 0
   _renderMintedPage()
+
+  _pikaMyDomainsAll = []; _pikaMyDomainsShown = 0
+  const _pmd = document.getElementById('pikaMyDomains')
+  if (_pmd) _pmd.innerHTML = `<div class="pika-empty"><div class="pika-empty-icon">🔌</div>Connect your wallet to view your domains.</div>`
 
   provider = signer = account = null
   myStaked = myWallet = 0n
@@ -4473,6 +4732,183 @@ async function loadProfileNfts() {
   })
   await Promise.all(promises)
   renderProfile()
+}
+
+/* ── PIKA NAME SERVICE ───────────────────────────────────────────── */
+
+let _pikaCheckTimer = null
+
+function pikaNameContract() {
+  if (!signer || !PIKANAME_ADDR) return null
+  return new ethers.Contract(PIKANAME_ADDR, PIKANAME_ABI, signer)
+}
+
+// Live availability check while typing
+async function onPikaSearchInput(e) {
+  const raw = e.target.value.trim().toLowerCase().replace(/\.pika$/, '')
+  const statusEl = document.getElementById('pikaSearchStatus')
+  const mintBtn  = document.getElementById('pikaMintBtn')
+
+  if (!raw) { statusEl.textContent = ''; mintBtn.disabled = true; return }
+
+  clearTimeout(_pikaCheckTimer)
+  statusEl.textContent = '⏳ Checking...'
+  statusEl.style.color = 'rgba(255,255,255,0.5)'
+
+  _pikaCheckTimer = setTimeout(async () => {
+    // Frontend validation first
+    if (raw.length > 32) {
+      statusEl.textContent = '⚠️ Too long — max 32 characters'
+      statusEl.style.color = '#F87171'
+      mintBtn.disabled = true
+      return
+    }
+    if (!/^[a-z0-9-]+$/.test(raw)) {
+      statusEl.textContent = '⚠️ Only lowercase letters, numbers and hyphens allowed'
+      statusEl.style.color = '#F87171'
+      mintBtn.disabled = true
+      return
+    }
+    if (!PIKANAME_ADDR) {
+      statusEl.textContent = '⚠️ Contract not deployed yet'
+      statusEl.style.color = '#F87171'
+      mintBtn.disabled = true
+      return
+    }
+    try {
+      const ro = new ethers.Contract(PIKANAME_ADDR, PIKANAME_ABI, provider)
+      const avail = await ro.isAvailable(raw)
+      if (avail) {
+        statusEl.innerHTML = `✅ <b>${raw}.pika</b> is available — Free`
+        statusEl.style.color = '#4ADE80'
+        mintBtn.disabled = false
+      } else {
+        statusEl.innerHTML = `❌ <b>${raw}.pika</b> is already taken`
+        statusEl.style.color = '#F87171'
+        mintBtn.disabled = true
+      }
+    } catch {
+      statusEl.textContent = '⚠️ Could not check availability'
+      statusEl.style.color = '#F87171'
+      mintBtn.disabled = true
+    }
+  }, 500)
+}
+
+async function doPikaMint() {
+  const input  = document.getElementById('pikaSearchInput')
+  const status = document.getElementById('pikaSearchStatus')
+  const btn    = document.getElementById('pikaMintBtn')
+  const raw    = input.value.trim().toLowerCase().replace(/\.pika$/, '')
+
+  if (!raw) return
+  if (!account) { toast('Connect your wallet first', 'error'); return }
+  if (!PIKANAME_ADDR) { toast('Contract not deployed yet', 'error'); return }
+
+  btn.disabled = true
+  btn.textContent = 'Minting...'
+
+  try {
+    const tx = await pikaNameContract().mint(raw)
+    await tx.wait()
+    toast(`${raw}.pika minted successfully!`, 'success')
+    input.value = ''
+    status.textContent = ''
+    btn.disabled = true
+    btn.textContent = '⚡ MINT'
+    loadPikaMyDomains()
+    loadPikaRecentMints()
+  } catch (err) {
+    toast('Mint failed: ' + (err.reason || err.message || 'Unknown error'), 'error')
+    status.textContent = '❌ Mint failed'
+    status.style.color = '#F87171'
+    btn.disabled = false
+    btn.textContent = '⚡ MINT'
+  }
+}
+
+const PIKA_PAGE_SIZE = 7
+let _pikaMyDomainsAll   = []
+let _pikaMyDomainsShown = 0
+let _pikaRecentAll      = []
+let _pikaRecentShown    = 0
+
+function _renderPikaMyDomains() {
+  const el = document.getElementById('pikaMyDomains')
+  if (!el) return
+  const slice = _pikaMyDomainsAll.slice(0, _pikaMyDomainsShown)
+  const hasMore = _pikaMyDomainsShown < _pikaMyDomainsAll.length
+  el.innerHTML = slice.map(d => `
+    <div class="pika-domain-item">
+      <span class="pika-domain-name">⚡ ${d}.pika</span>
+      <div class="pika-domain-actions">
+        <button class="pika-action-btn">Manage</button>
+      </div>
+    </div>`).join('')
+  if (hasMore) {
+    const btn = document.createElement('button')
+    btn.className = 'pika-load-more'
+    btn.textContent = `Load More (${_pikaMyDomainsAll.length - _pikaMyDomainsShown} remaining)`
+    btn.onclick = () => { _pikaMyDomainsShown += PIKA_PAGE_SIZE; _renderPikaMyDomains() }
+    el.appendChild(btn)
+  }
+}
+
+async function loadPikaMyDomains() {
+  const el = document.getElementById('pikaMyDomains')
+  if (!el) return
+  if (!account || !PIKANAME_ADDR) {
+    el.innerHTML = `<div class="pika-empty"><div class="pika-empty-icon">🔌</div>Connect your wallet to view your domains.</div>`
+    return
+  }
+  try {
+    const p = signer ?? provider ?? new ethers.JsonRpcProvider('https://5042002.rpc.thirdweb.com')
+    const ro = new ethers.Contract(PIKANAME_ADDR, PIKANAME_ABI, p)
+    const raw = await ro.getOwnerDomains(account)
+    console.log('pikaMyDomains raw:', raw)
+    _pikaMyDomainsAll   = Array.from(raw).reverse()
+    _pikaMyDomainsShown = PIKA_PAGE_SIZE
+    if (!_pikaMyDomainsAll.length) {
+      el.innerHTML = `<div class="pika-empty"><div class="pika-empty-icon">🏷️</div>No domains yet. Mint your first .pika domain!</div>`
+      return
+    }
+    _renderPikaMyDomains()
+  } catch(e) {
+    console.error('loadPikaMyDomains error:', e)
+    el.innerHTML = `<div class="pika-empty"><div class="pika-empty-icon">⚠️</div>${e.message}</div>`
+  }
+}
+
+function _renderPikaRecent() {
+  const el = document.getElementById('pikaRecentMints')
+  if (!el) return
+  const slice = _pikaRecentAll.slice(0, _pikaRecentShown)
+  const hasMore = _pikaRecentShown < _pikaRecentAll.length
+  el.innerHTML = slice.map(e => `
+    <div class="pika-mint-item">
+      <span class="pika-emoji">⚡</span>
+      <span class="pika-domain-name">${e.args.domain}.pika</span>
+      <span class="pika-time">${e.args.owner.slice(0,6)}…${e.args.owner.slice(-4)}</span>
+    </div>`).join('')
+  if (hasMore) {
+    const btn = document.createElement('button')
+    btn.className = 'pika-load-more'
+    btn.textContent = `Load More (${_pikaRecentAll.length - _pikaRecentShown} remaining)`
+    btn.onclick = () => { _pikaRecentShown += PIKA_PAGE_SIZE; _renderPikaRecent() }
+    el.appendChild(btn)
+  }
+}
+
+async function loadPikaRecentMints() {
+  const el = document.getElementById('pikaRecentMints')
+  if (!el || !PIKANAME_ADDR) return
+  try {
+    const ro = new ethers.Contract(PIKANAME_ADDR, PIKANAME_ABI, provider)
+    const events = await ro.queryFilter(ro.filters.DomainMinted(), 37593339)
+    _pikaRecentAll   = events.slice().reverse()
+    _pikaRecentShown = PIKA_PAGE_SIZE
+    _renderPikaRecent()
+  } catch {}
 }
 </script>
 </body>
