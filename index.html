@@ -3301,6 +3301,9 @@ const PIKANAME_ABI = [
   'function isAvailable(string) view returns (bool)',
   'function mint(string) external',
   'function getOwnerDomains(address) view returns (string[])',
+  'function totalSupply() view returns (uint256)',
+  'function tokenIdToDomain(uint256) view returns (string)',
+  'function ownerOf(uint256) view returns (address)',
   'event DomainMinted(address indexed owner, string domain, uint256 tokenId)',
 ]
 const PINATA_JWT       = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiIyOTYwNzFiNi01NjE1LTQwYWMtOWE5Yy1mMDQxOGYyOTMwN2MiLCJlbWFpbCI6Im5mdHBvZXRyaXN0QGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJwaW5fcG9saWN5Ijp7InJlZ2lvbnMiOlt7ImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxLCJpZCI6IkZSQTEifSx7ImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxLCJpZCI6Ik5ZQzEifV0sInZlcnNpb24iOjF9LCJtZmFfZW5hYmxlZCI6ZmFsc2UsInN0YXR1cyI6IkFDVElWRSJ9LCJhdXRoZW50aWNhdGlvblR5cGUiOiJzY29wZWRLZXkiLCJzY29wZWRLZXlLZXkiOiJkZWRkOTk0Y2JkZjc1ZjJjNjhhNyIsInNjb3BlZEtleVNlY3JldCI6ImZkYmEwMjgxN2ViYzU3ZWQ2ZGIzMGNiMWIzMzgxOGE2ZjJhODIyNjQyYTQ4NTg3NTA2NmNjZDQxNjYyNGMzNzgiLCJleHAiOjE4MDc4MzM0NDN9.n-SVk50mlh5UnzUUpcfCahJjSjduskRdC1_JIWcfZug'
@@ -4887,8 +4890,8 @@ function _renderPikaRecent() {
   el.innerHTML = slice.map(e => `
     <div class="pika-mint-item">
       <span class="pika-emoji">⚡</span>
-      <span class="pika-domain-name">${e.args.domain}.pika</span>
-      <span class="pika-time">${e.args.owner.slice(0,6)}…${e.args.owner.slice(-4)}</span>
+      <span class="pika-domain-name">${e.domain}.pika</span>
+      <span class="pika-time">${e.owner.slice(0,6)}…${e.owner.slice(-4)}</span>
     </div>`).join('')
   if (hasMore) {
     const btn = document.createElement('button')
@@ -4903,12 +4906,24 @@ async function loadPikaRecentMints() {
   const el = document.getElementById('pikaRecentMints')
   if (!el || !PIKANAME_ADDR) return
   try {
-    const ro = new ethers.Contract(PIKANAME_ADDR, PIKANAME_ABI, provider)
-    const events = await ro.queryFilter(ro.filters.DomainMinted(), 37593339)
-    _pikaRecentAll   = events.slice().reverse()
+    const rpc = new ethers.JsonRpcProvider('https://5042002.rpc.thirdweb.com')
+    const ro  = new ethers.Contract(PIKANAME_ADDR, PIKANAME_ABI, rpc)
+    const total = Number(await ro.totalSupply())
+    if (total === 0) { el.innerHTML = '<div class="pika-empty"><div class="pika-empty-icon">🌐</div>No domains minted yet.</div>'; return }
+    const items = await Promise.all(
+      Array.from({ length: total }, (_, i) => total - i).map(async id => {
+        try {
+          const [domain, owner] = await Promise.all([ro.tokenIdToDomain(id), ro.ownerOf(id)])
+          return { domain, owner }
+        } catch { return null }
+      })
+    )
+    _pikaRecentAll   = items.filter(Boolean)
     _pikaRecentShown = PIKA_PAGE_SIZE
     _renderPikaRecent()
-  } catch {}
+  } catch(e) {
+    console.error('loadPikaRecentMints error:', e)
+  }
 }
 </script>
 </body>
