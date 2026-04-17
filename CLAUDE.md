@@ -29,11 +29,13 @@ PikaStake/
 │   │   ├── PikaUSDC.sol
 │   │   ├── PikaStake.sol
 │   │   ├── PikaMon.sol
-│   │   └── PikaCreate.sol      # ERC721 — user-created custom NFTs
+│   │   ├── PikaCreate.sol      # ERC721 — user-created custom NFTs
+│   │   └── PikaName.sol        # ERC721 — .pika domain name service
 │   ├── scripts/
 │   │   ├── deploy_all.js
 │   │   ├── deploy_pikamon.js
-│   │   └── deploy_pikacreate.js
+│   │   ├── deploy_pikacreate.js
+│   │   └── deploy_pikaname.js
 │   ├── hardhat.config.js
 │   └── .env                     # Private key + deployed contract addresses
 └── pikastake/           # Legacy Next.js prototype (not the active site)
@@ -45,10 +47,11 @@ PikaStake/
 
 ```bash
 cd blockchain
-npm run compile                                                   # Compile Solidity
-npx hardhat run scripts/deploy_all.js --network arcTestnet       # Deploy everything fresh
-npx hardhat run scripts/deploy_pikamon.js --network arcTestnet   # Redeploy PikaMon only
+npm run compile                                                    # Compile Solidity
+npx hardhat run scripts/deploy_all.js --network arcTestnet        # Deploy everything fresh
+npx hardhat run scripts/deploy_pikamon.js --network arcTestnet    # Redeploy PikaMon only
 npx hardhat run scripts/deploy_pikacreate.js --network arcTestnet # Redeploy PikaCreate only
+npx hardhat run scripts/deploy_pikaname.js --network arcTestnet   # Redeploy PikaName only
 ```
 
 After redeploying, update the relevant `_ADDR` constant in `index.html` and `blockchain/.env`.
@@ -63,6 +66,9 @@ After redeploying, update the relevant `_ADDR` constant in `index.html` and `blo
 | `PikaStake.sol` | Custom | Accepts staked USDC value, emits pUSDC at 200% APD |
 | `PikaMon.sol` | ERC1155 | 6 NFT cards (Genesis Collection); minted by burning pUSDC; max 2 per wallet |
 | `PikaCreate.sol` | ERC721URIStorage | User-created custom NFTs; anyone can mint with image + name |
+| `PikaName.sol` | ERC721URIStorage | Pika Name Service — free .pika domain registration; ERC721 token per domain |
+
+**PikaName domain rules:** lowercase letters, digits, hyphens only; 1–32 chars; unique per name; free to mint (no USDC cost). Key functions: `mint(string name)`, `isAvailable(string name) view`, `getOwnerDomains(address) view`.
 
 **Reward formula:** `(stakedAmount * SCALE * timeElapsedSeconds * dailyMultiplier) / (86400 * 100)`
 *(SCALE = 1e12 — USDC is 6 decimals, pUSDC is 18 decimals. dailyMultiplier = 200 → 200% APD)*
@@ -83,6 +89,7 @@ After redeploying, update the relevant `_ADDR` constant in `index.html` and `blo
 - PikaStake: `0x57bf29eDF062A617FAC74Fde4D77Ec04fF809B6B`
 - PikaMon: `0xFBF26c37F2e057A912af0aE65D80a35557C33839`
 - PikaCreate: `0x960Da00dfC0670604a4331A5794c208B869b64DB`
+- PikaName: `0x089D7b3CA59629F7364eE22F499Ef087a46f55cd` (deployed block: 37593339)
 
 ---
 
@@ -90,9 +97,9 @@ After redeploying, update the relevant `_ADDR` constant in `index.html` and `blo
 
 Single-file app using ethers.js v6 (CDN). Key sections inside `<script>`:
 
-**Constants:** `STAKE_ADDR`, `PUSDC_ADDR`, `PIKAMON_ADDR`, `PIKACREATE_ADDR`, `MAX_PER_WALLET = 2`
+**Constants:** `STAKE_ADDR`, `PUSDC_ADDR`, `PIKAMON_ADDR`, `PIKACREATE_ADDR`, `PIKANAME_ADDR`, `MAX_PER_WALLET = 2`
 
-**SPA Routing:** `navigate(page)` switches between `stake`, `create`, `gallery` pages via `display` toggling. Hash-based: `#/create`, `#/gallery`.
+**SPA Routing:** `navigate(page)` switches between `stake`, `create`, `gallery`, `domain` pages via `display` toggling. Hash-based: `#/create`, `#/gallery`, `#/domain`.
 
 **JS card ID mapping:** `NFT_CARDS[i]` (JS index 0–5) maps to contract card ID `i+1` (1–6).
 
@@ -114,13 +121,23 @@ Single-file app using ethers.js v6 (CDN). Key sections inside `<script>`:
 
 **Image caching (`_toDataUrl`):** Converts IPFS URLs to base64 on first load and saves to localStorage. On `loadMintedNfts`, existing IPFS URL entries in cache are upgraded to base64 in the background.
 
+**PikaDomain flow (`doPikaMint()`):**
+1. Frontend validates name (lowercase/digits/hyphens, max 32 chars) before any contract call
+2. Live availability check via `isAvailable()` with 500ms debounce — shows ✅ Free or ❌ Taken
+3. On MINT: direct `PikaName.mint(name)` — no approve needed (free)
+4. Toast notification on success; My Domains + Recent Mints auto-refresh
+5. `loadPikaMyDomains()` called on wallet connect/disconnect/navigate; clears on disconnect
+6. Recent Mints queries `DomainMinted` events from deployment block `37593339`
+7. Both panels paginate at 7 items; Load More expands only the clicked panel (`align-items: start` on grid)
+
 **Key UI sections:**
-- Navbar: logo, PikaCreate btn (yellow), PikaGallery btn (yellow), pUSDC pill (`"pUSDC"` text is yellow), **single unified wallet button** (`#profileBtn`)
+- Navbar: logo, PikaCreate btn (yellow), PikaGallery btn (yellow), PikaDomain btn (yellow), pUSDC pill (`"pUSDC"` text is yellow), **single unified wallet button** (`#profileBtn`)
 - `#profileBtn` — dual-purpose: shows `Connect Wallet` when disconnected (calls `openWalletModal`), shows `Arc + short address + avatar` when connected (calls `openProfile`). Do NOT add a separate connect button.
 - Staking panel (`.card`) — stake/withdraw/claim tabs
 - NFT mint panel (`.mint-panel`) — 6×2 grid "Genesis Collection", select card → MINT bar at bottom
 - PikaCreate page — upload zone + `Your Minted NFTs` panel (3×2 grid, 6/page, height matches Create panel `--create-panel-h: 620px`)
 - PikaGallery page — 6×2 grid, fixed `700px` height, all users' NFTs, 12/page, localStorage cache + parallel fetch. Loading overlay (`#galleryLoadingOverlay`) shown on first visit (empty cache).
+- PikaDomain page — search/mint bar + two panels (Recent Mints left, My Domains right); CSS classes use `.pika-` prefix; panels use `min-height: 440px`, grid `align-items: start` so Load More only expands clicked panel.
 - Profile overlay (`#profileOverlay`) — shows wallet stats, Genesis Collection NFTs, nickname editor. Has **Disconnect** button (`.profile-disconnect`) left of the close ✕ button.
 
 **Connect wallet timeout:** `eth_requestAccounts` has 30s timeout; `switchChain` has 15s.
