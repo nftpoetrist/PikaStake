@@ -804,8 +804,8 @@
     .pika-search-bar {
       display: flex;
       align-items: center;
-      background: #6B3D00;
-      border: 1.5px solid rgba(255,203,5,0.3);
+      background: linear-gradient(135deg, #c9a84c 0%, #a87c2a 100%);
+      border: 1.5px solid rgba(255,220,60,0.35);
       border-radius: var(--r-pill);
       padding: 6px 6px 6px 20px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.3);
@@ -833,22 +833,22 @@
       align-items: center;
       gap: 8px;
       padding: 11px 28px;
-      background: linear-gradient(135deg, #4E8A00 0%, #244400 100%);
+      background: linear-gradient(135deg, var(--y1) 0%, var(--g1) 100%);
       border: none;
       border-radius: var(--r-pill);
       font-family: 'Space Grotesk', sans-serif;
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 700;
-      color: #fff;
+      color: #1A0800;
       cursor: pointer;
-      letter-spacing: 0.4px;
+      letter-spacing: 0.3px;
       transition: all 0.18s var(--ease);
       flex-shrink: 0;
-      box-shadow: 0 0 22px rgba(106,175,0,0.3), 0 4px 14px rgba(0,0,0,0.3);
+      box-shadow: 0 0 36px rgba(255,203,5,0.28), 0 8px 24px rgba(0,0,0,0.35);
     }
     .pika-mint-btn:hover {
       transform: translateY(-2px);
-      box-shadow: 0 0 36px rgba(106,175,0,0.5), 0 8px 20px rgba(0,0,0,0.4);
+      box-shadow: 0 0 48px rgba(255,203,5,0.45), 0 10px 28px rgba(0,0,0,0.4);
     }
     .pika-panels {
       display: grid;
@@ -3164,7 +3164,7 @@
           oninput="onPikaSearchInput(event)" autocomplete="off" spellcheck="false" />
         <div id="pikaSearchStatus" style="font-size:12px;font-weight:600;padding-left:2px;min-height:16px;"></div>
       </div>
-      <button id="pikaMintBtn" class="pika-mint-btn" onclick="doPikaMint()" disabled>⚡ MINT</button>
+      <button id="pikaMintBtn" class="pika-mint-btn" onclick="doPikaMint()" disabled>Mint Domain</button>
     </div>
 
     <div class="pika-panels">
@@ -4752,9 +4752,8 @@ async function onPikaSearchInput(e) {
   const statusEl = document.getElementById('pikaSearchStatus')
   const mintBtn  = document.getElementById('pikaMintBtn')
 
-  if (!raw) { statusEl.textContent = ''; mintBtn.disabled = true; return }
-
   clearTimeout(_pikaCheckTimer)
+  if (!raw) { statusEl.textContent = ''; mintBtn.disabled = true; return }
   statusEl.textContent = '⏳ Checking...'
   statusEl.style.color = 'rgba(255,255,255,0.5)'
 
@@ -4762,19 +4761,19 @@ async function onPikaSearchInput(e) {
     // Frontend validation first
     if (raw.length > 32) {
       statusEl.textContent = '⚠️ Too long — max 32 characters'
-      statusEl.style.color = '#F87171'
+      statusEl.style.color = '#a84444'
       mintBtn.disabled = true
       return
     }
     if (!/^[a-z0-9-]+$/.test(raw)) {
       statusEl.textContent = '⚠️ Only lowercase letters, numbers and hyphens allowed'
-      statusEl.style.color = '#F87171'
+      statusEl.style.color = '#a84444'
       mintBtn.disabled = true
       return
     }
     if (!PIKANAME_ADDR) {
       statusEl.textContent = '⚠️ Contract not deployed yet'
-      statusEl.style.color = '#F87171'
+      statusEl.style.color = '#a84444'
       mintBtn.disabled = true
       return
     }
@@ -4783,16 +4782,16 @@ async function onPikaSearchInput(e) {
       const avail = await ro.isAvailable(raw)
       if (avail) {
         statusEl.innerHTML = `✅ <b>${raw}.pika</b> is available — Free`
-        statusEl.style.color = '#4ADE80'
+        statusEl.style.color = '#3a8a4a'
         mintBtn.disabled = false
       } else {
         statusEl.innerHTML = `❌ <b>${raw}.pika</b> is already taken`
-        statusEl.style.color = '#F87171'
+        statusEl.style.color = '#a84444'
         mintBtn.disabled = true
       }
     } catch {
       statusEl.textContent = '⚠️ Could not check availability'
-      statusEl.style.color = '#F87171'
+      statusEl.style.color = '#a84444'
       mintBtn.disabled = true
     }
   }, 500)
@@ -4818,7 +4817,7 @@ async function doPikaMint() {
     input.value = ''
     status.textContent = ''
     btn.disabled = true
-    btn.textContent = '⚡ MINT'
+    btn.textContent = 'Mint Domain'
     loadPikaMyDomains()
     loadPikaRecentMints()
   } catch (err) {
@@ -4826,7 +4825,7 @@ async function doPikaMint() {
     status.textContent = '❌ Mint failed'
     status.style.color = '#F87171'
     btn.disabled = false
-    btn.textContent = '⚡ MINT'
+    btn.textContent = 'Mint Domain'
   }
 }
 

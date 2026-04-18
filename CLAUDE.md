@@ -23,6 +23,7 @@ The `pikastake/` Next.js app is a **separate, older prototype** — do not confu
 ```
 PikaStake/
 ├── index.html           # ← Active website (HTML/CSS/JS + ethers.js)
+├── pikacreate.html      # Redirect shim → index.html#/create (9-line file)
 ├── nft/                 # NFT card images (sylveon.png, pikachu-gold.png, etc.)
 ├── blockchain/          # Hardhat smart contracts
 │   ├── contracts/
@@ -127,7 +128,7 @@ Single-file app using ethers.js v6 (CDN). Key sections inside `<script>`:
 3. On MINT: direct `PikaName.mint(name)` — no approve needed (free)
 4. Toast notification on success; My Domains + Recent Mints auto-refresh
 5. `loadPikaMyDomains()` called on wallet connect/disconnect/navigate; clears on disconnect
-6. Recent Mints queries `DomainMinted` events from deployment block `37593339`
+6. Recent Mints uses `totalSupply()` + `tokenIdToDomain(id)` + `ownerOf(id)` via `Promise.all` — NOT event `queryFilter` (too slow/unreliable on Arc). Shows newest first (iterates from `total` down to 1).
 7. Both panels paginate at 7 items; Load More expands only the clicked panel (`align-items: start` on grid)
 
 **Key UI sections:**
