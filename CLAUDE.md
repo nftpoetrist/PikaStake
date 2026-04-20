@@ -132,7 +132,7 @@ Single-file app using ethers.js v6 (CDN). Key sections inside `<script>`:
 7. Both panels paginate at 7 items; Load More expands only the clicked panel (`align-items: start` on grid)
 
 **Key UI sections:**
-- Navbar: logo, PikaCreate btn (yellow), PikaGallery btn (yellow), PikaDomain btn (yellow), pUSDC pill (`"pUSDC"` text is yellow), **single unified wallet button** (`#profileBtn`)
+- Navbar: logo (left), PikaCreate/PikaGallery/PikaDomain btns (centered via `.nav-center` with `position:absolute; left:50%; transform:translateX(-50%)`), **single unified wallet button** (`#profileBtn`, right). The pUSDC balance pill has been removed from the navbar.
 - `#profileBtn` — dual-purpose: shows `Connect Wallet` when disconnected (calls `openWalletModal`), shows `Arc + short address + avatar` when connected (calls `openProfile`). Do NOT add a separate connect button.
 - Staking panel (`.card`) — stake/withdraw/claim tabs
 - NFT mint panel (`.mint-panel`) — 6×2 grid "Genesis Collection", select card → MINT bar at bottom
@@ -140,6 +140,13 @@ Single-file app using ethers.js v6 (CDN). Key sections inside `<script>`:
 - PikaGallery page — 6×2 grid, fixed `700px` height, all users' NFTs, 12/page, localStorage cache + parallel fetch. Loading overlay (`#galleryLoadingOverlay`) shown on first visit (empty cache).
 - PikaDomain page — search/mint bar + two panels (Recent Mints left, My Domains right); CSS classes use `.pika-` prefix; panels use `min-height: 440px`, grid `align-items: start` so Load More only expands clicked panel.
 - Profile overlay (`#profileOverlay`) — shows wallet stats, Genesis Collection NFTs, nickname editor. Has **Disconnect** button (`.profile-disconnect`) left of the close ✕ button.
+- **Premium side cards (stake page only):** Two credit-card-style panels flank the staking card:
+  - **Dark card** (right, `#pikaCreditWrap` / `.pikacredit-*`): brushed dark metal, silver bezel, shows live pUSDC balance + wallet address + "Pay on ARC". Updates via `fetchUser()`.
+  - **Gold card** (left, `#pikaGoldWrap` / `.pikagold-*`): brushed gold metal, gold bezel, shows "Pay on ARC" centered.
+  - Both are `position: absolute` inside the stake page (scroll-fixed to top, don't follow viewport). Size: 270×170px wrapper, internal 520×328px scaled at `scale(0.52)` with `transform-origin: top left`.
+  - Positioning: `_alignSideCards()` runs after `initRouter()` via `requestAnimationFrame` and on `resize`. Uses `#mainCard` `getBoundingClientRect()` to place cards beside staking card with `_CARD_GAP = 48px`, vertically centered via `(cardRect.height - wrap.offsetHeight) / 2`.
+  - 3D tilt on hover (`rotateY/rotateX` ±8°/6°). Hidden on screens ≤900px.
+  - **Do NOT call `_alignSideCards()` before `initRouter()`** — the stake page is `display:none` until then and `getBoundingClientRect()` returns zeros.
 
 **Connect wallet timeout:** `eth_requestAccounts` has 30s timeout; `switchChain` has 15s.
 
