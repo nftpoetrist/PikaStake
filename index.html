@@ -232,6 +232,15 @@
       gap: 14px;
     }
 
+    .nav-center {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
     /* ── SPA ROUTER ─────────────────────────────── */
     /* Inactive sections: out of flow */
     .page[data-page]        { display: none; }
@@ -2656,6 +2665,177 @@
       transition: color 0.18s;
     }
     .wallet-modal-footer a:hover { color: var(--y1); }
+
+    /* ── pUSDC Credit Card (fixed top-right) ── */
+    .pikacredit-wrap {
+      position: absolute;
+      top: 0;
+      right: 0;
+      z-index: 100;
+      width: 270px;
+      height: 170px;
+      overflow: hidden;
+      perspective: 700px;
+    }
+    .pikacredit-card {
+      width: 520px;
+      height: 328px;
+      border-radius: 22px;
+      cursor: default;
+      transform-style: preserve-3d;
+      transform: scale(0.52);
+      transform-origin: top left;
+      transition: transform 0.12s ease-out;
+      will-change: transform;
+    }
+    .pikacredit-bezel {
+      position: absolute;
+      inset: 0;
+      border-radius: 22px;
+      padding: 3px;
+      background: linear-gradient(145deg,#d4d4d4 0%,#a8a8a8 20%,#e8e8e8 40%,#888 55%,#c0c0c0 70%,#f0f0f0 85%,#9a9a9a 100%);
+      box-shadow:
+        0 2px 4px rgba(255,255,255,0.08) inset,
+        0 -2px 4px rgba(0,0,0,0.4) inset;
+    }
+    .pikacredit-face {
+      width: 100%; height: 100%;
+      border-radius: 20px;
+      overflow: hidden;
+      position: relative;
+      background:
+        repeating-linear-gradient(180deg,transparent 0px,transparent 1px,rgba(255,255,255,0.012) 1px,rgba(255,255,255,0.012) 2px),
+        linear-gradient(155deg,#1a1a1c 0%,#111113 35%,#0d0d0f 60%,#141416 100%);
+    }
+    .pikacredit-face::before {
+      content:''; position:absolute; inset:0;
+      background: linear-gradient(130deg,rgba(255,255,255,0.04) 0%,rgba(255,255,255,0) 50%,rgba(255,255,255,0.02) 100%);
+      border-radius:20px; pointer-events:none;
+    }
+    .pikacredit-face::after {
+      content:''; position:absolute; top:0; left:0; right:0; height:1px;
+      background: linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent);
+      border-radius:20px 20px 0 0;
+    }
+    .pikacredit-content {
+      position:absolute; inset:0; padding:28px 32px;
+      display:flex; flex-direction:column; justify-content:space-between;
+    }
+    .pikacredit-brand { display:flex; align-items:baseline; line-height:1; }
+    .pikacredit-pika {
+      font-size:22px; font-weight:600; letter-spacing:-0.3px; font-family:'Inter',sans-serif;
+      background:linear-gradient(135deg,#c9a84c 0%,#e8c96a 40%,#b8952e 100%);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    }
+    .pikacredit-stake {
+      font-size:22px; font-weight:500; letter-spacing:-0.3px; font-family:'Inter',sans-serif;
+      background:linear-gradient(135deg,#c8c8c8 0%,#f0f0f0 50%,#a0a0a0 100%);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    }
+    .pikacredit-mid { display:flex; flex-direction:column; gap:4px; }
+    .pikacredit-label {
+      font-size:20px; font-weight:400; letter-spacing:2.5px; text-transform:uppercase;
+      color:rgba(180,180,180,0.55); font-family:'Inter',sans-serif;
+    }
+    .pikacredit-amount-row { display:flex; align-items:baseline; gap:8px; }
+    .pikacredit-number {
+      font-size:38px; font-weight:300; letter-spacing:-1px; font-family:'Inter',sans-serif;
+      background:linear-gradient(135deg,#e0e0e0 0%,#ffffff 50%,#c0c0c0 100%);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+      font-variant-numeric:tabular-nums;
+    }
+    .pikacredit-currency {
+      font-size:20px; font-weight:500; letter-spacing:1px; font-family:'Inter',sans-serif;
+      background:linear-gradient(135deg,#c9a84c 0%,#e8c96a 60%,#b8952e 100%);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    }
+    .pikacredit-bottom { display:flex; justify-content:space-between; align-items:flex-end; }
+    .pikacredit-addr { display:flex; flex-direction:column; gap:3px; }
+    .pikacredit-addr-label {
+      font-size:14px; letter-spacing:2px; text-transform:uppercase;
+      color:rgba(160,160,160,0.4); font-family:'Inter',sans-serif;
+    }
+    .pikacredit-addr-val {
+      font-size:20px; font-weight:400; letter-spacing:0.5px;
+      color:rgba(200,200,200,0.45); font-family:'Inter',sans-serif;
+      font-feature-settings:'tnum';
+    }
+    .pikacredit-payarc {
+      font-size:28px; font-weight:400; letter-spacing:0.8px; font-style:italic;
+      color:rgba(180,180,180,0.75); font-family:'Inter',sans-serif;
+    }
+    .pikacredit-arc-word {
+      font-weight:600; font-style:normal; letter-spacing:1.5px;
+      background:linear-gradient(135deg,#1a2a6c 0%,#2e4fa3 20%,#a8c0ff 45%,#ffffff 55%,#7bafd4 75%,#1a3a7a 100%);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    }
+    @media (max-width: 900px) { .pikacredit-wrap { display:none; } }
+
+    /* ── pUSDC Gold Card (fixed top-left) ── */
+    .pikagold-wrap {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 100;
+      width: 270px;
+      height: 170px;
+      overflow: hidden;
+      perspective: 700px;
+    }
+    .pikagold-card {
+      width: 520px;
+      height: 328px;
+      border-radius: 22px;
+      cursor: default;
+      transform-style: preserve-3d;
+      transform: scale(0.52);
+      transform-origin: top left;
+      transition: transform 0.12s ease-out;
+      will-change: transform;
+    }
+    .pikagold-bezel {
+      position: absolute;
+      inset: 0;
+      border-radius: 22px;
+      padding: 3px;
+      background: linear-gradient(145deg,#f5d060 0%,#c8960a 20%,#f7e080 40%,#a06800 55%,#dab830 70%,#f5e070 85%,#b08010 100%);
+      box-shadow:
+        0 2px 4px rgba(255,255,255,0.08) inset,
+        0 -2px 4px rgba(0,0,0,0.4) inset;
+    }
+    .pikagold-face {
+      width: 100%; height: 100%;
+      border-radius: 20px;
+      overflow: hidden;
+      position: relative;
+      background:
+        repeating-linear-gradient(160deg,transparent 0px,transparent 1px,rgba(255,255,255,0.025) 1px,rgba(255,255,255,0.025) 2px),
+        linear-gradient(145deg,#3d2a00 0%,#5a3d00 15%,#7a5500 30%,#c49a20 45%,#e8c84a 55%,#b8900a 70%,#6b4700 85%,#3a2400 100%);
+    }
+    .pikagold-face::before {
+      content:''; position:absolute; inset:0;
+      background: linear-gradient(130deg,rgba(255,255,255,0.18) 0%,rgba(255,255,255,0) 45%,rgba(255,220,80,0.08) 100%);
+      border-radius:20px; pointer-events:none;
+    }
+    .pikagold-face::after {
+      content:''; position:absolute; top:0; left:0; right:0; height:1px;
+      background: linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent);
+      border-radius:20px 20px 0 0;
+    }
+    .pikagold-content {
+      position:absolute; inset:0; padding:28px 32px;
+      display:flex; flex-direction:column; justify-content:center; align-items:center;
+    }
+    .pikagold-payarc {
+      font-size:36px; font-weight:400; letter-spacing:1.5px; font-style:italic;
+      color:rgba(30,15,0,0.55); font-family:'Inter',sans-serif; text-align:center;
+    }
+    .pikagold-arc-word {
+      font-weight:700; font-style:normal; letter-spacing:2px;
+      background:linear-gradient(135deg,#1a2a6c 0%,#2e4fa3 20%,#a8c0ff 45%,#ffffff 55%,#7bafd4 75%,#1a3a7a 100%);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    }
+    @media (max-width: 900px) { .pikagold-wrap { display:none; } }
   </style>
 </head>
 <body>
@@ -2681,6 +2861,9 @@
       <div class="logo" onclick="navigate('stake')">
         <img class="logo-img" src="logo.png" alt="PikaStake" draggable="false" />
       </div>
+    </div>
+
+    <div class="nav-center">
       <div class="pikacreate-btn" id="pikacreateNavBtn" onclick="navigate('create')">
         <span class="pc-dot"></span>
         PikaCreate
@@ -2696,12 +2879,7 @@
     </div>
 
     <div class="nav-right">
-      <div class="balance-pill" id="balancePill">
-        <div class="balance-dot"></div>
-        <span id="balanceLabel"><span id="balanceAmt">0.00</span> <span class="pusdc-unit">pUSDC</span></span>
-      </div>
-
-      <button class="balance-pill" id="profileBtn" onclick="handleWalletBtn()">
+<button class="balance-pill" id="profileBtn" onclick="handleWalletBtn()">
         <div class="balance-dot" id="profileDot"></div>
         <span id="profileBtnText">Connect Wallet</span>
         <img id="profilePic" src="pikapfp.png" alt="" style="width:22px;height:22px;border-radius:50%;object-fit:cover;margin-left:6px;display:none;" />
@@ -2713,6 +2891,48 @@
 
 <!-- ── PAGE: STAKE ───────────────────────────────────────────────────── -->
 <div class="page" data-page="stake">
+
+  <!-- Gold Card (top-left) -->
+  <div class="pikagold-wrap" id="pikaGoldWrap">
+    <div class="pikagold-card" id="pikaGoldCard">
+      <div class="pikagold-bezel">
+        <div class="pikagold-face">
+          <div class="pikagold-content">
+            <span class="pikagold-payarc">Pay on <span class="pikagold-arc-word">ARC</span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- pUSDC Credit Card (top-right) -->
+  <div class="pikacredit-wrap" id="pikaCreditWrap">
+    <div class="pikacredit-card" id="pikaCreditCard">
+      <div class="pikacredit-bezel">
+        <div class="pikacredit-face">
+          <div class="pikacredit-content">
+            <div class="pikacredit-brand">
+              <span class="pikacredit-pika">Pika</span><span class="pikacredit-stake">Stake</span>
+            </div>
+            <div class="pikacredit-mid">
+              <div class="pikacredit-label">pUSDC Balance</div>
+              <div class="pikacredit-amount-row">
+                <span class="pikacredit-number" id="pikaCreditBalance">—</span>
+                <span class="pikacredit-currency">pUSDC</span>
+              </div>
+            </div>
+            <div class="pikacredit-bottom">
+              <div class="pikacredit-addr">
+                <span class="pikacredit-addr-label">Wallet</span>
+                <span class="pikacredit-addr-val" id="pikaCreditAddress">——</span>
+              </div>
+              <span class="pikacredit-payarc">Pay on <span class="pikacredit-arc-word">ARC</span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Hero -->
   <div class="hero">
@@ -3950,6 +4170,7 @@ function initRouter() {
 /* ── BOOT ────────────────────────────────────────────────────────── */
 window.addEventListener('load', async () => {
   initRouter()
+  requestAnimationFrame(_alignSideCards)
   fetchPublic()
   loadCreatePageStats()
   discoverWallets()
@@ -4045,6 +4266,7 @@ async function fetchUser() {
     myStaked = info[0]
 
     set('balanceAmt', fmtPusdc(pusdcBal))
+    const _pcb = g('pikaCreditBalance'); if (_pcb) _pcb.textContent = fmtPusdc(pusdcBal)
     set('walletBal',    fmtUsdc(usdcBal))
     set('stakedBal',    fmtUsdc(myStaked))
     set('statStaked',   fmtUsdc(myStaked))
@@ -4216,6 +4438,7 @@ function renderConnected() {
   if (pic)  pic.style.display = 'inline-block'
   updateMintWalletStatus()
   checkMintedCards()
+  const _pca = g('pikaCreditAddress'); if (_pca) _pca.textContent = shortAddr(account)
 }
 
 function resetState() {
@@ -4255,6 +4478,8 @@ function resetState() {
   g('mintCost').textContent = '— pUSDC'
   g('mintSelected').textContent = 'No card selected'
   toast('Disconnected', 'info')
+  const _pcbr = g('pikaCreditBalance'); if (_pcbr) _pcbr.textContent = '—'
+  const _pcar = g('pikaCreditAddress'); if (_pcar) _pcar.textContent = '——'
 }
 
 /* ── CHAIN ───────────────────────────────────────────────────────── */
@@ -4924,6 +5149,66 @@ async function loadPikaRecentMints() {
     console.error('loadPikaRecentMints error:', e)
   }
 }
+
+/* ── Credit card + Gold card: positioning & tilt ── */
+const _CARD_GAP = 48
+const _CARD_W   = 270
+
+function _alignSideCards() {
+  const mainCard = document.getElementById('mainCard')
+  const wrap     = document.getElementById('pikaCreditWrap')
+  const goldWrap = document.getElementById('pikaGoldWrap')
+  if (!mainCard) return
+
+  const cardRect = mainCard.getBoundingClientRect()
+
+  const centeredTop = (el, pageRect) =>
+    cardRect.top - pageRect.top + (cardRect.height - el.offsetHeight) / 2
+
+  if (wrap && wrap.offsetParent) {
+    const pageRect = wrap.offsetParent.getBoundingClientRect()
+    wrap.style.right = (pageRect.right - cardRect.right - _CARD_GAP - _CARD_W) + 'px'
+    wrap.style.top   = centeredTop(wrap, pageRect) + 'px'
+  }
+  if (goldWrap && goldWrap.offsetParent) {
+    const pageRect = goldWrap.offsetParent.getBoundingClientRect()
+    goldWrap.style.left = (cardRect.left - pageRect.left - _CARD_GAP - _CARD_W) + 'px'
+    goldWrap.style.top  = centeredTop(goldWrap, pageRect) + 'px'
+  }
+}
+
+window.addEventListener('resize', _alignSideCards)
+
+;(function(){
+  const wrap     = document.getElementById('pikaCreditWrap')
+  const card     = document.getElementById('pikaCreditCard')
+  const goldWrap = document.getElementById('pikaGoldWrap')
+  const goldCard = document.getElementById('pikaGoldCard')
+
+  if (wrap && card) {
+    wrap.addEventListener('mousemove', e => {
+      const r = wrap.getBoundingClientRect()
+      const dx = (e.clientX - r.left - r.width / 2) / (r.width / 2)
+      const dy = (e.clientY - r.top  - r.height / 2) / (r.height / 2)
+      card.style.transform = `scale(0.52) rotateY(${dx * 8}deg) rotateX(${-dy * 6}deg)`
+    })
+    wrap.addEventListener('mouseleave', () => {
+      card.style.transform = 'scale(0.52) rotateY(0deg) rotateX(0deg)'
+    })
+  }
+
+  if (goldWrap && goldCard) {
+    goldWrap.addEventListener('mousemove', e => {
+      const r = goldWrap.getBoundingClientRect()
+      const dx = (e.clientX - r.left - r.width / 2) / (r.width / 2)
+      const dy = (e.clientY - r.top  - r.height / 2) / (r.height / 2)
+      goldCard.style.transform = `scale(0.52) rotateY(${dx * 8}deg) rotateX(${-dy * 6}deg)`
+    })
+    goldWrap.addEventListener('mouseleave', () => {
+      goldCard.style.transform = 'scale(0.52) rotateY(0deg) rotateX(0deg)'
+    })
+  }
+})()
 </script>
 </body>
 </html>
