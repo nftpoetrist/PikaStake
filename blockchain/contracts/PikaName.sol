@@ -32,7 +32,7 @@ contract PikaName is ERC721URIStorage, Ownable {
         _ownerDomains[msg.sender].push(name);
 
         _mint(msg.sender, tokenId);
-        _setTokenURI(tokenId, string(abi.encodePacked("pika://", name, ".pika")));
+        _setTokenURI(tokenId, string(abi.encodePacked("arc://", name, ".arc")));
 
         emit DomainMinted(msg.sender, name, tokenId);
     }

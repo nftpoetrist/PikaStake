@@ -1139,7 +1139,8 @@
       margin-bottom: 18px;
     }
     .page[data-page="create"] .hero h1,
-    .page[data-page="domain"] .hero h1 {
+    .page[data-page="domain"] .hero h1,
+    .page[data-page="gallery"] .hero h1 {
       font-size: clamp(30px, 5vw, 50px);
     }
 
@@ -3370,7 +3371,7 @@
 <div class="page" data-page="domain">
 
   <div class="hero">
-    <h1>Pika Name Service</h1>
+    <h1><span style="background:linear-gradient(135deg,#1a2a6c 0%,#2e4fa3 20%,#a8c0ff 45%,#ffffff 55%,#7bafd4 75%,#1a3a7a 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">ARC</span> Name Service</h1>
     <p>Your identity across ARC — one name for all your crypto addresses and your decentralized website.</p>
   </div>
 
@@ -3380,7 +3381,7 @@
       <span class="pika-search-icon">🔍</span>
       <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;">
         <input id="pikaSearchInput" class="pika-search-input" type="text"
-          placeholder="Search for your Pokémon domain (e.g., ash.pika, pikachu.pika)"
+          placeholder="Search for your Arc domain (e.g., ash.arc, pikachu.arc)"
           oninput="onPikaSearchInput(event)" autocomplete="off" spellcheck="false" />
         <div id="pikaSearchStatus" style="font-size:12px;font-weight:600;padding-left:2px;min-height:16px;"></div>
       </div>
@@ -4434,7 +4435,9 @@ function renderConnected() {
   const pic  = g('profilePic')
   if (btn)  { btn.disabled = false; btn.classList.add('connected') }
   if (dot)  { dot.style.cssText = 'display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--ok);box-shadow:0 0 7px var(--ok);flex-shrink:0;' }
-  if (text) text.innerHTML = `<span style="color:var(--ok)">Arc</span> <span style="color:#fff">${short}</span>`
+  if (text) text.innerHTML = _activeArcDomain
+    ? `<span style="color:var(--ok)">Arc</span> <span style="color:#fff">${_activeArcDomain}${ARC_SUFFIX}</span>`
+    : `<span style="color:var(--ok)">Arc</span> <span style="color:#fff">${short}</span>`
   if (pic)  pic.style.display = 'inline-block'
   updateMintWalletStatus()
   checkMintedCards()
@@ -4453,6 +4456,7 @@ function resetState() {
 
   provider = signer = account = null
   myStaked = myWallet = 0n
+  _activeArcDomain = null
   profileOwnedCounts = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
   localStorage.removeItem(LAST_WALLET_KEY)
   const _b = g('profileBtn'); if (_b) { _b.disabled = false; _b.classList.remove('connected') }
@@ -4973,7 +4977,7 @@ function pikaNameContract() {
 
 // Live availability check while typing
 async function onPikaSearchInput(e) {
-  const raw = e.target.value.trim().toLowerCase().replace(/\.pika$/, '')
+  const raw = e.target.value.trim().toLowerCase().replace(/\.arc$/, '')
   const statusEl = document.getElementById('pikaSearchStatus')
   const mintBtn  = document.getElementById('pikaMintBtn')
 
@@ -5006,11 +5010,11 @@ async function onPikaSearchInput(e) {
       const ro = new ethers.Contract(PIKANAME_ADDR, PIKANAME_ABI, provider)
       const avail = await ro.isAvailable(raw)
       if (avail) {
-        statusEl.innerHTML = `✅ <b>${raw}.pika</b> is available — Free`
+        statusEl.innerHTML = `✅ <b>${raw}${ARC_SUFFIX}</b> is available — Free`
         statusEl.style.color = '#3a8a4a'
         mintBtn.disabled = false
       } else {
-        statusEl.innerHTML = `❌ <b>${raw}.pika</b> is already taken`
+        statusEl.innerHTML = `❌ <b>${raw}${ARC_SUFFIX}</b> is already taken`
         statusEl.style.color = '#a84444'
         mintBtn.disabled = true
       }
@@ -5026,7 +5030,7 @@ async function doPikaMint() {
   const input  = document.getElementById('pikaSearchInput')
   const status = document.getElementById('pikaSearchStatus')
   const btn    = document.getElementById('pikaMintBtn')
-  const raw    = input.value.trim().toLowerCase().replace(/\.pika$/, '')
+  const raw    = input.value.trim().toLowerCase().replace(/\.arc$/, '')
 
   if (!raw) return
   if (!account) { toast('Connect your wallet first', 'error'); return }
@@ -5038,7 +5042,7 @@ async function doPikaMint() {
   try {
     const tx = await pikaNameContract().mint(raw)
     await tx.wait()
-    toast(`${raw}.pika minted successfully!`, 'success')
+    toast(`${raw}.arc minted successfully!`, 'success')
     input.value = ''
     status.textContent = ''
     btn.disabled = true
@@ -5054,11 +5058,19 @@ async function doPikaMint() {
   }
 }
 
+const ARC_SUFFIX = `<span style="background:linear-gradient(135deg,#2a4a9a 0%,#3a6ad4 30%,#7aaaf0 55%,#3a6ad4 80%,#1a3a7a 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:700;">.arc</span>`
 const PIKA_PAGE_SIZE = 7
 let _pikaMyDomainsAll   = []
 let _pikaMyDomainsShown = 0
 let _pikaRecentAll      = []
 let _pikaRecentShown    = 0
+let _activeArcDomain    = null
+
+function useArcDomain(name) {
+  _activeArcDomain = (_activeArcDomain === name) ? null : name
+  _renderPikaMyDomains()
+  renderConnected()
+}
 
 function _renderPikaMyDomains() {
   const el = document.getElementById('pikaMyDomains')
@@ -5067,9 +5079,9 @@ function _renderPikaMyDomains() {
   const hasMore = _pikaMyDomainsShown < _pikaMyDomainsAll.length
   el.innerHTML = slice.map(d => `
     <div class="pika-domain-item">
-      <span class="pika-domain-name">⚡ ${d}.pika</span>
+      <span class="pika-domain-name">⚡ ${d}${ARC_SUFFIX}</span>
       <div class="pika-domain-actions">
-        <button class="pika-action-btn">Manage</button>
+        <button class="pika-action-btn ${_activeArcDomain === d ? 'active' : ''}" onclick="useArcDomain('${d}')">${_activeArcDomain === d ? '✓ Active' : 'Use'}</button>
       </div>
     </div>`).join('')
   if (hasMore) {
@@ -5096,7 +5108,7 @@ async function loadPikaMyDomains() {
     _pikaMyDomainsAll   = Array.from(raw).reverse()
     _pikaMyDomainsShown = PIKA_PAGE_SIZE
     if (!_pikaMyDomainsAll.length) {
-      el.innerHTML = `<div class="pika-empty"><div class="pika-empty-icon">🏷️</div>No domains yet. Mint your first .pika domain!</div>`
+      el.innerHTML = `<div class="pika-empty"><div class="pika-empty-icon">🏷️</div>No domains yet. Mint your first .arc domain!</div>`
       return
     }
     _renderPikaMyDomains()
@@ -5114,7 +5126,7 @@ function _renderPikaRecent() {
   el.innerHTML = slice.map(e => `
     <div class="pika-mint-item">
       <span class="pika-emoji">⚡</span>
-      <span class="pika-domain-name">${e.domain}.pika</span>
+      <span class="pika-domain-name">${e.domain}${ARC_SUFFIX}</span>
       <span class="pika-time">${e.owner.slice(0,6)}…${e.owner.slice(-4)}</span>
     </div>`).join('')
   if (hasMore) {
