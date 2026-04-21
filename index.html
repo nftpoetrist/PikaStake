@@ -4428,6 +4428,8 @@ function handleConnect() {
 }
 
 function renderConnected() {
+  const saved = localStorage.getItem(`arc_active_domain_${account.toLowerCase()}`)
+  if (saved && _activeArcDomain !== saved) _activeArcDomain = saved
   const short = shortAddr(account)
   const btn  = g('profileBtn')
   const dot  = g('profileDot')
@@ -5068,6 +5070,11 @@ let _activeArcDomain    = null
 
 function useArcDomain(name) {
   _activeArcDomain = (_activeArcDomain === name) ? null : name
+  if (account) {
+    const key = `arc_active_domain_${account.toLowerCase()}`
+    if (_activeArcDomain) localStorage.setItem(key, _activeArcDomain)
+    else localStorage.removeItem(key)
+  }
   _renderPikaMyDomains()
   renderConnected()
 }
