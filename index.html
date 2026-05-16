@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PikaStake — Premium DeFi Staking</title>
+  <title>PikaStake — DeFi Staking</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -89,6 +89,8 @@
       background: var(--bg0);
       pointer-events: none;
     }
+    body.on-boxes .scene,
+    body.on-boxes .scene::after { display: none; }
 
 
     /* ── BACKGROUND STRIPS ───────────────────────── */
@@ -168,8 +170,10 @@
       );
       backdrop-filter: blur(14px) saturate(140%);
       -webkit-backdrop-filter: blur(14px) saturate(140%);
-      border: 1px solid rgba(255,255,255,0.07);
-      border-bottom-color: rgba(255,203,5,0.15);
+      border-top: 1px solid rgba(255,255,255,0.07);
+      border-right: 1px solid rgba(255,255,255,0.07);
+      border-bottom: 1px solid rgba(255,203,5,0.15);
+      border-left: none;
       box-shadow:
         inset 0 1px 0 rgba(255,255,255,0.09),
         inset 0 -1px 0 rgba(255,203,5,0.06),
@@ -989,6 +993,43 @@
       box-shadow: 0 0 7px rgba(255,203,5,0.8);
       flex-shrink: 0;
     }
+
+    /* PikaBoxes nav button */
+    .pikaboxes-btn {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 16px;
+      background: rgba(255,203,5,0.08);
+      border: 1px solid rgba(255,203,5,0.28);
+      border-radius: var(--r-pill);
+      color: var(--y1);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s var(--ease);
+      white-space: nowrap;
+    }
+    .pikaboxes-btn:hover {
+      background: rgba(255,203,5,0.15);
+      border-color: rgba(255,203,5,0.5);
+      box-shadow: 0 0 18px rgba(255,203,5,0.22);
+      transform: translateY(-1px);
+    }
+    .pikaboxes-btn.active {
+      background: rgba(255,203,5,0.18);
+      border-color: rgba(255,203,5,0.55);
+      box-shadow: 0 0 22px rgba(255,203,5,0.28);
+    }
+    .pikaboxes-btn .pb-dot {
+      width: 5px; height: 5px;
+      background: var(--y1);
+      border-radius: 50%;
+      box-shadow: 0 0 7px rgba(255,203,5,0.8);
+      flex-shrink: 0;
+    }
     @media (max-width: 640px) { .pns-panels { grid-template-columns: 1fr; } }
 
     /* Nav right */
@@ -1605,6 +1646,28 @@
 
     .toast-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
     .toast-text { font-size: 13px; font-weight: 500; color: var(--t0); line-height: 1.45; }
+
+    /* ── TX Bildirim Kartı ── */
+    #txNotif {
+      position: fixed; bottom: 28px; right: 28px; z-index: 9999;
+      background: rgba(10,7,0,.93);
+      border: 1px solid rgba(255,203,5,.28);
+      border-radius: 14px;
+      padding: 12px 16px;
+      display: flex; align-items: center; gap: 10px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.55);
+      backdrop-filter: blur(20px);
+      opacity: 0; pointer-events: none;
+      transform: translateY(12px);
+      transition: opacity .3s ease, transform .3s ease;
+      min-width: 220px; max-width: 300px;
+    }
+    #txNotif.show { opacity: 1; pointer-events: all; transform: translateY(0); }
+    #txNotif .txn-icon { font-size: 18px; flex-shrink: 0; }
+    #txNotif .txn-body { display: flex; flex-direction: column; gap: 2px; }
+    #txNotif .txn-label { font-size: 11px; font-weight: 700; color: rgba(255,203,5,.7); letter-spacing: .06em; text-transform: uppercase; }
+    #txNotif .txn-link { font-size: 12px; color: rgba(255,255,255,.75); text-decoration: none; font-family: 'Space Grotesk', monospace; }
+    #txNotif .txn-link:hover { color: #FFD45C; text-decoration: underline; }
 
     /* ══════════════════════════════════════════════
        SPINNER
@@ -2305,6 +2368,32 @@
       color: var(--y1);
     }
 
+    /* ── Collection Tabs ───────────────────── */
+    .profile-tab-row {
+      display: flex; gap: 6px; margin-bottom: 14px;
+    }
+    .profile-tab-btn {
+      flex: 1; padding: 9px 12px; border-radius: 10px;
+      border: 1.5px solid rgba(255,203,5,0.18);
+      background: transparent; color: var(--t3);
+      font-size: 11px; font-weight: 700; letter-spacing: .08em;
+      text-transform: uppercase; cursor: pointer;
+      transition: all .2s ease; font-family: 'Space Grotesk', sans-serif;
+    }
+    .profile-tab-btn.active {
+      background: rgba(255,203,5,0.12);
+      border-color: rgba(255,203,5,0.55);
+      color: var(--y1);
+    }
+    .profile-tab-btn:hover:not(.active) {
+      border-color: rgba(255,203,5,0.32); color: var(--t1);
+    }
+    .profile-special-empty {
+      grid-column: 1 / -1; text-align: center;
+      color: var(--t3); font-size: 12px; padding: 28px 0;
+      letter-spacing: .04em;
+    }
+
     /* ── Collection Label ───────────────────── */
     .profile-collection-label {
       font-size: 9px;
@@ -2673,6 +2762,8 @@
       top: 0;
       right: 0;
       z-index: 100;
+      opacity: 0;
+      transition: opacity 0.2s ease;
       width: 270px;
       height: 170px;
       overflow: hidden;
@@ -2778,6 +2869,8 @@
       top: 0;
       left: 0;
       z-index: 100;
+      opacity: 0;
+      transition: opacity 0.2s ease;
       width: 270px;
       height: 170px;
       overflow: hidden;
@@ -2837,6 +2930,526 @@
       -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
     }
     @media (max-width: 900px) { .pikagold-wrap { display:none; } }
+
+    /* ── PikaBoxes ───────────────────────────────────────────────── */
+    .page[data-page="boxes"] {
+      background: radial-gradient(ellipse 90% 70% at 50% 40%, #FFF6DA 0%, #F5E5B4 38%, #E9D08A 75%, #D9B664 100%);
+      min-height: 100vh;
+      position: relative;
+      overflow: hidden;
+      align-items: flex-start;
+      flex-direction: column;
+    }
+    .page[data-page="boxes"]::before { display: none; }
+    .page[data-page="boxes"]::after {
+      content: "";
+      position: absolute; left: 50%; bottom: -25vh;
+      transform: translateX(-50%);
+      width: 140vw; height: 65vh; border-radius: 50%;
+      background: radial-gradient(ellipse 50% 50% at 50% 50%, rgba(255,225,150,.55), rgba(255,225,150,0) 70%);
+      pointer-events: none; z-index: 0;
+    }
+    #pikaboxTitle {
+      position: absolute; top: 160px; left: 0; right: 0;
+      text-align: center;
+      z-index: 2;
+      line-height: 1;
+      letter-spacing: -.01em;
+      pointer-events: none;
+      display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 0;
+    }
+    #pikaboxTitle .pbt-logo {
+      height: 72px; width: auto;
+      object-fit: contain;
+      margin-left: 0px;
+      vertical-align: middle;
+      filter: drop-shadow(0 4px 18px rgba(0,0,0,.35));
+    }
+    #pikaboxTitle .pbt-limited,
+    #pikaboxTitle .pbt-edition,
+    #pikaboxTitle .pbt-pikabox { margin: 0 7px; }
+    #pikaboxTitle .pbt-limited {
+      font-family: 'Space Grotesk', system-ui, sans-serif;
+      font-size: clamp(36px, 5vw, 64px);
+      font-weight: 800;
+      background: linear-gradient(180deg, #A9CEEC 0%, #3A7DC9 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 2px 12px rgba(58,125,201,.45));
+    }
+    #pikaboxTitle .pbt-edition {
+      font-family: 'Space Grotesk', system-ui, sans-serif;
+      font-size: clamp(36px, 5vw, 64px);
+      font-weight: 800;
+      background: linear-gradient(180deg, #C9A8F0 0%, #7B4FCC 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 2px 14px rgba(123,79,204,.55));
+    }
+    #pikaboxTitle .pbt-pikabox {
+      font-family: 'Space Grotesk', system-ui, sans-serif;
+      font-size: clamp(36px, 5vw, 64px);
+      font-weight: 800;
+      background: linear-gradient(180deg, #FFE38A 0%, #E5A720 55%, #B97A00 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 2px 16px rgba(229,167,32,.6));
+    }
+
+    #pikaboxStage {
+      position: relative; z-index: 2;
+      width: 100%;
+      perspective: 1800px; perspective-origin: 50% 45%;
+      display: grid; grid-template-columns: repeat(4,1fr);
+      align-items: center;
+      padding: 40px 2vw;
+      transform-style: preserve-3d;
+    }
+    @media (max-width:1100px) {
+      #pikaboxStage { grid-template-columns: repeat(2,1fr); gap: 40px; padding: 40px 0; }
+    }
+    @media (max-width:640px) { #pikaboxStage { grid-template-columns: 1fr; } }
+
+    .pbox-slot {
+      position: relative; height: 560px;
+      display: flex; align-items: flex-end; justify-content: center;
+      transform-style: preserve-3d; cursor: pointer;
+    }
+    .pbox-pedestal {
+      position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%);
+      width: 74%; height: 16px; border-radius: 50%;
+      background: radial-gradient(ellipse 50% 50% at 50% 50%, rgba(80,50,5,.32), rgba(80,50,5,0) 70%);
+      filter: blur(2px);
+      transition: opacity .4s ease, transform .4s ease;
+    }
+    .pbox-card {
+      position: absolute; left: 50%; top: 50%;
+      width: 240px; height: 340px;
+      transform-style: preserve-3d;
+      transform: translate(-50%,-50%) rotateX(0deg) rotateY(0deg);
+      transition: transform .5s cubic-bezier(.2,.7,.2,1);
+      will-change: transform;
+    }
+    .pbox-float {
+      animation: pbox-bob 6s ease-in-out infinite;
+      transform-style: preserve-3d; height: 100%;
+    }
+    .pbox-slot[data-r="rare"]      .pbox-float { animation-duration: 5.4s; }
+    .pbox-slot[data-r="epic"]      .pbox-float { animation-duration: 4.8s; }
+    .pbox-slot[data-r="legendary"] .pbox-float { animation-duration: 4.2s; }
+    @keyframes pbox-bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-14px)} }
+
+    .pbox-cube {
+      position: absolute; left: 50%; top: 50%;
+      width: 220px; height: 220px;
+      transform-style: preserve-3d;
+      transform: translate(-50%,-50%);
+    }
+    .pbox-face {
+      position: absolute; inset: 0; border-radius: 18px; overflow: hidden;
+      backface-visibility: hidden;
+      box-shadow: inset 0 -22px 30px rgba(140,80,0,.18), inset 0 18px 28px rgba(255,255,255,.4);
+    }
+    .pbox-face.pbox-front  { transform: translateZ(110px); }
+    .pbox-face.pbox-back   { transform: rotateY(180deg) translateZ(110px); }
+    .pbox-face.pbox-right  { transform: rotateY(90deg) translateZ(110px); }
+    .pbox-face.pbox-left   { transform: rotateY(-90deg) translateZ(110px); }
+    .pbox-face.pbox-top    { transform: rotateX(90deg) translateZ(110px); }
+    .pbox-face.pbox-bottom { transform: rotateX(-90deg) translateZ(110px); }
+    .pbox-slot[data-r="common"]    .pbox-face { background: linear-gradient(180deg,#FFF1B8,#FFD86C 70%,#E5B12C); }
+    .pbox-slot[data-r="rare"]      .pbox-face { background: linear-gradient(180deg,#FFEDA8,#FFCF5C 70%,#DC9F1C); }
+    .pbox-slot[data-r="epic"]      .pbox-face { background: linear-gradient(180deg,#FFEEB0,#FFC851 60%,#D6911A); }
+    .pbox-slot[data-r="legendary"] .pbox-face { background: linear-gradient(180deg,#FFF7CC,#FFD661 55%,#C77F08); }
+
+    .pbox-rim {
+      position: absolute; left: 0; right: 0; bottom: 0; height: 42px;
+      background: linear-gradient(180deg,#FFF6DC,#F7DE93);
+      border-top: 1px solid rgba(140,80,0,.25);
+      clip-path: polygon(0 30%,8% 0,92% 0,100% 30%,100% 100%,0 100%);
+    }
+    .pbox-rim::before {
+      content: ""; position: absolute; left: 50%; top: 8px; transform: translateX(-50%);
+      width: 42px; height: 22px; border-radius: 6px;
+      background: linear-gradient(180deg,#F3B449,#C7800E);
+      box-shadow: inset 0 -3px 4px rgba(0,0,0,.18), inset 0 2px 3px rgba(255,255,255,.5);
+    }
+    .pbox-lid-band {
+      position: absolute; left: 0; right: 0; top: 0; height: 28px;
+      background: linear-gradient(180deg,rgba(255,255,255,.45),rgba(255,255,255,0));
+      border-bottom: 1px dashed rgba(140,80,0,.22);
+    }
+    .pbox-face-window {
+      position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
+      width: 180px; height: 180px; pointer-events: none;
+    }
+    .pbox-slot[data-r="rare"]      .pbox-face-window { width: 180px; height: 200px; top: 48%; }
+    .pbox-slot[data-r="epic"]      .pbox-face-window { width: 200px; height: 200px; top: 46%; }
+    .pbox-slot[data-r="legendary"] .pbox-face-window { width: 220px; height: 230px; top: 48%; }
+    .pbox-crystal {
+      position: absolute; width: 26px; height: 34px;
+      clip-path: polygon(50% 0,100% 35%,80% 100%,20% 100%,0 35%);
+      background: linear-gradient(180deg,#FFFFFF,#E0CCFF 50%,#9F7FE6);
+      filter: drop-shadow(0 2px 4px rgba(120,60,180,.3));
+    }
+    .pbox-crystal.c1 { top: 64px; left: 18px; transform: rotate(-12deg); }
+    .pbox-crystal.c2 { top: 50px; right: 14px; transform: rotate(14deg); }
+    .pbox-slot[data-r="legendary"] .pbox-crystal {
+      background: linear-gradient(180deg,#FFFCE0,#FFD45C 50%,#C77F08);
+      filter: drop-shadow(0 2px 6px rgba(255,180,40,.6));
+    }
+    .pbox-topper { display: none; }
+
+    .pbox-aura { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); pointer-events: none; }
+    .pbox-glow-soft {
+      width: 340px; height: 340px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,220,120,.55), rgba(255,220,120,0) 65%);
+      animation: pbox-pulse 4s ease-in-out infinite; filter: blur(4px);
+    }
+    .pbox-slot[data-r="rare"] .pbox-glow-soft {
+      background: radial-gradient(circle, rgba(255,210,110,.7), rgba(255,210,110,0) 65%);
+      width: 360px; height: 360px; animation-duration: 3.4s;
+    }
+    .pbox-slot[data-r="epic"] .pbox-glow-soft {
+      background: radial-gradient(circle, rgba(255,200,95,.85), rgba(216,195,255,.5) 40%, rgba(255,200,95,0) 72%);
+      width: 440px; height: 440px; animation-duration: 2.6s;
+    }
+    .pbox-slot[data-r="legendary"] .pbox-glow-soft {
+      background: radial-gradient(circle, rgba(255,245,180,.95), rgba(255,200,80,.7) 32%, rgba(255,150,40,.3) 55%, rgba(255,200,95,0) 78%);
+      width: 520px; height: 520px; animation-duration: 2s;
+    }
+    @keyframes pbox-pulse {
+      0%,100%{opacity:.7;transform:translate(-50%,-50%) scale(1)}
+      50%{opacity:1;transform:translate(-50%,-50%) scale(1.06)}
+    }
+    .pbox-rays {
+      width: 520px; height: 520px; border-radius: 50%;
+      background: conic-gradient(from 0deg,
+        rgba(255,235,160,0) 0deg,rgba(255,235,160,.35) 6deg,rgba(255,235,160,0) 14deg,
+        rgba(255,235,160,0) 30deg,rgba(255,235,160,.25) 36deg,rgba(255,235,160,0) 46deg,
+        rgba(255,235,160,0) 70deg,rgba(255,235,160,.3) 76deg,rgba(255,235,160,0) 86deg,
+        rgba(255,235,160,0) 120deg,rgba(255,235,160,.2) 124deg,rgba(255,235,160,0) 132deg,
+        rgba(255,235,160,0) 170deg,rgba(255,235,160,.35) 176deg,rgba(255,235,160,0) 184deg,
+        rgba(255,235,160,0) 220deg,rgba(255,235,160,.25) 226deg,rgba(255,235,160,0) 236deg,
+        rgba(255,235,160,0) 280deg,rgba(255,235,160,.3) 286deg,rgba(255,235,160,0) 296deg,
+        rgba(255,235,160,0) 330deg,rgba(255,235,160,.35) 336deg,rgba(255,235,160,0) 344deg);
+      mask: radial-gradient(circle,transparent 26%,#000 30%,#000 60%,transparent 64%);
+      -webkit-mask: radial-gradient(circle,transparent 26%,#000 30%,#000 60%,transparent 64%);
+      animation: pbox-spin 22s linear infinite; opacity: 0; transition: opacity .6s ease;
+    }
+    .pbox-slot[data-r="epic"]      .pbox-rays { display: none; }
+    .pbox-slot[data-r="legendary"] .pbox-rays { opacity: .8; width: 600px; height: 600px; animation-duration: 30s; }
+    @keyframes pbox-spin { from{transform:translate(-50%,-50%) rotate(0)} to{transform:translate(-50%,-50%) rotate(360deg)} }
+
+    .pbox-aura-back {
+      position: absolute; left: 50%; top: 50%;
+      transform: translate(-50%,-50%) translateZ(-220px);
+      transform-style: flat; width: 0; height: 0; pointer-events: none;
+    }
+    .pbox-beam {
+      position: absolute; left: 50%; top: 50%;
+      transform: translate(-50%,-100%);
+      width: 90px; height: 340px; pointer-events: none;
+      opacity: 0;
+    }
+    .pbox-slot[data-r="epic"] .pbox-beam {
+      opacity: .5; width: 100px; height: 380px;
+      background: linear-gradient(180deg,rgba(232,200,255,.45),rgba(255,235,160,.35) 50%,rgba(255,235,160,0));
+      animation: pbox-beam-pulse 3.6s ease-in-out infinite;
+    }
+    .pbox-slot[data-r="legendary"] .pbox-beam {
+      opacity: .75; width: 130px; height: 460px;
+      background: linear-gradient(180deg,rgba(255,255,255,.7),rgba(255,235,140,.55) 35%,rgba(255,180,40,.2) 75%,rgba(255,180,40,0));
+      animation: pbox-beam-pulse 2.6s ease-in-out infinite;
+    }
+    @keyframes pbox-beam-pulse {
+      0%,100%{opacity:var(--b,.6);transform:translate(-50%,-100%) scaleX(.9)}
+      50%{opacity:1;transform:translate(-50%,-100%) scaleX(1.15)}
+    }
+    .pbox-streak {
+      position: absolute; left: 50%; top: 50%;
+      width: 260px; height: 3px; transform-origin: left center;
+      transform: translate(0,-50%) rotate(var(--angle,0deg)) scaleX(.85);
+      filter: drop-shadow(0 0 6px #FFD45C) blur(.5px);
+      opacity: 0; pointer-events: none;
+      animation: pbox-streak-pulse var(--sdur,2.6s) ease-in-out infinite;
+      animation-delay: var(--sdelay,0s);
+    }
+    .pbox-slot[data-r="epic"] .pbox-streak {
+      background: linear-gradient(90deg,transparent,#E8C8FF 25%,#FFFFFF 50%,#FFEBA0 75%,transparent);
+    }
+    .pbox-slot[data-r="legendary"] .pbox-streak {
+      height: 4px; width: 320px;
+      background: linear-gradient(90deg,transparent,#FFF6CC 18%,#FFFFFF 50%,#FFE070 82%,transparent);
+      filter: drop-shadow(0 0 8px #FFE070) drop-shadow(0 0 18px #FFB940);
+    }
+    @keyframes pbox-streak-pulse {
+      0%,100%{opacity:.35;transform:translate(0,-50%) rotate(var(--angle)) scaleX(.7)}
+      50%{opacity:1;transform:translate(0,-50%) rotate(var(--angle)) scaleX(1.15)}
+    }
+    .pbox-flare {
+      position: absolute; left: 50%; top: 50%; width: 14px; height: 14px; border-radius: 50%;
+      transform: translate(var(--fx,0),var(--fy,0));
+      background: radial-gradient(circle,rgba(255,255,255,.95) 0%,rgba(255,225,140,.6) 30%,transparent 65%);
+      pointer-events: none;
+      animation: pbox-flare-drift var(--fd,4s) ease-in-out infinite;
+      animation-delay: var(--fdelay,0s);
+    }
+    @keyframes pbox-flare-drift {
+      0%,100%{opacity:.35;transform:translate(var(--fx),var(--fy)) scale(.6)}
+      50%{opacity:1;transform:translate(calc(var(--fx) + 6px),calc(var(--fy) - 10px)) scale(1.15)}
+    }
+    .pbox-spark {
+      position: absolute; left: 50%; top: 50%; width: 6px; height: 6px;
+      transform: translate(var(--x),var(--y)); color: #FFE38A;
+      pointer-events: none; filter: drop-shadow(0 0 4px currentColor);
+      animation: pbox-twinkle var(--d,2.5s) ease-in-out infinite;
+      animation-delay: var(--delay,0s);
+    }
+    .pbox-spark::before,.pbox-spark::after { content:""; position:absolute; inset:0; background:currentColor; border-radius:50%; }
+    .pbox-spark::before { transform: scaleY(2.4); }
+    .pbox-spark::after  { transform: scaleX(2.4); }
+    @keyframes pbox-twinkle {
+      0%,100%{opacity:0;transform:translate(var(--x),var(--y)) scale(.4) rotate(0)}
+      50%{opacity:1;transform:translate(var(--x),var(--y)) scale(1) rotate(45deg)}
+    }
+    .pbox-shards { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:1px; height:1px; pointer-events:none; }
+    .pbox-shard {
+      position:absolute; left:0; top:0; width:14px; height:22px;
+      background: linear-gradient(180deg,#FFFFFF,#FFE8AC 50%,#E29A12);
+      clip-path: polygon(50% 0,100% 50%,50% 100%,0 50%);
+      border-radius:2px; transform-origin:center;
+      filter: drop-shadow(0 0 8px rgba(255,212,92,.75));
+      animation: pbox-shard-float 5s ease-in-out infinite;
+    }
+    .pbox-shard.lilac {
+      background: linear-gradient(180deg,#FFFFFF,#E8D7FF 50%,#9F7FE6);
+      filter: drop-shadow(0 0 8px rgba(216,195,255,.7));
+    }
+    @keyframes pbox-shard-float {
+      0%,100%{transform:translate(var(--x),var(--y)) rotate(var(--r)) scale(1)}
+      50%{transform:translate(calc(var(--x) + 6px),calc(var(--y) - 12px)) rotate(calc(var(--r) + 14deg)) scale(1.1)}
+    }
+    .pbox-arc {
+      position:absolute; left:50%; top:50%; width:160px; height:2px;
+      background: linear-gradient(90deg,transparent,#FFE38A,#FFFFFF,#FFE38A,transparent);
+      transform-origin:left center; opacity:0; filter:drop-shadow(0 0 6px #FFCF5C);
+    }
+    .pbox-slot[data-r="epic"] .pbox-arc,
+    .pbox-slot[data-r="legendary"] .pbox-arc { animation: pbox-arc-flicker 1.8s linear infinite; }
+    .pbox-arc:nth-child(1){animation-delay:.0s;transform:translate(-50%,-50%) rotate(20deg)}
+    .pbox-arc:nth-child(2){animation-delay:.4s;transform:translate(-50%,-50%) rotate(110deg)}
+    .pbox-arc:nth-child(3){animation-delay:.9s;transform:translate(-50%,-50%) rotate(200deg)}
+    .pbox-arc:nth-child(4){animation-delay:1.3s;transform:translate(-50%,-50%) rotate(290deg)}
+    @keyframes pbox-arc-flicker {
+      0%,92%,100%{opacity:0} 94%{opacity:.9} 96%{opacity:.2} 97%{opacity:.85} 99%{opacity:0}
+    }
+    .pbox-mint-btn {
+      position:absolute; left:50%; bottom:18px; transform:translateX(-50%);
+      z-index:10; isolation:isolate; pointer-events:all;
+      display:inline-flex; align-items:center; gap:8px;
+      padding:11px 22px 11px 18px; border-radius:99px;
+      font-family:'Space Grotesk',system-ui,sans-serif;
+      font-size:13px; font-weight:600; letter-spacing:.02em;
+      border:none; cursor:pointer; backdrop-filter:blur(8px);
+      transition:transform .25s cubic-bezier(.2,.7,.2,1), box-shadow .25s ease;
+      white-space:nowrap;
+    }
+    .pbox-mint-btn::before { content:""; display:block; width:8px; height:8px; border-radius:50%; }
+    .pbox-price { margin-left:8px; padding-left:10px; border-left:1px solid currentColor; opacity:.65; font-size:11.5px; font-weight:500; letter-spacing:.06em; }
+    .pbox-mint-btn:hover { transform:translateX(-50%) translateY(-2px); }
+    .pbox-slot[data-r="common"] .pbox-mint-btn {
+      background:linear-gradient(180deg,#FFFAEA,#F4E2B0); color:#5a3e10;
+      box-shadow:0 6px 18px rgba(150,100,20,.22),inset 0 1px 0 rgba(255,255,255,.7);
+    }
+    .pbox-slot[data-r="common"] .pbox-mint-btn::before { background:#D89A18; box-shadow:0 0 6px #F2BE3D; }
+    .pbox-slot[data-r="common"] .pbox-mint-btn:hover { box-shadow:0 10px 24px rgba(150,100,20,.3),inset 0 1px 0 rgba(255,255,255,.7); }
+    .pbox-slot[data-r="rare"] .pbox-mint-btn {
+      background:linear-gradient(180deg,#E4F1FB,#A9CEEC); color:#173b66;
+      box-shadow:0 6px 18px rgba(40,100,170,.28),inset 0 1px 0 rgba(255,255,255,.75);
+    }
+    .pbox-slot[data-r="rare"] .pbox-mint-btn::before { background:#3A7DC9; box-shadow:0 0 8px #7BB8E6; }
+    .pbox-slot[data-r="rare"] .pbox-mint-btn:hover { box-shadow:0 10px 26px rgba(40,100,170,.36),inset 0 1px 0 rgba(255,255,255,.75); }
+    .pbox-slot[data-r="epic"] .pbox-mint-btn {
+      background:linear-gradient(180deg,#A98BE0,#7B4FCC); color:#FFFFFF;
+      box-shadow:0 8px 22px rgba(110,60,200,.45),inset 0 1px 0 rgba(255,255,255,.4);
+    }
+    .pbox-slot[data-r="epic"] .pbox-mint-btn::before { background:#FFFFFF; box-shadow:0 0 10px rgba(255,255,255,.9); }
+    .pbox-slot[data-r="epic"] .pbox-mint-btn:hover { box-shadow:0 12px 30px rgba(110,60,200,.55),inset 0 1px 0 rgba(255,255,255,.4); }
+    .pbox-slot[data-r="legendary"] .pbox-mint-btn {
+      background:linear-gradient(180deg,#FFE38A,#E5A720 60%,#B97A00); color:#3a2200;
+      box-shadow:0 8px 24px rgba(200,130,10,.55),0 0 24px rgba(255,210,80,.45),inset 0 1px 0 rgba(255,255,255,.6),inset 0 -2px 4px rgba(120,70,0,.35);
+    }
+    .pbox-slot[data-r="legendary"] .pbox-mint-btn::before { background:#FFFFFF; box-shadow:0 0 12px #FFE070,0 0 22px #FFB940; }
+    .pbox-slot[data-r="legendary"] .pbox-mint-btn:hover {
+      box-shadow:0 14px 32px rgba(200,130,10,.65),0 0 36px rgba(255,210,80,.6),inset 0 1px 0 rgba(255,255,255,.6),inset 0 -2px 4px rgba(120,70,0,.35);
+    }
+    .pbox-slot:hover .pbox-card { transform:translate(-50%,-58%) rotateX(0deg) rotateY(var(--my,0deg)); }
+    .pbox-slot:hover .pbox-pedestal { opacity:.55; transform:translateX(-50%) scale(1.06); }
+
+    /* ── Supply counter ── */
+    .pbox-supply {
+      position:absolute; bottom:62px; left:50%; transform:translateX(-50%);
+      font-family:'Space Grotesk',system-ui,sans-serif;
+      font-size:11px; font-weight:600; letter-spacing:.06em;
+      color:rgba(255,255,255,.55); white-space:nowrap;
+      background:rgba(0,0,0,.28); border-radius:20px;
+      padding:3px 10px; pointer-events:none;
+      z-index:5;
+    }
+    .pbox-supply span { color:rgba(255,255,255,.85); }
+    .pbox-burst {
+      position:absolute; left:50%; top:50%; width:0; height:0; border-radius:50%;
+      background:radial-gradient(circle,#FFF7CE 0%,#FFD45C 25%,rgba(255,212,92,0) 60%);
+      transform:translate(-50%,-50%); pointer-events:none; opacity:0;
+    }
+    .pbox-slot.pbox-popped .pbox-burst { animation:pbox-burst .9s ease-out forwards; }
+    @keyframes pbox-burst { 0%{width:0;height:0;opacity:0} 30%{opacity:1} 100%{width:520px;height:520px;opacity:0} }
+    .pbox-slot.pbox-popped .pbox-cube { animation:pbox-shake .55s cubic-bezier(.2,.7,.2,1); }
+    @keyframes pbox-shake {
+      0%  {transform:translate(-50%,-50%) rotateZ(0)}
+      20% {transform:translate(-50%,-58%) rotateZ(-3deg)}
+      40% {transform:translate(-50%,-46%) rotateZ(3deg)}
+      60% {transform:translate(-50%,-54%) rotateZ(-2deg)}
+      80% {transform:translate(-50%,-50%) rotateZ(1deg)}
+      100%{transform:translate(-50%,-50%) rotateZ(0)}
+    }
+
+    /* ═══════════════════════════════════════════════
+       PIKABOXES — CARD REVEAL OVERLAY
+    ═══════════════════════════════════════════════ */
+    #pboxRevealOverlay {
+      position: fixed; top: -10px; left: -10px;
+      width: calc(100vw + 20px); height: calc(100vh + 20px);
+      z-index: 9000;
+      display: flex; align-items: center; justify-content: center;
+      background: transparent;
+      backdrop-filter: blur(0px); -webkit-backdrop-filter: blur(0px);
+      pointer-events: none; opacity: 0;
+      transition: opacity .35s ease, backdrop-filter .35s ease, background .35s ease;
+    }
+    #pboxRevealOverlay.prev-active {
+      opacity: 1; pointer-events: all;
+      background: rgba(4,2,0,.75);
+      backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+    }
+
+    /* Card wrapper */
+    #pboxRevealCard {
+      width: 270px; height: 378px;
+      perspective: 1400px;
+      position: relative;
+      transform: scale(.22) translateY(180px); opacity: 0;
+      transition: transform .65s cubic-bezier(.34,1.56,.64,1), opacity .38s ease;
+    }
+    #pboxRevealOverlay.prev-show #pboxRevealCard {
+      transform: scale(1) translateY(0); opacity: 1;
+    }
+
+    /* Flip */
+    #pboxRevealCardInner {
+      width:100%; height:100%; position:relative;
+      transform-style: preserve-3d;
+      transform: rotateY(180deg);
+      transition: transform 1.4s cubic-bezier(.45,0,.2,1);
+    }
+    #pboxRevealOverlay.prev-flip #pboxRevealCardInner { transform: rotateY(0deg); }
+
+    /* Shared face styles */
+    #pboxRevealCardBack, #pboxRevealCardFront {
+      position:absolute; inset:0; border-radius:18px;
+      backface-visibility:hidden; -webkit-backface-visibility:hidden; overflow:hidden;
+    }
+
+    /* BACK */
+    #pboxRevealCardBack {
+      transform: rotateY(180deg);
+      background: radial-gradient(ellipse 80% 80% at 50% 42%, #2C1500 0%, #100800 100%);
+      border: 2.5px solid #C07C08;
+      box-shadow: 0 0 32px rgba(229,167,32,.45), inset 0 0 50px rgba(0,0,0,.55);
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0;
+    }
+    .prev-back-rings { position:relative; width:154px; height:154px; display:flex; align-items:center; justify-content:center; }
+    .prev-back-ring  { position:absolute; border-radius:50%; border:1.5px solid rgba(220,155,20,.4); }
+    .prev-back-ring.r1{ width:154px;height:154px; }
+    .prev-back-ring.r2{ width:112px;height:112px; border-color:rgba(220,155,20,.55); }
+    .prev-back-ring.r3{ width:70px; height:70px;  border-color:rgba(220,155,20,.75); }
+    .prev-back-star  { font-size:32px; color:#E5A720; text-shadow:0 0 18px rgba(229,167,32,.9); z-index:1; }
+    .prev-back-brand {
+      margin-top:18px; font-size:9px; font-weight:700;
+      letter-spacing:.22em; color:rgba(220,155,20,.5); text-transform:uppercase;
+    }
+
+    /* FRONT */
+    #pboxRevealCardFront {
+      display:flex; flex-direction:column; background:#0C0700;
+    }
+    #pboxRevealCard[data-r="common"]    #pboxRevealCardFront { border:2.5px solid #A0A0B2; box-shadow:0 0 22px rgba(160,160,178,.45),0 10px 50px rgba(0,0,0,.9); }
+    #pboxRevealCard[data-r="rare"]      #pboxRevealCardFront { border:2.5px solid #60A8DC; box-shadow:0 0 32px rgba(96,168,220,.6), 0 10px 50px rgba(0,0,0,.9); }
+    #pboxRevealCard[data-r="epic"]      #pboxRevealCardFront { border:2.5px solid #9C60D8; box-shadow:0 0 40px rgba(156,96,216,.7), 0 10px 50px rgba(0,0,0,.9); }
+    #pboxRevealCard[data-r="legendary"] #pboxRevealCardFront { border:2.5px solid #F0C030; box-shadow:0 0 50px rgba(240,192,48,.85),0 0 90px rgba(240,192,48,.25),0 10px 50px rgba(0,0,0,.9); }
+
+    /* Card header */
+    .prev-header {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:10px 14px 5px; flex-shrink:0;
+    }
+    .prev-pokemon-name { font-size:11.5px; font-weight:800; color:#FFF8DC; letter-spacing:.01em; line-height:1; }
+    .prev-hp { font-size:11px; font-weight:700; letter-spacing:.06em; }
+    #pboxRevealCard[data-r="common"]    .prev-hp { color:#A8A8C0; }
+    #pboxRevealCard[data-r="rare"]      .prev-hp { color:#7BB8E6; }
+    #pboxRevealCard[data-r="epic"]      .prev-hp { color:#C0A0F0; }
+    #pboxRevealCard[data-r="legendary"] .prev-hp { color:#FFD86C; }
+
+    /* Image area */
+    .prev-img-wrap {
+      flex:1; min-height:0; margin:0 10px;
+      border-radius:10px; overflow:hidden; background:#060300; position:relative;
+    }
+    .prev-img-wrap img {
+      width:100%; height:100%; object-fit:cover; object-position:center top; display:block;
+    }
+    .prev-img-wrap::after {
+      content:''; position:absolute; inset:0; border-radius:10px;
+      box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.07);
+    }
+
+    /* Footer */
+    .prev-footer {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:8px 14px 12px; flex-shrink:0;
+    }
+    .prev-rarity-badge {
+      font-size:9.5px; font-weight:700; text-transform:uppercase;
+      letter-spacing:.15em; padding:3px 10px; border-radius:20px;
+    }
+    #pboxRevealCard[data-r="common"]    .prev-rarity-badge { background:rgba(160,160,178,.12); color:#A8A8C0; border:1px solid rgba(160,160,178,.35); }
+    #pboxRevealCard[data-r="rare"]      .prev-rarity-badge { background:rgba(96,168,220,.12);  color:#7BB8E6; border:1px solid rgba(96,168,220,.4); }
+    #pboxRevealCard[data-r="epic"]      .prev-rarity-badge { background:rgba(156,96,216,.12);  color:#C0A0F0; border:1px solid rgba(156,96,216,.4); }
+    #pboxRevealCard[data-r="legendary"] .prev-rarity-badge { background:rgba(240,192,48,.12);  color:#FFD86C; border:1px solid rgba(240,192,48,.45); }
+    .prev-logo-txt { font-size:8.5px; font-weight:700; letter-spacing:.14em; color:rgba(255,255,255,.22); text-transform:uppercase; }
+
+    /* Shine sweep */
+    .prev-shine {
+      position:absolute; inset:0; border-radius:18px; pointer-events:none;
+      background:linear-gradient(112deg, transparent 25%, rgba(255,255,255,.3) 46%, rgba(255,255,255,.06) 52%, transparent 68%);
+      transform:translateX(-130%);
+    }
+    #pboxRevealOverlay.prev-shine .prev-shine { animation:prevShine .55s ease-out forwards; }
+    @keyframes prevShine { from{transform:translateX(-130%)} to{transform:translateX(130%)} }
+
+    /* Rarity label below card */
+    #pboxRevealLabel {
+      position:absolute; bottom:-48px; left:50%; transform:translateX(-50%);
+      font-size:12px; font-weight:700; letter-spacing:.16em; text-transform:uppercase;
+      white-space:nowrap; opacity:0; transition:opacity .4s ease;
+    }
+    #pboxRevealOverlay.prev-close-vis #pboxRevealLabel { opacity:1; }
+    #pboxRevealCard[data-r="common"]    #pboxRevealLabel { color:rgba(200,200,220,.7); }
+    #pboxRevealCard[data-r="rare"]      #pboxRevealLabel { color:#7BB8E6; text-shadow:0 0 12px rgba(123,184,230,.5); }
+    #pboxRevealCard[data-r="epic"]      #pboxRevealLabel { color:#C0A0F0; text-shadow:0 0 16px rgba(192,160,240,.6); }
+    #pboxRevealCard[data-r="legendary"] #pboxRevealLabel { color:#FFD86C; text-shadow:0 0 20px rgba(255,216,108,.7); }
+
+    #pboxRevealClose { display:none; }
   </style>
 </head>
 <body>
@@ -2865,6 +3478,10 @@
     </div>
 
     <div class="nav-center">
+      <div class="pikaboxes-btn" id="pikaboxesNavBtn" onclick="navigate('boxes')">
+        <span class="pb-dot"></span>
+        PikaBoxes
+      </div>
       <div class="pikacreate-btn" id="pikacreateNavBtn" onclick="navigate('create')">
         <span class="pc-dot"></span>
         PikaCreate
@@ -3262,6 +3879,16 @@
 
 </div><!-- /page stake -->
 
+<!-- ── PAGE: BOXES ───────────────────────────────────────────────────── -->
+<div class="page" data-page="boxes" style="position:relative;">
+  <div id="pikaboxTitle">
+    <span class="pbt-limited">Limited</span>
+    <span class="pbt-edition">Edition</span>
+    <span class="pbt-pikabox" style="margin-right:0;">PikaBox</span><img src="pikaa.png" alt="PikaStake" class="pbt-logo" style="margin-left:-40px;" />
+  </div>
+  <div id="pikaboxStage"></div>
+</div>
+
 <!-- ── PAGE: CREATE ──────────────────────────────────────────────────── -->
 <div class="page" data-page="create">
 
@@ -3488,20 +4115,26 @@
     <!-- Stats -->
     <div class="profile-stats-row">
       <div class="profile-stat-item">
-        <span class="profile-stat-label">NFTs Minted</span>
+        <span class="profile-stat-label">Genesis Minted</span>
         <span class="profile-stat-val" id="profileNftCount">—</span>
       </div>
       <div class="profile-stat-item">
-        <span class="profile-stat-label">Unique Cards</span>
+        <span class="profile-stat-label">Special Minted</span>
         <span class="profile-stat-val" id="profileUniqueCount">—</span>
       </div>
     </div>
 
-    <!-- Collection label -->
-    <div class="profile-collection-label">My Collection</div>
+    <!-- Collection tabs -->
+    <div class="profile-tab-row">
+      <button class="profile-tab-btn active" id="tabGenesis" onclick="switchProfileTab('genesis')">Genesis Collection</button>
+      <button class="profile-tab-btn"         id="tabSpecial" onclick="switchProfileTab('special')">Special Collection</button>
+    </div>
 
-    <!-- 3×2 NFT grid (JS-rendered) -->
+    <!-- Genesis grid (JS-rendered) -->
     <div class="profile-nft-grid" id="profileNftGrid"></div>
+
+    <!-- Special grid (JS-rendered) -->
+    <div class="profile-nft-grid" id="profileSpecialGrid" style="display:none;"></div>
 
   </div>
 </div>
@@ -3517,6 +4150,7 @@ const USDC_ADDR    = '0x3600000000000000000000000000000000000000'
 const PIKAMON_ADDR    = '0x98A9d9E580582Ac9e24f570bFBb09C3929c3cD92'
 const PIKACREATE_ADDR  = '0x960Da00dfC0670604a4331A5794c208B869b64DB'
 const PIKANAME_ADDR    = '0x089D7b3CA59629F7364eE22F499Ef087a46f55cd'
+const PIKABOXES_ADDR   = '0xBf85A1B3457E55b8F43f58Bad2EB2DD61Ea2340E'
 
 const PIKANAME_ABI = [
   'function isAvailable(string) view returns (bool)',
@@ -3547,6 +4181,16 @@ const USDC_ABI = [
   'function approve(address,uint256) returns (bool)',
   'function allowance(address,address) view returns (uint256)',
 ]
+
+const PIKABOXES_ABI = [
+  'function mint(uint8 rarity) external',
+  'function getPrice(uint8 rarity) view returns (uint256)',
+  'function getSupplyInfo(uint8 rarity) view returns (uint256 _minted, uint256 _max)',
+]
+
+// rarity string → kontrat index ve USDC fiyatı (6 dec)
+const PBOX_RARITY_INDEX = { common: 0, rare: 1, epic: 2, legendary: 3 }
+const PBOX_RARITY_PRICE = { common: 2n * 10n**6n, rare: 4n * 10n**6n, epic: 8n * 10n**6n, legendary: 16n * 10n**6n }
 
 const PUSDC_ABI = [
   'function balanceOf(address) view returns (uint256)',
@@ -3622,9 +4266,13 @@ function navigate(page) {
 
   if (page === 'gallery') loadGallery()
   if (page === 'domain') { loadPikaMyDomains(); loadPikaRecentMints() }
+  if (page === 'boxes')  { _initPikaBoxes(); _pboxStartLoop(); document.body.classList.add('on-boxes'); document.body.style.background = '#D9B664' }
+  else                   { _pboxStopLoop(); document.body.classList.remove('on-boxes'); document.body.style.background = '' }
+  if (page === 'stake')  requestAnimationFrame(_alignSideCards)
 }
 
 function _setNavActive(page) {
+  g('pikaboxesNavBtn')?.classList.toggle('active', page === 'boxes')
   g('pikacreateNavBtn')?.classList.toggle('active', page === 'create')
   g('pikagalleryNavBtn')?.classList.toggle('active', page === 'gallery')
   g('pikadomainNavBtn')?.classList.toggle('active', page === 'domain')
@@ -4158,7 +4806,7 @@ async function _addMintedNftCard(name, imageSrc, date) {
 
 function initRouter() {
   const hash = location.hash
-  const page = hash.includes('gallery') ? 'gallery' : hash.includes('create') ? 'create' : 'stake'
+  const page = hash.includes('gallery') ? 'gallery' : hash.includes('boxes') ? 'boxes' : hash.includes('create') ? 'create' : hash.includes('domain') ? 'domain' : 'stake'
   _currentPage = page
   document.querySelectorAll('.page[data-page]').forEach(el => {
     el.classList.toggle('active', el.dataset.page === page)
@@ -4166,6 +4814,8 @@ function initRouter() {
   _setNavActive(page)
   if (page === 'gallery') loadGallery()
   if (page === 'domain') { loadPikaMyDomains(); loadPikaRecentMints() }
+  if (page === 'boxes')  { _initPikaBoxes(); _pboxStartLoop(); document.body.classList.add('on-boxes'); document.body.style.background = '#D9B664' }
+  else                   { document.body.classList.remove('on-boxes'); document.body.style.background = '' }
 }
 
 /* ── BOOT ────────────────────────────────────────────────────────── */
@@ -4812,6 +5462,18 @@ function needWallet() {
   return true
 }
 
+function showTxNotif(txHash) {
+  const notif = document.getElementById('txNotif')
+  const link  = document.getElementById('txNotifLink')
+  if (!notif || !link) return
+  const short = txHash.slice(0, 10) + '...' + txHash.slice(-8)
+  const url   = `https://testnet.arcscan.app/tx/${txHash}`
+  link.href        = url
+  link.textContent = short
+  notif.classList.add('show')
+  setTimeout(() => notif.classList.remove('show'), 4000)
+}
+
 function parseError(e) {
   // User rejected
   if (e.code === 4001 || e.code === 'ACTION_REJECTED') return 'Transaction rejected'
@@ -4890,9 +5552,68 @@ function saveNick() {
   }
 }
 
+const PBOX_RARITY_ORDER = { legendary: 0, epic: 1, rare: 2, common: 3 }
+const PIKABOX_STORAGE_KEY = 'pikabox_cards_v2'
+
+function _pboxSaveMint(rarityKey, data) {
+  const stored = JSON.parse(localStorage.getItem(PIKABOX_STORAGE_KEY) || '[]')
+  stored.push({ img: data.img, name: data.name, rarity: data.rarity, rarityKey })
+  localStorage.setItem(PIKABOX_STORAGE_KEY, JSON.stringify(stored))
+}
+
+function switchProfileTab(tab) {
+  const isGenesis = tab === 'genesis'
+  g('profileNftGrid').style.display     = isGenesis ? '' : 'none'
+  g('profileSpecialGrid').style.display = isGenesis ? 'none' : ''
+  g('tabGenesis').classList.toggle('active',  isGenesis)
+  g('tabSpecial').classList.toggle('active', !isGenesis)
+  if (!isGenesis) renderSpecialCollection()
+}
+
+function renderSpecialCollection() {
+  const grid = g('profileSpecialGrid')
+  grid.innerHTML = ''
+  const stored = JSON.parse(localStorage.getItem(PIKABOX_STORAGE_KEY) || '[]')
+
+  // Gruplama: aynı kart birden fazla mintlendiyse say
+  const map = {}
+  for (const c of stored) {
+    if (!map[c.img]) map[c.img] = { ...c, count: 0 }
+    map[c.img].count++
+  }
+
+  const cards = Object.values(map).sort(
+    (a, b) => (PBOX_RARITY_ORDER[a.rarityKey] ?? 9) - (PBOX_RARITY_ORDER[b.rarityKey] ?? 9)
+  )
+
+  if (!cards.length) {
+    grid.innerHTML = '<div class="profile-special-empty">No special cards yet.<br>Mint from PikaBoxes to build your collection!</div>'
+    return
+  }
+
+  const rarityBorder = { common: 'rgba(180,180,180,.55)', rare: 'rgba(80,150,255,.65)', epic: 'rgba(155,90,255,.65)', legendary: 'rgba(255,203,5,.75)' }
+
+  for (const card of cards) {
+    const el = document.createElement('div')
+    el.className = 'profile-card owned'
+    el.style.borderColor = rarityBorder[card.rarityKey] || 'rgba(255,203,5,.65)'
+    el.innerHTML = `
+      <span class="profile-owned-badge">✦ OWNED</span>
+      <div class="profile-card-art">
+        <img src="${card.img}" alt="${card.name}" loading="lazy" />
+      </div>
+      <div class="profile-card-info">
+        <div class="profile-card-name">${card.name}</div>
+        <div class="profile-card-count">✦ ${card.count}x · ${card.rarity}</div>
+      </div>`
+    grid.appendChild(el)
+  }
+}
+
 function openProfile() {
   g('profileOverlay').classList.add('open')
   document.body.style.overflow = 'hidden'
+  switchProfileTab('genesis')
   loadNick()
   renderProfile()
   if (account) loadProfileNfts()
@@ -4951,8 +5672,12 @@ function renderProfile() {
 
   /* Stats */
   const hasWallet = !!account
+  const SPECIAL_TOTAL = 20
+  const specialStored  = JSON.parse(localStorage.getItem(PIKABOX_STORAGE_KEY) || '[]')
+  const specialUnique  = new Set(specialStored.map(c => c.img)).size
+
   g('profileNftCount').textContent    = hasWallet ? `${totalOwned} / ${NFT_CARDS.length * MAX_PER_WALLET}` : '—'
-  g('profileUniqueCount').textContent = hasWallet ? `${uniqueOwned} / ${NFT_CARDS.length}` : '—'
+  g('profileUniqueCount').textContent = `${specialUnique} / ${SPECIAL_TOTAL}`
 }
 
 async function loadProfileNfts() {
@@ -5066,6 +5791,7 @@ let _pikaMyDomainsAll   = []
 let _pikaMyDomainsShown = 0
 let _pikaRecentAll      = []
 let _pikaRecentShown    = 0
+let _pikaRecentTotal    = 0
 let _activeArcDomain    = null
 
 function useArcDomain(name) {
@@ -5139,7 +5865,7 @@ function _renderPikaRecent() {
   if (hasMore) {
     const btn = document.createElement('button')
     btn.className = 'pika-load-more'
-    btn.textContent = `Load More (${_pikaRecentAll.length - _pikaRecentShown} remaining)`
+    btn.textContent = `Load More (${_pikaRecentTotal - _pikaRecentShown} remaining)`
     btn.onclick = () => { _pikaRecentShown += PIKA_PAGE_SIZE; _renderPikaRecent() }
     el.appendChild(btn)
   }
@@ -5152,6 +5878,7 @@ async function loadPikaRecentMints() {
     const rpc = new ethers.JsonRpcProvider('https://5042002.rpc.thirdweb.com')
     const ro  = new ethers.Contract(PIKANAME_ADDR, PIKANAME_ABI, rpc)
     const total = Number(await ro.totalSupply())
+    _pikaRecentTotal = total
     if (total === 0) { el.innerHTML = '<div class="pika-empty"><div class="pika-empty-icon">🌐</div>No domains minted yet.</div>'; return }
     const items = await Promise.all(
       Array.from({ length: total }, (_, i) => total - i).map(async id => {
@@ -5186,13 +5913,15 @@ function _alignSideCards() {
 
   if (wrap && wrap.offsetParent) {
     const pageRect = wrap.offsetParent.getBoundingClientRect()
-    wrap.style.right = (pageRect.right - cardRect.right - _CARD_GAP - _CARD_W) + 'px'
-    wrap.style.top   = centeredTop(wrap, pageRect) + 'px'
+    wrap.style.right   = (pageRect.right - cardRect.right - _CARD_GAP - _CARD_W) + 'px'
+    wrap.style.top     = centeredTop(wrap, pageRect) + 'px'
+    wrap.style.opacity = '1'
   }
   if (goldWrap && goldWrap.offsetParent) {
     const pageRect = goldWrap.offsetParent.getBoundingClientRect()
-    goldWrap.style.left = (cardRect.left - pageRect.left - _CARD_GAP - _CARD_W) + 'px'
-    goldWrap.style.top  = centeredTop(goldWrap, pageRect) + 'px'
+    goldWrap.style.left    = (cardRect.left - pageRect.left - _CARD_GAP - _CARD_W) + 'px'
+    goldWrap.style.top     = centeredTop(goldWrap, pageRect) + 'px'
+    goldWrap.style.opacity = '1'
   }
 }
 
@@ -5228,6 +5957,472 @@ window.addEventListener('resize', _alignSideCards)
     })
   }
 })()
+
+/* ── PikaBoxes showcase ──────────────────────────────────────────── */
+const PBOX_RARITIES = [
+  { id:'common',    sparkCount:3,  shardCount:0,  arcs:0, mintLabel:'Common Mint',    price:'2 USDC',  maxSupply:10000 },
+  { id:'rare',      sparkCount:5,  shardCount:0,  arcs:0, mintLabel:'Rare Mint',      price:'4 USDC',  maxSupply:8000  },
+  { id:'epic',      sparkCount:7,  shardCount:3,  arcs:2, mintLabel:'Epic Mint',      price:'8 USDC',  maxSupply:5000  },
+  { id:'legendary', sparkCount:10, shardCount:5,  arcs:3, mintLabel:'Legendary Mint', price:'16 USDC', maxSupply:1000  },
+]
+
+let _pboxBuilt = false
+const _pboxTilts = []
+let _pboxRafId = null
+
+function _pboxRand(min, max) { return min + Math.random() * (max - min) }
+
+function _pboxTopperSVG(rarity) {
+  const t = {
+    common:    { core:'#FFF8D6', edge:'#F2BE3D', glow:'#FFD86C' },
+    rare:      { core:'#FFFBE0', edge:'#E8AA1C', glow:'#FFD45C' },
+    epic:      { core:'#FFFFFF', edge:'#C99022', glow:'#E9C0FF' },
+    legendary: { core:'#FFFFFF', edge:'#A77100', glow:'#FFE49A' },
+  }[rarity]
+  const id = `pb-tc-${rarity}`, ih = `pb-th-${rarity}`
+  const extras = (rarity === 'legendary' || rarity === 'epic') ? `
+    <g opacity=".75">
+      <path d="M 60 4 L 62 12 L 60 22 L 58 12 Z" fill="${t.core}"/>
+      <path d="M 60 116 L 62 108 L 60 98 L 58 108 Z" fill="${t.core}"/>
+    </g>` : ''
+  return `<svg viewBox="0 0 120 120" width="100%" height="100%">
+    <defs>
+      <radialGradient id="${id}" cx="50%" cy="40%" r="55%">
+        <stop offset="0%" stop-color="${t.core}"/>
+        <stop offset="60%" stop-color="${t.glow}"/>
+        <stop offset="100%" stop-color="${t.edge}"/>
+      </radialGradient>
+      <radialGradient id="${ih}" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="${t.glow}" stop-opacity=".75"/>
+        <stop offset="100%" stop-color="${t.glow}" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+    <circle cx="60" cy="60" r="55" fill="url(#${ih})"/>
+    <path d="M 60 14 L 70 56 L 110 60 L 70 64 L 60 106 L 50 64 L 10 60 L 50 56 Z"
+          fill="url(#${id})" stroke="${t.edge}" stroke-width="1.5" stroke-linejoin="round"/>
+    <circle cx="60" cy="60" r="6" fill="${t.core}" stroke="${t.edge}" stroke-width="1"/>
+    ${extras}
+  </svg>`
+}
+
+function _pboxMakeSparks(count, radius) {
+  const el = document.createElement('div')
+  el.className = 'pbox-aura'
+  for (let i = 0; i < count; i++) {
+    const a = (i / count) * Math.PI * 2 + Math.random() * 0.4
+    const r = _pboxRand(radius * 0.55, radius)
+    const s = document.createElement('span')
+    s.className = 'pbox-spark'
+    s.style.cssText = `--x:${Math.cos(a)*r}px;--y:${Math.sin(a)*r*0.7-20}px;--d:${_pboxRand(1.8,3.4)}s;--delay:${_pboxRand(0,3)}s`
+    el.appendChild(s)
+  }
+  return el
+}
+
+function _pboxMakeShards(count) {
+  const el = document.createElement('div')
+  el.className = 'pbox-shards'
+  for (let i = 0; i < count; i++) {
+    const a = (i / count) * Math.PI * 2 + Math.random() * 0.3
+    const r = _pboxRand(140, 200)
+    const s = document.createElement('span')
+    s.className = `pbox-shard${i % 3 === 0 ? ' lilac' : ''}`
+    s.style.cssText = `--x:${Math.cos(a)*r}px;--y:${Math.sin(a)*r*0.75-30}px;--r:${_pboxRand(-30,30)}deg;animation-delay:${_pboxRand(0,3)}s`
+    el.appendChild(s)
+  }
+  return el
+}
+
+function _pboxAppendStreaks(parent, rarity) {
+  const count = rarity === 'legendary' ? 6 : 4
+  for (let i = 0; i < count; i++) {
+    const s = document.createElement('span')
+    s.className = 'pbox-streak'
+    s.style.cssText = `--angle:${(i/count)*360+(i%2===0?0:8)}deg;--sdur:${_pboxRand(2.0,3.4)}s;--sdelay:${_pboxRand(0,2.5)}s`
+    parent.appendChild(s)
+  }
+}
+
+function _pboxAppendFlares(parent, rarity) {
+  const count = rarity === 'legendary' ? 3 : 2
+  for (let i = 0; i < count; i++) {
+    const a = (i / count) * Math.PI * 2 + Math.random() * 0.5
+    const r = _pboxRand(120, 180)
+    const f = document.createElement('span')
+    f.className = 'pbox-flare'
+    f.style.cssText = `--fx:${Math.cos(a)*r}px;--fy:${Math.sin(a)*r*0.6-30}px;--fd:${_pboxRand(3,5)}s;--fdelay:${_pboxRand(0,2.5)}s`
+    parent.appendChild(f)
+  }
+}
+
+function _pboxMakeBox(cfg) {
+  const slot = document.createElement('div')
+  slot.className = `pbox-slot ${cfg.id}`
+  slot.dataset.r = cfg.id
+
+  const pedestal = document.createElement('div')
+  pedestal.className = 'pbox-pedestal'
+  slot.appendChild(pedestal)
+
+  const card = document.createElement('div')
+  card.className = 'pbox-card'
+
+  const floatDiv = document.createElement('div')
+  floatDiv.className = 'pbox-float'
+
+  // 3D cube
+  const cube = document.createElement('div')
+  cube.className = 'pbox-cube'
+
+  const makeFace = (cls, extra) => {
+    const f = document.createElement('div')
+    f.className = `pbox-face ${cls}`
+    if (extra) f.innerHTML = extra
+    return f
+  }
+  cube.appendChild(makeFace('pbox-back',   '<div class="pbox-lid-band"></div><div class="pbox-rim"></div>'))
+  cube.appendChild(makeFace('pbox-left',   '<div class="pbox-lid-band"></div><div class="pbox-rim"></div>'))
+  cube.appendChild(makeFace('pbox-right',  '<div class="pbox-lid-band"></div><div class="pbox-rim"></div>'))
+  const fTop = makeFace('pbox-top')
+  fTop.style.background = 'linear-gradient(180deg,#FFF6DC,#F2C75A)'
+  cube.appendChild(fTop)
+  const fBot = makeFace('pbox-bottom')
+  fBot.style.background = 'linear-gradient(180deg,#C7800E,#8a5500)'
+  cube.appendChild(fBot)
+
+  // Front face
+  const fFront = document.createElement('div')
+  fFront.className = 'pbox-face pbox-front'
+  const lidBand = document.createElement('div')
+  lidBand.className = 'pbox-lid-band'
+  fFront.appendChild(lidBand)
+  const faceWin = document.createElement('div')
+  faceWin.className = 'pbox-face-window'
+  const faceImg = document.createElement('img')
+  faceImg.src = `assets/emoji-${cfg.id}.png`
+  faceImg.alt = `${cfg.id} face`
+  faceImg.draggable = false
+  faceImg.style.cssText = 'width:100%;height:100%;object-fit:contain;pointer-events:none'
+  faceWin.appendChild(faceImg)
+  fFront.appendChild(faceWin)
+  const rim = document.createElement('div'); rim.className = 'pbox-rim'
+  fFront.appendChild(rim)
+  cube.appendChild(fFront)
+
+  floatDiv.appendChild(cube)
+
+  // Burst
+  const burst = document.createElement('span')
+  burst.className = 'pbox-burst'
+  floatDiv.appendChild(burst)
+
+  card.appendChild(floatDiv)
+  slot.appendChild(card)
+
+  // Supply counter
+  const supplyEl = document.createElement('div')
+  supplyEl.className = 'pbox-supply'
+  supplyEl.dataset.rarity = cfg.id
+  supplyEl.innerHTML = `<span>— / ${cfg.maxSupply.toLocaleString()}</span>`
+  slot.appendChild(supplyEl)
+
+  // Mint button
+  const btn = document.createElement('button')
+  btn.className = 'pbox-mint-btn'
+  btn.innerHTML = `${cfg.mintLabel}<span class="pbox-price">${cfg.price}</span>`
+  btn.addEventListener('click', e => { e.stopPropagation(); _pboxPop(slot) })
+  slot.appendChild(btn)
+
+  // slot click — sadece buton tıklaması buraya bubble ederse tetikle (3D hit-test güvencesi)
+  slot.addEventListener('click', e => { if (btn.contains(e.target) || e.target === btn) _pboxPop(slot) })
+
+  // Mouse tilt RAF
+  _pboxSetupTilt(slot, card)
+
+  return slot
+}
+
+const PBOX_COMMON_CARDS = [
+  { img:'nft/common-1.png', name:'Seviper',    hp:'HP 90', rarity:'Common' },
+  { img:'nft/common-2.png', name:'Vulpix',     hp:'HP 90', rarity:'Common' },
+  { img:'nft/common-3.png', name:'Charmander', hp:'HP 90', rarity:'Common' },
+  { img:'nft/common-4.png', name:'Scyther',    hp:'HP 90', rarity:'Common' },
+  { img:'nft/common-5.png', name:'Xurkitree',  hp:'HP 90', rarity:'Common' },
+]
+
+const PBOX_RARE_CARDS = [
+  { img:'nft/rare-incineroar.png', name:'Incineroar', hp:'HP 110', rarity:'Rare' },
+  { img:'nft/rare-decidueye.png',  name:'Decidueye',  hp:'HP 110', rarity:'Rare' },
+  { img:'nft/rare-blaziken.png',   name:'Blaziken',   hp:'HP 110', rarity:'Rare' },
+  { img:'nft/rare-nosepass.png',   name:'Nosepass',   hp:'HP 110', rarity:'Rare' },
+  { img:'nft/rare-sharpedo.png',   name:'Sharpedo',   hp:'HP 110', rarity:'Rare' },
+]
+
+const PBOX_CARDS = {
+  common:    () => PBOX_COMMON_CARDS[Math.floor(Math.random() * PBOX_COMMON_CARDS.length)],
+  rare:      () => PBOX_RARE_CARDS[Math.floor(Math.random() * PBOX_RARE_CARDS.length)],
+  epic:      () => [
+    { img:'nft/epic-teamskullgrunt.png', name:'Team Skull Grunt', hp:'HP 140', rarity:'Epic' },
+    { img:'nft/epic-solgaleo.png',       name:'Solgaleo',         hp:'HP 140', rarity:'Epic' },
+    { img:'nft/epic-umbreon.png',        name:'Umbreon',          hp:'HP 140', rarity:'Epic' },
+    { img:'nft/epic-lapras.png',         name:'Lapras',           hp:'HP 140', rarity:'Epic' },
+    { img:'nft/epic-lunala.png',         name:'Lunala',           hp:'HP 140', rarity:'Epic' },
+  ][Math.floor(Math.random() * 5)],
+  legendary: () => [
+    { img:'nft/legendary-tinkaton.png',   name:'Tinkaton',   hp:'HP 180', rarity:'Legendary' },
+    { img:'nft/legendary-chiyu.png',      name:'Chi-yu',     hp:'HP 180', rarity:'Legendary' },
+    { img:'nft/legendary-tinkatuff.png',  name:'Tinkatuff',  hp:'HP 180', rarity:'Legendary' },
+    { img:'nft/legendary-dawn.png',       name:'Dawn',       hp:'HP 180', rarity:'Legendary' },
+    { img:'nft/legendary-toxtricity.png', name:'Toxtricity', hp:'HP 180', rarity:'Legendary' },
+  ][Math.floor(Math.random() * 5)],
+}
+
+let _pboxRevealing = false
+
+function _pboxPop(slot) {
+  if (_pboxRevealing) return
+  if (slot.classList.contains('pbox-popped')) return
+  _pboxRevealing = true
+  _pboxDoMint(slot)
+}
+
+async function _pboxDoMint(slot) {
+  const rarity = slot.dataset.r
+  const btn = slot.querySelector('.pbox-mint-btn')
+  const origLabel = btn ? btn.innerHTML : ''
+
+  const _fail = (msg) => {
+    toast(msg, 'error')
+    if (btn) { btn.innerHTML = origLabel; btn.disabled = false }
+    _pboxRevealing = false
+  }
+
+  // Cüzdan bağlı değilse bağlantı iste
+  if (!account || !signer) {
+    _pboxRevealing = false
+    openWalletModal()
+    return
+  }
+
+  try {
+    const rarityIdx = PBOX_RARITY_INDEX[rarity]
+    const price     = PBOX_RARITY_PRICE[rarity]
+
+    const usdc      = new ethers.Contract(USDC_ADDR, USDC_ABI, signer)
+    const pikaboxes = new ethers.Contract(PIKABOXES_ADDR, PIKABOXES_ABI, signer)
+
+    // USDC bakiyesi yeterli mi?
+    const balance = await usdc.balanceOf(account)
+    if (balance < price) {
+      _fail(`Insufficient USDC. Need ${ethers.formatUnits(price, 6)} USDC.`)
+      return
+    }
+
+    // Allowance kontrolü — yetersizse approve
+    if (btn) { btn.innerHTML = `<span style="opacity:.7">Approving…</span>`; btn.disabled = true }
+    const allowance = await usdc.allowance(account, PIKABOXES_ADDR)
+    if (allowance < price) {
+      const approveTx = await usdc.approve(PIKABOXES_ADDR, price)
+      await approveTx.wait()
+    }
+
+    // Mint
+    if (btn) btn.innerHTML = `<span style="opacity:.7">Minting…</span>`
+    const tx = await pikaboxes.mint(rarityIdx)
+    await tx.wait()
+
+    // TX onaylandı — explorer bildirimi göster
+    showTxNotif(tx.hash)
+
+    // TX onaylandı — kartı seç ve kaydet (gerçek mint)
+    const _entry = PBOX_CARDS[rarity]
+    const mintedCard = typeof _entry === 'function' ? _entry() : _entry
+    _pboxSaveMint(rarity, mintedCard)
+
+    // Başarı — sayacı güncelle, kutu animasyonu sonra kart açılır
+    if (btn) { btn.innerHTML = origLabel; btn.disabled = false }
+    const cfg = PBOX_RARITIES.find(r => r.id === rarity)
+    const curEl = slot.querySelector('.pbox-supply')
+    if (curEl && cfg) {
+      const curMinted = parseInt(curEl.querySelector('span')?.textContent?.replace(/,/g,'') || '0') + 1
+      _pboxUpdateCounter(rarity, curMinted, cfg.maxSupply)
+    }
+    slot.classList.add('pbox-popped')
+    setTimeout(() => {
+      slot.classList.remove('pbox-popped')
+      _pboxReveal(rarity, mintedCard)
+    }, 520)
+
+  } catch (e) {
+    console.error(e)
+    _fail(parseError(e))
+  }
+}
+
+let _pboxRevTimers   = []
+let _pboxRevOpenTime = 0
+
+function _pboxReveal(rarity, preselected) {
+  const _entry = PBOX_CARDS[rarity]
+  const data  = preselected || (typeof _entry === 'function' ? _entry() : _entry)
+  const ov    = document.getElementById('pboxRevealOverlay')
+  const card  = document.getElementById('pboxRevealCard')
+  const inner = document.getElementById('pboxRevealCardInner')
+  if (!ov || !data) return
+
+  // Eski timer'ları iptal et
+  _pboxRevTimers.forEach(t => clearTimeout(t))
+  _pboxRevTimers = []
+
+  // Kart iç elemanını transition'sız arka yüze sıfırla
+  inner.style.transition = 'none'
+  inner.style.transform  = 'rotateY(180deg)'
+  inner.offsetHeight            // reflow — tarayıcıya işlet
+  inner.style.transform  = ''  // inline kaldır, CSS (180deg) devralır
+  inner.style.transition = ''  // transition geri aç
+
+  ov.className = ''
+  card.dataset.r = rarity
+  document.getElementById('pboxRevImg').src              = data.img
+  document.getElementById('pboxRevName').textContent     = data.name
+  document.getElementById('pboxRevHp').textContent       = data.hp
+  document.getElementById('pboxRevBadge').textContent    = data.rarity
+  document.getElementById('pboxRevealLabel').textContent = '✦ ' + data.rarity + ' Card Obtained'
+
+  const T = (fn, ms) => { const id = setTimeout(fn, ms); _pboxRevTimers.push(id) }
+
+  document.body.style.overflow = 'hidden'
+
+  requestAnimationFrame(() => {
+    _pboxRevOpenTime = Date.now()          // kart açılış zamanı
+    ov.classList.add('prev-active')
+    T(() => ov.classList.add('prev-show'),       60)   // kart büyür — arka yüz
+    T(() => ov.classList.add('prev-close-vis'), 750)   // label görünür
+    T(() => ov.classList.add('prev-flip'),       950)  // yavaş dönüş
+    T(() => ov.classList.add('prev-shine'),     2500)  // shine
+    T(() => { _pboxRevealing = false; document.body.style.overflow = '' }, 3200)
+  })
+}
+
+function _pboxCloseReveal() {
+  const ov = document.getElementById('pboxRevealOverlay')
+  _pboxRevTimers.forEach(t => clearTimeout(t))
+  _pboxRevTimers = []
+  _pboxRevOpenTime = 0
+  ov.classList.remove('prev-show', 'prev-close-vis', 'prev-shine')
+  setTimeout(() => {
+    ov.classList.remove('prev-active', 'prev-flip')
+    document.body.style.overflow = ''
+    _pboxRevealing = false
+  }, 380)
+}
+
+// overlay arka plan tıklaması ile kapatma
+;(function () {
+  const ov = document.getElementById('pboxRevealOverlay')
+  if (ov) ov.addEventListener('click', e => { if (e.target === ov) _pboxCloseReveal() })
+})()
+
+function _pboxSetupTilt(slot, card) {
+  const state = { card, rx:0, ry:0, trx:0, try_:0 }
+  _pboxTilts.push(state)
+  const strength = 14
+  const clamp = v => Math.max(-1.2, Math.min(1.2, v))
+  window.addEventListener('mousemove', e => {
+    if (_currentPage !== 'boxes') return
+    const r = slot.getBoundingClientRect()
+    state.try_ = clamp((e.clientX - r.left - r.width/2)  / (r.width  * 0.8)) * strength
+    state.trx  = clamp((e.clientY - r.top  - r.height/2) / (r.height * 0.8)) * -strength * 0.7
+  })
+  window.addEventListener('mouseleave', () => { state.trx = 0; state.try_ = 0 })
+}
+
+function _pboxStartLoop() {
+  if (_pboxRafId) return
+  const tick = () => {
+    _pboxTilts.forEach(s => {
+      s.rx += (s.trx  - s.rx) * 0.08
+      s.ry += (s.try_ - s.ry) * 0.08
+      s.card.style.transform = `translate(-50%,-50%) rotateX(${s.rx}deg) rotateY(${s.ry}deg)`
+    })
+    _pboxRafId = requestAnimationFrame(tick)
+  }
+  _pboxRafId = requestAnimationFrame(tick)
+}
+
+function _pboxStopLoop() {
+  if (_pboxRafId) { cancelAnimationFrame(_pboxRafId); _pboxRafId = null }
+}
+
+function _initPikaBoxes() {
+  if (_pboxBuilt) return
+  _pboxBuilt = true
+  const stage = document.getElementById('pikaboxStage')
+  if (!stage) return
+  PBOX_RARITIES.forEach(cfg => stage.appendChild(_pboxMakeBox(cfg)))
+  _pboxLoadSupply()
+}
+
+async function _pboxLoadSupply() {
+  try {
+    const ro = new ethers.JsonRpcProvider(RPC)
+    const contract = new ethers.Contract(PIKABOXES_ADDR, PIKABOXES_ABI, ro)
+    await Promise.all(PBOX_RARITIES.map(async (cfg, i) => {
+      try {
+        const [mintedCount, maxSupply] = await contract.getSupplyInfo(i)
+        _pboxUpdateCounter(cfg.id, Number(mintedCount), Number(maxSupply))
+      } catch {}
+    }))
+  } catch {}
+}
+
+function _pboxUpdateCounter(rarityId, mintedCount, maxSupply) {
+  const el = document.querySelector(`.pbox-supply[data-rarity="${rarityId}"]`)
+  if (!el) return
+  el.innerHTML = `<span>${mintedCount.toLocaleString()}</span> / ${maxSupply.toLocaleString()}`
+}
 </script>
+
+<!-- ── PIKABOXES CARD REVEAL OVERLAY ──────────────────────────── -->
+<div id="pboxRevealOverlay">
+  <div id="pboxRevealCard">
+    <div id="pboxRevealCardInner">
+      <!-- Back face -->
+      <div id="pboxRevealCardBack">
+        <div class="prev-back-rings">
+          <div class="prev-back-ring r1"></div>
+          <div class="prev-back-ring r2"></div>
+          <div class="prev-back-ring r3"></div>
+          <span class="prev-back-star">★</span>
+        </div>
+        <div class="prev-back-brand">PikaStake</div>
+      </div>
+      <!-- Front face -->
+      <div id="pboxRevealCardFront">
+        <div class="prev-header">
+          <span class="prev-pokemon-name" id="pboxRevName"></span>
+          <span class="prev-hp" id="pboxRevHp"></span>
+        </div>
+        <div class="prev-img-wrap">
+          <img id="pboxRevImg" src="" alt="" draggable="false" />
+        </div>
+        <div class="prev-footer">
+          <span class="prev-rarity-badge" id="pboxRevBadge"></span>
+          <span class="prev-logo-txt">PikaStake</span>
+        </div>
+        <div class="prev-shine"></div>
+      </div>
+    </div>
+    <div id="pboxRevealLabel"></div>
+  </div>
+</div>
+
+<div id="txNotif">
+  <span class="txn-icon">⛓️</span>
+  <div class="txn-body">
+    <span class="txn-label">Transaction</span>
+    <a class="txn-link" id="txNotifLink" href="#" target="_blank" rel="noopener"></a>
+  </div>
+</div>
 </body>
 </html>
