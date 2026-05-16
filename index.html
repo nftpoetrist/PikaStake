@@ -1669,6 +1669,64 @@
     #txNotif .txn-link { font-size: 12px; color: rgba(255,255,255,.75); text-decoration: none; font-family: 'Space Grotesk', monospace; }
     #txNotif .txn-link:hover { color: #FFD45C; text-decoration: underline; }
 
+    /* ── PikaBox Welcome Popup ── */
+    #pbwPopup {
+      position: absolute; top: 80px; right: 28px; z-index: 9990;
+      width: 300px;
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 12px 48px rgba(0,0,0,.65), 0 0 0 1px rgba(255,203,5,.18);
+      opacity: 0; transform: translateX(20px);
+      transition: opacity .45s ease, transform .45s ease;
+      pointer-events: none; cursor: pointer;
+    }
+    #pbwPopup.show { opacity: 1; transform: translateX(0); pointer-events: all; }
+    #pbwPopup:hover { box-shadow: 0 16px 56px rgba(0,0,0,.75), 0 0 24px rgba(255,203,5,.15); }
+
+    .pbw-header {
+      background: linear-gradient(110deg, #c9a030 0%, #D9B664 55%, #c5952a 100%);
+      padding: 11px 40px 11px 14px;
+      position: relative; display: flex; align-items: center; gap: 0;
+    }
+    .pbw-close {
+      position: absolute; top: 8px; right: 10px;
+      background: rgba(0,0,0,.22); border: none;
+      color: rgba(255,255,255,.85); width: 24px; height: 24px;
+      border-radius: 50%; font-size: 13px; line-height: 1;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: background .18s;
+    }
+    .pbw-close:hover { background: rgba(0,0,0,.5); color: #fff; }
+    .pbw-title-row { display: flex; align-items: center; gap: 0; flex-wrap: nowrap; }
+    .pbw-limited  { color: #4aa3dd; font-weight: 800; font-size: 15px; margin-right: 5px; text-shadow: 0 1px 4px rgba(0,0,0,.25); }
+    .pbw-edition  { color: #8a4fc8; font-weight: 800; font-size: 15px; margin-right: 5px; text-shadow: 0 1px 4px rgba(0,0,0,.25); }
+    .pbw-pikabox  { color: #7a4400; font-weight: 800; font-size: 15px; text-shadow: 0 1px 3px rgba(255,255,255,.3); }
+    .pbw-logo     { height: 30px; margin-left: -8px; vertical-align: middle; }
+
+    .pbw-preview {
+      line-height: 0;
+    }
+    .pbw-preview img {
+      width: 100%; display: block;
+      object-fit: cover; object-position: top center;
+      max-height: 140px;
+    }
+
+    .pbw-footer {
+      background: linear-gradient(0deg, #1a1206 0%, #241908 100%);
+      padding: 8px 14px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .pbw-badge {
+      font-size: 10px; font-weight: 700; color: rgba(255,203,5,.7);
+      letter-spacing: .06em; text-transform: uppercase;
+    }
+    .pbw-cta {
+      font-size: 11px; font-weight: 600; color: #FFD45C;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .pbw-cta-arrow { font-size: 13px; }
+
     /* ══════════════════════════════════════════════
        SPINNER
     ══════════════════════════════════════════════ */
@@ -4264,6 +4322,7 @@ function navigate(page) {
   scrollTo(0, 0)
   _navLock = false
 
+  if (page !== 'stake') document.getElementById('pbwPopup')?.classList.remove('show')
   if (page === 'gallery') loadGallery()
   if (page === 'domain') { loadPikaMyDomains(); loadPikaRecentMints() }
   if (page === 'boxes')  { _initPikaBoxes(); _pboxStartLoop(); document.body.classList.add('on-boxes'); document.body.style.background = '#D9B664' }
@@ -4825,6 +4884,7 @@ window.addEventListener('load', async () => {
   fetchPublic()
   loadCreatePageStats()
   discoverWallets()
+  _pbwShow()
 
 
   // Sayfa yüklenince son kullanılan cüzdanı otomatik bağla
@@ -5460,6 +5520,27 @@ function shortAddr(a) { return `${a.slice(0,4)}…${a.slice(-4)}` }
 function needWallet() {
   if (!account) { toast('Connect your wallet first', 'error'); return false }
   return true
+}
+
+/* ── PikaBox Welcome Popup ──────────────────────────────────────── */
+let _pbwDismissed = false
+function _pbwShow() {
+  const el = document.getElementById('pbwPopup')
+  if (!el) return
+  if (_currentPage !== 'stake') return
+  setTimeout(() => el.classList.add('show'), 900)
+}
+function _pbwClose(e) {
+  if (e) e.stopPropagation()
+  const el = document.getElementById('pbwPopup')
+  if (!el) return
+  el.classList.remove('show')
+  _pbwDismissed = true
+}
+function _pbwClick(e) {
+  if (e.target.closest('.pbw-close')) return
+  _pbwClose(null)
+  navigate('boxes')
 }
 
 function showTxNotif(txHash) {
@@ -6178,6 +6259,16 @@ const PBOX_CARDS = {
 }
 
 let _pboxRevealing = false
+// Cached contract instances — invalidated when signer changes
+let _pboxUSDC = null, _pboxCon = null, _pboxSignerAddr = null
+function _pboxContracts() {
+  if (_pboxSignerAddr !== account) {
+    _pboxUSDC       = new ethers.Contract(USDC_ADDR,       USDC_ABI,       signer)
+    _pboxCon        = new ethers.Contract(PIKABOXES_ADDR,  PIKABOXES_ABI,  signer)
+    _pboxSignerAddr = account
+  }
+  return { usdc: _pboxUSDC, pb: _pboxCon }
+}
 
 function _pboxPop(slot) {
   if (_pboxRevealing) return
@@ -6197,61 +6288,51 @@ async function _pboxDoMint(slot) {
     _pboxRevealing = false
   }
 
-  // Cüzdan bağlı değilse bağlantı iste
-  if (!account || !signer) {
-    _pboxRevealing = false
-    openWalletModal()
-    return
-  }
+  if (!account || !signer) { _pboxRevealing = false; openWalletModal(); return }
 
   try {
     const rarityIdx = PBOX_RARITY_INDEX[rarity]
     const price     = PBOX_RARITY_PRICE[rarity]
+    const { usdc, pb } = _pboxContracts()
 
-    const usdc      = new ethers.Contract(USDC_ADDR, USDC_ABI, signer)
-    const pikaboxes = new ethers.Contract(PIKABOXES_ADDR, PIKABOXES_ABI, signer)
+    if (btn) { btn.innerHTML = `<span style="opacity:.7">Checking…</span>`; btn.disabled = true }
 
-    // USDC bakiyesi yeterli mi?
-    const balance = await usdc.balanceOf(account)
-    if (balance < price) {
-      _fail(`Insufficient USDC. Need ${ethers.formatUnits(price, 6)} USDC.`)
-      return
-    }
+    // Balance + allowance aynı anda — tek RPC turu
+    const [balance, allowance] = await Promise.all([
+      usdc.balanceOf(account),
+      usdc.allowance(account, PIKABOXES_ADDR)
+    ])
 
-    // Allowance kontrolü — yetersizse approve
-    if (btn) { btn.innerHTML = `<span style="opacity:.7">Approving…</span>`; btn.disabled = true }
-    const allowance = await usdc.allowance(account, PIKABOXES_ADDR)
+    if (balance < price) { _fail(`Insufficient USDC. Need ${ethers.formatUnits(price, 6)} USDC.`); return }
+
+    // MaxUint256 ile bir kez approve — sonraki mintler bu adımı atlar
     if (allowance < price) {
-      const approveTx = await usdc.approve(PIKABOXES_ADDR, price)
+      if (btn) btn.innerHTML = `<span style="opacity:.7">Approving…</span>`
+      const approveTx = await usdc.approve(PIKABOXES_ADDR, ethers.MaxUint256)
       await approveTx.wait()
     }
 
-    // Mint
     if (btn) btn.innerHTML = `<span style="opacity:.7">Minting…</span>`
-    const tx = await pikaboxes.mint(rarityIdx)
+    const tx = await pb.mint(rarityIdx)
     await tx.wait()
 
-    // TX onaylandı — explorer bildirimi göster
     showTxNotif(tx.hash)
 
-    // TX onaylandı — kartı seç ve kaydet (gerçek mint)
-    const _entry = PBOX_CARDS[rarity]
-    const mintedCard = typeof _entry === 'function' ? _entry() : _entry
+    const mintedCard = PBOX_CARDS[rarity]()
     _pboxSaveMint(rarity, mintedCard)
 
-    // Başarı — sayacı güncelle, kutu animasyonu sonra kart açılır
     if (btn) { btn.innerHTML = origLabel; btn.disabled = false }
     const cfg = PBOX_RARITIES.find(r => r.id === rarity)
     const curEl = slot.querySelector('.pbox-supply')
     if (curEl && cfg) {
-      const curMinted = parseInt(curEl.querySelector('span')?.textContent?.replace(/,/g,'') || '0') + 1
-      _pboxUpdateCounter(rarity, curMinted, cfg.maxSupply)
+      const cur = parseInt(curEl.querySelector('span')?.textContent?.replace(/,/g,'') || '0') + 1
+      _pboxUpdateCounter(rarity, cur, cfg.maxSupply)
     }
     slot.classList.add('pbox-popped')
     setTimeout(() => {
       slot.classList.remove('pbox-popped')
       _pboxReveal(rarity, mintedCard)
-    }, 520)
+    }, 300)
 
   } catch (e) {
     console.error(e)
@@ -6361,9 +6442,20 @@ function _initPikaBoxes() {
   if (!stage) return
   PBOX_RARITIES.forEach(cfg => stage.appendChild(_pboxMakeBox(cfg)))
   _pboxLoadSupply()
+  // Kart görsellerini arka planda önceden yükle — reveal anında hazır olsun
+  const allImgs = [
+    ...PBOX_COMMON_CARDS, ...PBOX_RARE_CARDS,
+    { img:'nft/epic-teamskullgrunt.png' }, { img:'nft/epic-solgaleo.png' },
+    { img:'nft/epic-umbreon.png' },        { img:'nft/epic-lapras.png' },
+    { img:'nft/epic-lunala.png' },
+    { img:'nft/legendary-tinkaton.png' },  { img:'nft/legendary-chiyu.png' },
+    { img:'nft/legendary-tinkatuff.png' }, { img:'nft/legendary-dawn.png' },
+    { img:'nft/legendary-toxtricity.png' },
+  ]
+  allImgs.forEach(c => { const i = new Image(); i.src = c.img })
 }
 
-async function _pboxLoadSupply() {
+async function _pboxLoadSupply(attempt = 0) {
   try {
     const ro = new ethers.JsonRpcProvider(RPC)
     const contract = new ethers.Contract(PIKABOXES_ADDR, PIKABOXES_ABI, ro)
@@ -6371,9 +6463,14 @@ async function _pboxLoadSupply() {
       try {
         const [mintedCount, maxSupply] = await contract.getSupplyInfo(i)
         _pboxUpdateCounter(cfg.id, Number(mintedCount), Number(maxSupply))
-      } catch {}
+      } catch (e) {
+        console.warn('PikaBoxes supply fetch failed for', cfg.id, e)
+      }
     }))
-  } catch {}
+  } catch (e) {
+    console.warn('PikaBoxes supply fetch error:', e)
+    if (attempt < 3) setTimeout(() => _pboxLoadSupply(attempt + 1), 3000)
+  }
 }
 
 function _pboxUpdateCounter(rarityId, mintedCount, maxSupply) {
@@ -6414,6 +6511,25 @@ function _pboxUpdateCounter(rarityId, mintedCount, maxSupply) {
       </div>
     </div>
     <div id="pboxRevealLabel"></div>
+  </div>
+</div>
+
+<!-- PikaBox İlk Ziyaret Popup -->
+<div id="pbwPopup" onclick="_pbwClick(event)">
+  <div class="pbw-header">
+    <div class="pbw-title-row">
+      <span class="pbw-limited">Limited</span>
+      <span class="pbw-edition">Edition</span>
+      <span class="pbw-pikabox">PikaBox</span><img src="pikaa.png" class="pbw-logo" alt="">
+    </div>
+    <button class="pbw-close" onclick="_pbwClose(event)" title="Kapat">✕</button>
+  </div>
+  <div class="pbw-preview">
+    <img src="boxes-preview.png" alt="PikaBoxes Preview" draggable="false">
+  </div>
+  <div class="pbw-footer">
+    <span class="pbw-badge">🎁 Limited Edition</span>
+    <span class="pbw-cta">Explore <span class="pbw-cta-arrow">→</span></span>
   </div>
 </div>
 
