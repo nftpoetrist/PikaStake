@@ -3008,13 +3008,23 @@
       pointer-events: none; z-index: 0;
     }
     #pikaboxTitle {
-      position: absolute; top: 160px; left: 0; right: 0;
+      position: absolute; top: 110px; left: 0; right: 0;
       text-align: center;
       z-index: 2;
-      line-height: 1;
       letter-spacing: -.01em;
       pointer-events: none;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+    }
+    #pikaboxTitle .pbt-row {
       display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 0;
+      line-height: 1;
+    }
+    #pikaboxTitle .pbt-sub {
+      font-size: 16px;
+      font-weight: 500;
+      color: rgba(0,0,0,0.5);
+      margin: 0;
+      letter-spacing: 0.01em;
     }
     #pikaboxTitle .pbt-logo {
       height: 72px; width: auto;
@@ -3060,7 +3070,7 @@
       perspective: 1800px; perspective-origin: 50% 45%;
       display: grid; grid-template-columns: repeat(4,1fr);
       align-items: center;
-      padding: 40px 2vw;
+      padding: 0px 2vw 40px;
       transform-style: preserve-3d;
     }
     @media (max-width:1100px) {
@@ -3940,9 +3950,12 @@
 <!-- ── PAGE: BOXES ───────────────────────────────────────────────────── -->
 <div class="page" data-page="boxes" style="position:relative;">
   <div id="pikaboxTitle">
-    <span class="pbt-limited">Limited</span>
-    <span class="pbt-edition">Edition</span>
-    <span class="pbt-pikabox" style="margin-right:0;">PikaBox</span><img src="pikaa.png" alt="PikaStake" class="pbt-logo" style="margin-left:-40px;" />
+    <div class="pbt-row">
+      <span class="pbt-limited">Limited</span>
+      <span class="pbt-edition">Edition</span>
+      <span class="pbt-pikabox" style="margin-right:0;">PikaBox</span><img src="pikaa.png" alt="PikaStake" class="pbt-logo" style="margin-left:-40px;" />
+    </div>
+    <p class="pbt-sub">Card battles are starting soon ⏳</p>
   </div>
   <div id="pikaboxStage"></div>
 </div>
