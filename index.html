@@ -4491,12 +4491,10 @@ async function doCreateMint() {
     // 4. Panele ekle
     _addMintedNftCard(nameVal, IPFS_GATEWAY + imageHash)
 
-    // 5. Gallery'e de ekle
-    const short = account.slice(0,6) + '…' + account.slice(-4)
-    _galleryAll.unshift({ name: nameVal, image: IPFS_GATEWAY + imageHash, addr: short })
-    _saveGalleryCache()
-    _galleryPage = 0
-    _renderGalleryPage()
+    // 5. Gallery'e de ekle (galeri açıksa yenile)
+    if (document.querySelector('[data-page="gallery"]')?.style.display !== 'none') {
+      await loadGallery()
+    }
 
     // 5. Formu sıfırla
     g('nftNameInput').value = ''
@@ -4580,23 +4578,12 @@ async function loadMintedNfts() {
 }
 
 /* ── PikaGallery: State ─────────────────────────────────────────── */
-let _galleryAll  = []   // { name, image, addr }
-let _galleryPage = 0
-const _GALLERY_PER_PAGE = 12  // 6 sütun × 2 satır
-const _GALLERY_CACHE_KEY = 'pikagallery_cache'
-
-function _saveGalleryCache() {
-  try { localStorage.setItem(_GALLERY_CACHE_KEY, JSON.stringify(_galleryAll)) } catch(_) {}
-}
-function _loadGalleryCache() {
-  try {
-    const data = JSON.parse(localStorage.getItem(_GALLERY_CACHE_KEY) || '[]')
-    return data.map(item => {
-      const hash = _ipfsHash(item.image || '')
-      return hash ? { ...item, image: IPFS_GATEWAY + hash } : item
-    })
-  } catch(_) { return [] }
-}
+let _galleryAll     = []   // current page's items { name, image, addr }
+let _galleryPage    = 0
+let _galleryTotal   = 0   // total supply from chain
+let _galleryRo      = null
+let _galleryCon     = null
+const _GALLERY_PER_PAGE = 12  // 6 columns × 2 rows
 
 function _renderGalleryPage() {
   const grid  = g('galleryGrid')
@@ -4606,20 +4593,16 @@ function _renderGalleryPage() {
   const ind   = g('galleryPageIndicator')
   if (!grid) return
 
-  const total = _galleryAll.length
-  if (total === 0) {
+  if (_galleryTotal === 0) {
     grid.innerHTML = '<div class="gallery-empty">No NFTs minted yet.</div>'
     if (pager) pager.style.display = 'none'
     return
   }
 
-  const totalPages = Math.ceil(total / _GALLERY_PER_PAGE)
-  _galleryPage = Math.max(0, Math.min(_galleryPage, totalPages - 1))
-  const start  = _galleryPage * _GALLERY_PER_PAGE
-  const slice  = _galleryAll.slice(start, start + _GALLERY_PER_PAGE)
+  const totalPages = Math.ceil(_galleryTotal / _GALLERY_PER_PAGE)
 
   grid.innerHTML = ''
-  slice.forEach(({ name, image, addr }) => {
+  _galleryAll.forEach(({ name, image, addr }) => {
     const card = document.createElement('div')
     card.className = 'gallery-card'
 
@@ -4657,7 +4640,7 @@ function _renderGalleryPage() {
     else if (image) img.src = image
     else _fail()
 
-    card.innerHTML = `<div class="gallery-card-info"><div class="gallery-card-name">${name}</div><div class="gallery-card-addr">${addr}</div></div>`
+    card.innerHTML = `<div class="gallery-card-info"><div class="gallery-card-name">${name}</div>${addr ? `<div class="gallery-card-addr">${addr}</div>` : ''}</div>`
     card.insertBefore(wrap, card.firstChild)
     grid.appendChild(card)
   })
@@ -4670,77 +4653,85 @@ function _renderGalleryPage() {
   }
 }
 
-function galleryPageChange(dir) {
-  _galleryPage += dir
+async function _fetchGalleryPage(page) {
+  if (!_galleryCon) return
+  const totalPages = Math.ceil(_galleryTotal / _GALLERY_PER_PAGE)
+  _galleryPage = Math.max(0, Math.min(page, totalPages - 1))
+
+  // IDs for this page (newest first)
+  const pageStart = _galleryTotal - _galleryPage * _GALLERY_PER_PAGE
+  const pageEnd   = Math.max(1, pageStart - _GALLERY_PER_PAGE + 1)
+  const ids = []
+  for (let id = pageStart; id >= pageEnd; id--) ids.push(id)
+
+  const items = await Promise.all(ids.map(async id => {
+    try {
+      const [uri, owner] = await Promise.all([
+        _galleryCon.tokenURI(id),
+        _galleryCon.ownerOf(id)
+      ])
+      let name = `NFT #${id}`, image = ''
+      if (uri.startsWith('data:application/json;base64,')) {
+        try {
+          const meta = JSON.parse(atob(uri.slice('data:application/json;base64,'.length)))
+          name  = meta.name  || name
+          const imgHash = _ipfsHash(meta.image || '')
+          image = imgHash ? IPFS_GATEWAY + imgHash : meta.image || ''
+        } catch (_) {}
+      } else if (uri.startsWith('ipfs://')) {
+        try {
+          const hash = uri.slice(7)
+          const meta = await _fetchIpfs(hash).then(r => r.json())
+          name  = meta.name  || name
+          const imgHash = _ipfsHash(meta.image || '')
+          image = imgHash ? IPFS_GATEWAY + imgHash : meta.image || ''
+        } catch (_) {}
+      }
+      const addr = owner.slice(0,6) + '…' + owner.slice(-4)
+      return { name, image, addr }
+    } catch (_) { return { name: `NFT #${id}`, image: '', addr: '' } }
+  }))
+
+  _galleryAll = items.filter(Boolean)
   _renderGalleryPage()
 }
 
-/* ── PikaGallery: Tüm NFT'leri yükle ───────────────────────────── */
+async function galleryPageChange(dir) {
+  const overlay = g('galleryLoadingOverlay')
+  overlay?.classList.remove('hidden')
+  await _fetchGalleryPage(_galleryPage + dir)
+  overlay?.classList.add('hidden')
+}
+
+/* ── PikaGallery: Galeriyi yükle (sayfa sayfa) ──────────────────── */
 async function loadGallery() {
   const grid    = g('galleryGrid')
   const overlay = g('galleryLoadingOverlay')
   if (!grid) return
 
-  // 1. Cache'den anında göster
-  const cached = _loadGalleryCache()
-  _galleryAll  = cached.slice()
   _galleryPage = 0
+  overlay?.classList.remove('hidden')
 
-  // Cache boşsa loading overlay'i göster
-  if (cached.length === 0 && overlay) overlay.classList.remove('hidden')
-  else if (overlay) overlay.classList.add('hidden')
-
-  _renderGalleryPage()
-
-  // 2. Zincirden toplam sayıyı al
   try {
-    const ro         = new ethers.JsonRpcProvider(RPC)
-    const pikacreate = new ethers.Contract(PIKACREATE_ADDR, PIKACREATE_ABI, ro)
-    const total      = Number(await pikacreate.totalSupply())
+    if (!_galleryRo) _galleryRo = new ethers.JsonRpcProvider(RPC)
+    if (!_galleryCon) _galleryCon = new ethers.Contract(PIKACREATE_ADDR, PIKACREATE_ABI, _galleryRo)
 
-    if (total === 0) { _galleryAll = []; _renderGalleryPage(); overlay?.classList.add('hidden'); return }
-    if (total === cached.length) { overlay?.classList.add('hidden'); return }  // Yeni NFT yok
+    _galleryTotal = Number(await _galleryCon.totalSupply())
+    if (_galleryTotal === 0) {
+      _galleryAll = []
+      _renderGalleryPage()
+      overlay?.classList.add('hidden')
+      return
+    }
 
-    // 3. Yeni olanları paralel çek — en yeniden eskiye
-    const ids = []
-    for (let id = total; id > cached.length; id--) ids.push(id)
-
-    const newItems = await Promise.all(ids.map(async id => {
-      try {
-        const [uri, owner] = await Promise.all([
-          pikacreate.tokenURI(id),
-          pikacreate.ownerOf(id)
-        ])
-        let name = `NFT #${id}`, image = ''
-        if (uri.startsWith('ipfs://')) {
-          try {
-            const hash = uri.slice(7)
-            const meta = await _fetchIpfs(hash).then(r => r.json())
-            name  = meta.name  || name
-            const imgHash = _ipfsHash(meta.image || '')
-            image = imgHash ? IPFS_GATEWAY + imgHash : meta.image || ''
-          } catch (_) { /* metadata fetch failed, keep name as NFT #id */ }
-        }
-        const addr = owner.slice(0,6) + '…' + owner.slice(-4)
-        return { name, image, addr }
-      } catch (_) { return null }
-    }))
-
-    const filtered = newItems.filter(Boolean)
-
-    // Yeni NFT'leri başa ekle (en yeni önce)
-    _galleryAll = [...filtered, ...cached]
-    _galleryPage = 0
-    _saveGalleryCache()
-    _renderGalleryPage()
-    overlay?.classList.add('hidden')
+    await _fetchGalleryPage(0)
   } catch (err) {
     console.error('loadGallery error:', err)
-    overlay?.classList.add('hidden')
     if (_galleryAll.length === 0) {
-      const grid = g('galleryGrid')
-      if (grid) grid.innerHTML = '<div class="gallery-empty">Could not load gallery. Check your connection and refresh.</div>'
+      grid.innerHTML = '<div class="gallery-empty">Could not load gallery. Check your connection and refresh.</div>'
     }
+  } finally {
+    overlay?.classList.add('hidden')
   }
 }
 
@@ -4895,6 +4886,7 @@ window.addEventListener('load', async () => {
   initRouter()
   requestAnimationFrame(_alignSideCards)
   fetchPublic()
+  loadNftMintedCounts()
   loadCreatePageStats()
   discoverWallets()
   _pbwShow()
@@ -4969,6 +4961,28 @@ async function fetchPublic() {
     set('metricAPY', '200% APD')
     set('apyBadge',  '~200% APD')
   }
+}
+
+/* ── NFT MINT COUNTS ─────────────────────────────────────────────── */
+async function loadNftMintedCounts() {
+  try {
+    const ro      = new ethers.JsonRpcProvider(RPC)
+    const pikamon = new ethers.Contract(PIKAMON_ADDR, PIKAMON_ABI, ro)
+    // Kontrat sadece 6 kart içeriyor (ID 1-6); slot 0-5 ve 6-11 aynı 6 karta karşılık gelir
+    await Promise.all([0,1,2,3,4,5].map(async i => {
+      try {
+        const info   = await pikamon.getCard(i + 1)
+        const minted = Number(info.minted)
+        const max    = Number(info.maxSupply)
+        const fmt    = n => n.toLocaleString('en-US')
+        const label  = `${fmt(minted)} minted · Max ${fmt(max)}`
+        const el1 = document.querySelector(`#slot-${i} .nft-supply`)
+        const el2 = document.querySelector(`#slot-${i + 6} .nft-supply`)
+        if (el1) el1.textContent = label
+        if (el2) el2.textContent = label
+      } catch (_) {}
+    }))
+  } catch (_) {}
 }
 
 /* ── USER DATA ───────────────────────────────────────────────────── */
