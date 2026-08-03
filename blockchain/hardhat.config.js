@@ -15,4 +15,19 @@ module.exports = {
       chainId: 5042002,
     },
   },
+  etherscan: {
+    apiKey: {
+      arcTestnet: "blockscout",
+    },
+    customChains: [
+      {
+        network: "arcTestnet",
+        chainId: 5042002,
+        urls: {
+          apiURL: "https://testnet.arcscan.app/api",
+          browserURL: "https://testnet.arcscan.app",
+        },
+      },
+    ],
+  },
 };
