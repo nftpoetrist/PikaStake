@@ -6332,10 +6332,11 @@ async function _pboxDoMint(slot) {
 
     if (balance < price) { _fail(`Insufficient USDC. Need ${ethers.formatUnits(price, 6)} USDC.`); return }
 
-    // MaxUint256 ile bir kez approve — sonraki mintler bu adımı atlar
+    // Tam fiyat kadar approve — sınırsız (MaxUint256) onay wallet güvenlik
+    // motorları (Blockaid vb.) tarafından drainer paterni olarak işaretleniyor
     if (allowance < price) {
       if (btn) btn.innerHTML = `<span style="opacity:.7">Approving…</span>`
-      const approveTx = await usdc.approve(PIKABOXES_ADDR, ethers.MaxUint256)
+      const approveTx = await usdc.approve(PIKABOXES_ADDR, price)
       await approveTx.wait()
     }
 

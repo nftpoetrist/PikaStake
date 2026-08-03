@@ -164,7 +164,7 @@ Single-file app using ethers.js v6 (CDN). Key sections inside `<script>`:
 **PikaBoxes flow (`_pboxDoMint`):**
 1. Wallet check — if not connected, opens wallet modal immediately (no delay)
 2. `Promise.all([balanceOf, allowance])` — parallel RPC, one round-trip
-3. If `allowance < price`: approve `ethers.MaxUint256` once — subsequent mints of any rarity skip approve entirely
+3. If `allowance < price`: approve exact `price` (not `MaxUint256` — unlimited approval gets flagged as a drainer pattern by wallet security engines like Blockaid); mints of the same or lower-priced rarity within the approved amount skip approve
 4. `pikaboxes.mint(rarityIdx)` → `tx.wait()` → `showTxNotif(tx.hash)`
 5. Card selected randomly from `PBOX_CARDS[rarity]()`, saved to `pikabox_cards_v2` only after confirmation
 6. Supply counter updated optimistically; box pop animation (300ms) → `_pboxReveal(rarity, card)`
